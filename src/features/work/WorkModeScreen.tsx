@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useMemo, useState, type ReactNode } from 'react'
 import {
   ArrowLeft,
   BadgeCheck,
@@ -13,6 +13,7 @@ import {
   UserRound,
   Users,
   WalletCards,
+  Gamepad2,
 } from 'lucide-react'
 import {
   getWorkScenario,
@@ -31,6 +32,8 @@ import type {
   WorkShiftProgress,
 } from '../../domain/types'
 import { useWorkShiftStore } from '../../store/workShift'
+
+const WorkModeGame = lazy(() => import('../../game/WorkModeGame'))
 
 const money = new Intl.NumberFormat('vi-VN')
 
@@ -310,6 +313,45 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
           />
         </div>
       </header>
+
+      <section className="work-game-card">
+        <div className="work-game-card-heading">
+          <div>
+            <p className="page-kicker">QUẦY SMARTMART</p>
+            <h2>Phục vụ khách trực tiếp tại quầy</h2>
+            <p>
+              Scene phản ánh đúng trạng thái giao dịch bên dưới: khách xếp hàng,
+              sản phẩm trên băng chuyền và tình huống phát sinh.
+            </p>
+          </div>
+          <span>
+            <Gamepad2 size={17} aria-hidden="true" />
+            Phaser scene
+          </span>
+        </div>
+
+        <Suspense
+          fallback={
+            <div className="work-game-loading">
+              <Gamepad2 size={27} aria-hidden="true" />
+              <strong>Đang mở quầy thu ngân...</strong>
+            </div>
+          }
+        >
+          <WorkModeGame
+            customers={traineeShift.customers}
+            customerIndex={progress.customerIndex}
+            stage={stage}
+            selectedChoice={selectedChoice}
+          />
+        </Suspense>
+
+        <div className="work-game-legend">
+          <span><i className="queue" /> Khách đang chờ</span>
+          <span><i className="active" /> Khách tại quầy</span>
+          <span><i className="event" /> Event cần xử lý</span>
+        </div>
+      </section>
 
       <div className="work-mode-layout">
         <aside className="work-customer-queue">
