@@ -1,5 +1,13 @@
-import { Download, FileJson, Table2 } from 'lucide-react'
+import {
+  CircleCheck,
+  Cloud,
+  CloudOff,
+  Download,
+  FileJson,
+  Table2,
+} from 'lucide-react'
 import { researchEventsToCsv } from '../../domain/researchEvents'
+import { isSupabaseConfigured } from '../../lib/supabase'
 import { useResearchLogStore } from '../../store/researchLog'
 
 function downloadTextFile(
@@ -22,6 +30,9 @@ function downloadTextFile(
 
 export function ResearchExportPanel({ shiftId }: { shiftId: string }) {
   const events = useResearchLogStore((state) => state.events)
+  const syncedEventIds = useResearchLogStore((state) => state.syncedEventIds)
+  const lastSyncAt = useResearchLogStore((state) => state.lastSyncAt)
+  const lastSyncError = useResearchLogStore((state) => state.lastSyncError)
 
   const shiftEvents = events.filter((event) => event.shiftId === shiftId)
   const latestSessionId =
@@ -34,11 +45,40 @@ export function ResearchExportPanel({ shiftId }: { shiftId: string }) {
     ? shiftEvents.filter((event) => event.sessionId === latestSessionId)
     : []
 
+  const syncedCount = sessionEvents.filter(
+    (event) => syncedEventIds[event.eventId],
+  ).length
+  const pendingCount = sessionEvents.length - syncedCount
+
   const baseName =
     'smartkid-' +
     shiftId.replace(/[^a-zA-Z0-9-_]/g, '-') +
     '-' +
     (latestSessionId?.slice(-8) ?? 'no-session')
+
+  const syncStatus = !isSupabaseConfigured
+    ? {
+        className: 'is-local',
+        icon: <CloudOff size={14} />,
+        label: 'Local only',
+      }
+    : lastSyncError
+      ? {
+          className: 'is-error',
+          icon: <CloudOff size={14} />,
+          label: 'Lỗi sync',
+        }
+      : pendingCount > 0
+        ? {
+            className: 'is-pending',
+            icon: <Cloud size={14} />,
+            label: pendingCount + ' event đang chờ',
+          }
+        : {
+            className: 'is-synced',
+            icon: <CircleCheck size={14} />,
+            label: 'Đã đồng bộ',
+          }
 
   return (
     <section className="research-export-panel">
@@ -52,6 +92,20 @@ export function ResearchExportPanel({ shiftId }: { shiftId: string }) {
             {sessionEvents.length} event · schema v1 · session{' '}
             {latestSessionId ? latestSessionId.slice(-8) : 'chưa có'}
           </p>
+          <span className={'research-sync-status ' + syncStatus.className}>
+            {syncStatus.icon}
+            {syncStatus.label}
+            {lastSyncAt && syncStatus.className === 'is-synced'
+              ? ' · ' +
+                new Date(lastSyncAt).toLocaleTimeString('vi-VN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })
+              : ''}
+          </span>
+          {lastSyncError ? (
+            <small className="research-sync-error">{lastSyncError}</small>
+          ) : null}
         </div>
       </div>
 
