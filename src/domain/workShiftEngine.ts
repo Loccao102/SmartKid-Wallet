@@ -143,7 +143,7 @@ export function applyWorkWorldEffect(
       scheduledAtServedCustomers: servedCustomers,
       dueAtServedCustomers:
         consequence.trigger === 'after-customers'
-          ? servedCustomers + 1 + (consequence.delayCustomers ?? 0)
+          ? servedCustomers + Math.max(1, consequence.delayCustomers ?? 1)
           : undefined,
     })),
   ]
