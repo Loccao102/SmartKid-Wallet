@@ -1,13 +1,18 @@
 import type {
   WorkBasketItem,
+  WorkResolvedConsequence,
   WorkScenarioChoice,
   WorkShiftCustomerProgress,
   WorkShiftDefinition,
   WorkShiftMetrics,
   WorkShiftProgress,
+  WorkWorldEffect,
+  WorkWorldFlag,
+  WorkWorldState,
 } from './types'
 
-const clampRating = (value: number) => Math.min(5, Math.max(1, Number(value.toFixed(2))))
+const clampRating = (value: number) =>
+  Math.min(5, Math.max(1, Number(value.toFixed(2))))
 
 export function calculateBasketTotal(items: WorkBasketItem[]) {
   return items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0)
@@ -37,6 +42,14 @@ function createCustomerProgress(): WorkShiftCustomerProgress {
   }
 }
 
+export function createInitialWorkWorldState(): WorkWorldState {
+  return {
+    flags: [],
+    pendingConsequences: [],
+    resolvedConsequences: [],
+  }
+}
+
 export function createInitialShiftMetrics(
   shift: WorkShiftDefinition,
 ): WorkShiftMetrics {
@@ -60,6 +73,7 @@ export function createInitialWorkShiftProgress(
       shift.customers.map((customer) => [customer.id, createCustomerProgress()]),
     ),
     metrics: createInitialShiftMetrics(shift),
+    worldState: createInitialWorkWorldState(),
     completed: false,
   }
 }
@@ -93,6 +107,126 @@ export function applyScenarioChoice(
     customerSatisfaction: clampRating(
       metrics.customerSatisfaction + choice.customerSatisfactionDelta,
     ),
+  }
+}
+
+function mergeFlags(
+  flags: WorkWorldFlag[],
+  add: WorkWorldFlag[] = [],
+  remove: WorkWorldFlag[] = [],
+) {
+  const next = new Set(flags)
+
+  for (const flag of add) next.add(flag)
+  for (const flag of remove) next.delete(flag)
+
+  return [...next]
+}
+
+export function applyWorkWorldEffect(
+  worldState: WorkWorldState,
+  effect: WorkWorldEffect | undefined,
+  servedCustomers: number,
+): WorkWorldState {
+  if (!effect) return worldState
+
+  const pendingConsequences = [
+    ...worldState.pendingConsequences,
+    ...(effect.deferredConsequences ?? []).map((consequence, index) => ({
+      ...consequence,
+      instanceId:
+        consequence.id +
+        '-' +
+        (servedCustomers + 1) +
+        '-' +
+        (worldState.pendingConsequences.length + index),
+      scheduledAtServedCustomers: servedCustomers,
+      dueAtServedCustomers:
+        consequence.trigger === 'after-customers'
+          ? servedCustomers + 1 + (consequence.delayCustomers ?? 0)
+          : undefined,
+    })),
+  ]
+
+  return {
+    ...worldState,
+    flags: mergeFlags(
+      worldState.flags,
+      effect.setFlags,
+      effect.clearFlags,
+    ),
+    pendingConsequences,
+  }
+}
+
+function applyConsequenceMetrics(
+  metrics: WorkShiftMetrics,
+  consequence: WorkResolvedConsequence,
+): WorkShiftMetrics {
+  return {
+    ...metrics,
+    employeeRating: clampRating(
+      metrics.employeeRating + consequence.employeeRatingDelta,
+    ),
+    storeReputation: clampRating(
+      metrics.storeReputation + consequence.storeReputationDelta,
+    ),
+    customerSatisfaction: clampRating(
+      metrics.customerSatisfaction + consequence.customerSatisfactionDelta,
+    ),
+  }
+}
+
+export function resolveDueConsequences(
+  metrics: WorkShiftMetrics,
+  worldState: WorkWorldState,
+  servedCustomers: number,
+  shiftEnded = false,
+) {
+  const due = worldState.pendingConsequences.filter((consequence) =>
+    consequence.trigger === 'shift-end'
+      ? shiftEnded
+      : (consequence.dueAtServedCustomers ?? Number.POSITIVE_INFINITY) <=
+        servedCustomers,
+  )
+
+  if (due.length === 0) {
+    return {
+      metrics,
+      worldState,
+      newlyResolved: [] as WorkResolvedConsequence[],
+    }
+  }
+
+  let nextMetrics = metrics
+  let nextFlags = [...worldState.flags]
+  const newlyResolved = due.map((consequence) => {
+    const resolved: WorkResolvedConsequence = {
+      ...consequence,
+      resolvedAtServedCustomers: servedCustomers,
+    }
+
+    nextMetrics = applyConsequenceMetrics(nextMetrics, resolved)
+    nextFlags = mergeFlags(nextFlags, [], resolved.clearFlags)
+
+    return resolved
+  })
+
+  const dueIds = new Set(due.map((item) => item.instanceId))
+
+  return {
+    metrics: nextMetrics,
+    worldState: {
+      flags: nextFlags,
+      pendingConsequences: worldState.pendingConsequences.filter(
+        (item) => !dueIds.has(item.instanceId),
+      ),
+      resolvedConsequences: [
+        ...worldState.resolvedConsequences,
+        ...newlyResolved,
+      ],
+    },
+    newlyResolved,
   }
 }
 
