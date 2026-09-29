@@ -116,7 +116,10 @@ export async function syncResearchEvents(
     }
   }
 
-  const rows = events.map(researchEventToRow)
+  const rows = events.map((event) => ({
+    auth_user_id: user.id,
+    ...researchEventToRow(event),
+  }))
 
   const { error } = await supabase
     .from('research_events')
