@@ -15,6 +15,7 @@ import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionSc
 import { MissionsScreen } from './features/missions/MissionsScreen'
 import { ProfileScreen } from './features/profile/ProfileScreen'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
+import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 
 type StudentPage =
@@ -22,12 +23,13 @@ type StudentPage =
   | 'maps'
   | 'smartmart'
   | 'mission-class-party'
+  | 'work-mode'
   | 'missions'
   | 'leaderboard'
   | 'profile'
 
 const navItems: Array<{
-  id: Exclude<StudentPage, 'smartmart' | 'mission-class-party'>
+  id: Exclude<StudentPage, 'smartmart' | 'mission-class-party' | 'work-mode'>
   icon: LucideIcon
   label: string
 }> = [
@@ -51,7 +53,7 @@ export function App() {
   const activeNavPage =
     page === 'smartmart'
       ? 'maps'
-      : page === 'mission-class-party'
+      : page === 'mission-class-party' || page === 'work-mode'
         ? 'missions'
         : page
 
@@ -143,8 +145,13 @@ export function App() {
           />
         ) : page === 'mission-class-party' ? (
           <ClassPartyMissionScreen onBack={() => setPage('smartmart')} />
+        ) : page === 'work-mode' ? (
+          <WorkModeScreen onBack={() => setPage('missions')} />
         ) : page === 'missions' ? (
-          <MissionsScreen onOpenMission={() => setPage('mission-class-party')} />
+          <MissionsScreen
+            onOpenMission={() => setPage('mission-class-party')}
+            onOpenWorkMode={() => setPage('work-mode')}
+          />
         ) : page === 'leaderboard' ? (
           <LeaderboardScreen />
         ) : page === 'profile' ? (
