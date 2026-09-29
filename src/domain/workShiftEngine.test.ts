@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { getWorkScenario, traineeShift, workScenarios } from '../data/workShift'
-import { getWorkWorldEffect } from '../data/workWorldEffects'
+import {
+  getWorkWorldEffect,
+  workWorldEffects,
+} from '../data/workWorldEffects'
 import {
   applyMathAttempt,
   applyScenarioChoice,
@@ -152,6 +155,33 @@ describe('work shift engine', () => {
     expect(atEnd.worldState.flags).not.toContain('cash-discrepancy')
     expect(atEnd.metrics.employeeRating).toBe(3.65)
     expect(atEnd.metrics.storeReputation).toBe(3.8)
+  })
+
+  it('keeps every deferred world effect attached to a real scenario choice', () => {
+    const consequenceIds = new Set<string>()
+
+    for (const [key, effect] of Object.entries(workWorldEffects)) {
+      const separator = key.lastIndexOf(':')
+      expect(separator).toBeGreaterThan(0)
+
+      const scenarioId = key.slice(0, separator)
+      const choiceId = key.slice(separator + 1)
+      const scenario = getWorkScenario(scenarioId)
+
+      expect(scenario.choices.some((choice) => choice.id === choiceId)).toBe(true)
+
+      for (const consequence of effect.deferredConsequences ?? []) {
+        expect(consequence.title.length).toBeGreaterThan(5)
+        expect(consequence.description.length).toBeGreaterThan(20)
+        expect(Number.isFinite(consequence.employeeRatingDelta)).toBe(true)
+        expect(Number.isFinite(consequence.storeReputationDelta)).toBe(true)
+        expect(Number.isFinite(consequence.customerSatisfactionDelta)).toBe(true)
+
+        const scopedId = scenarioId + ':' + consequence.id
+        expect(consequenceIds.has(scopedId)).toBe(false)
+        consequenceIds.add(scopedId)
+      }
+    }
   })
 
   it('uses only registered scenarios inside the trainee shift', () => {
