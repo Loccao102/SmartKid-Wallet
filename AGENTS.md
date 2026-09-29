@@ -48,7 +48,17 @@ Không gán skill không liên quan vào stall.
 - Không gán scenario vào giỏ bất kỳ nếu context/billDelta không tương thích; dùng validated customer blueprint.
 - Progress phải scope theo shift.id, không dùng một global Work Mode progress cho mọi ca.
 
-## 5. Architecture
+## 5. Research logging rules
+- Research events là append-only; không rewrite event cũ để khớp state mới.
+- Mọi event phải có schemaVersion, eventId, sessionId, occurredAt, studentKey và context cần thiết.
+- Không log tên hiển thị/email/số điện thoại của học sinh vào research event; dùng pseudonymous studentKey/ID.
+- Math submit phải log mọi attempt, không chỉ lần đúng.
+- Scenario decision phải log scenario/version + choice + responseTime + before/after snapshot.
+- Deferred consequence resolve phải là event riêng.
+- Seed/template/version phải được log để tái tạo seeded shift.
+- Local Zustand chỉ là MVP sink; khi nối Supabase phải giữ event contract và RLS append-only.
+
+## 6. Architecture
 - React + TypeScript cho app UI.
 - Phaser cho gameplay spatial/animation và phải lazy-load.
 - Zustand local game state.
@@ -57,7 +67,7 @@ Không gán skill không liên quan vào stall.
 - Supabase khi backend được nối.
 - Không thêm microservice/Redis/K8s nếu chưa có nhu cầu.
 
-## 6. Asset rules
+## 7. Asset rules
 - Stable assets: public/assets.
 - UI/system icons mặc định dùng `lucide-react`; import từng icon trực tiếp.
 - Không dùng emoji làm UI icon production. Emoji chỉ được dùng tạm trong prototype hoặc nội dung minh họa có chủ đích.
@@ -66,14 +76,14 @@ Không gán skill không liên quan vào stall.
 - Ưu tiên WebP/AVIF cho static art; sprite atlas cho animation Phaser.
 - Xem docs/ASSET_SYSTEM.md.
 
-## 7. Security
+## 8. Security
 - RLS cho bảng exposed.
 - Không đưa service role/secret vào frontend.
 - Teacher chỉ xem lớp thuộc quyền.
 - Student chỉ truy cập dữ liệu của mình theo policy.
 - UPDATE policy có USING + WITH CHECK.
 
-## 8. Quality gates
+## 9. Quality gates
 1. Typecheck/build pass.
 2. Test generator/progression/scoring khi liên quan.
 3. Verify responsive desktop/tablet/mobile.
@@ -81,13 +91,14 @@ Không gán skill không liên quan vào stall.
 5. Cập nhật docs khi đổi game rule/schema.
 6. Supabase change phải review RLS.
 
-## 9. Source of truth
+## 10. Source of truth
 - Product: docs/PRODUCT_SPEC.md
 - Gameplay: docs/GAME_DESIGN.md
 - Content: docs/CONTENT_RULES.md
 - Exercise catalog: docs/EXERCISE_CATALOG.md
 - Scenario/rubric: docs/SCENARIO_RUBRIC.md
 - Work Mode: docs/WORK_MODE.md
+- Research logging: docs/RESEARCH_LOGGING.md
 - Architecture: docs/ARCHITECTURE.md
 - UI: docs/UI_DESIGN.md
 - Assets: docs/ASSET_SYSTEM.md
