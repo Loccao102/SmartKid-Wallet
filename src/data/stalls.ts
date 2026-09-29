@@ -4,7 +4,6 @@ export const stalls: StallDefinition[] = [
   {
     id: 'produce',
     order: 1,
-    icon: '🍎',
     name: 'Rau củ & Hoa quả',
     description: 'Khối lượng, đơn giá, nhân/chia và đổi đơn vị.',
     skills: ['multiplication', 'division', 'unit-price', 'measurement'],
@@ -13,7 +12,6 @@ export const stalls: StallDefinition[] = [
   {
     id: 'food',
     order: 2,
-    icon: '🥚',
     name: 'Thực phẩm',
     description: 'Số lượng, chia đều, định mức và bài toán nhiều bước.',
     skills: ['multiplication', 'division', 'fraction'],
@@ -22,7 +20,6 @@ export const stalls: StallDefinition[] = [
   {
     id: 'drinks',
     order: 3,
-    icon: '🥛',
     name: 'Đồ uống',
     description: 'Tổng tiền, hóa đơn và tiền thừa.',
     skills: ['addition', 'subtraction'],
@@ -31,7 +28,6 @@ export const stalls: StallDefinition[] = [
   {
     id: 'supplies',
     order: 4,
-    icon: '✏️',
     name: 'Đồ dùng',
     description: 'Ngân sách, tổng nhiều món và so sánh phương án.',
     skills: ['addition', 'budget', 'comparison'],
@@ -40,7 +36,6 @@ export const stalls: StallDefinition[] = [
   {
     id: 'promotion',
     order: 5,
-    icon: '🏷️',
     name: 'Khuyến mãi',
     description: 'Phần trăm, tăng/giảm giá và voucher.',
     skills: ['percentage', 'subtraction', 'comparison'],
