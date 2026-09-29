@@ -2646,3 +2646,50 @@ input:focus-visible {
     display: grid;
   }
 }
+
+
+/* Lucide icon alignment */
+.brand-symbol svg,
+.nav-icon svg,
+.tip-spark svg,
+.level-pill svg,
+.streak-pill svg,
+.placeholder-icon svg,
+.world-heading-icon svg,
+.world-map-landmark-icon svg,
+.world-map-lock svg,
+.world-map-status svg,
+.world-coming-soon svg,
+.smartmart-stall-icon svg,
+.challenge-icon svg,
+.mission-gate-icon svg,
+.smartmart-wallet svg,
+.smartmart-store-sign svg,
+.smartmart-info-row svg,
+.feedback svg {
+  display: block;
+}
+
+.world-map-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.back-button,
+.demo-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.smartmart-hero h1 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.smartmart-stall-status > span {
+  display: inline-grid;
+  place-items: center;
+}
