@@ -19,6 +19,7 @@ interface SmartMartSceneOptions {
   unlockedStalls: StallId[]
   onInteractStall: (stallId: StallId) => void
   onNearStallChange?: (stallId: StallId | null) => void
+  onReady?: () => void
 }
 
 const stallOrder: StallId[] = ['produce', 'food', 'drinks', 'supplies', 'promotion']
@@ -56,6 +57,7 @@ export class SmartMartScene extends Phaser.Scene {
   private nearStall: StallId | null = null
   private readonly onInteractStall: (stallId: StallId) => void
   private readonly onNearStallChange?: (stallId: StallId | null) => void
+  private readonly onReady?: () => void
   private helpText!: Phaser.GameObjects.Text
   private virtualMove = { x: 0, y: 0 }
 
@@ -64,6 +66,7 @@ export class SmartMartScene extends Phaser.Scene {
     this.unlockedStalls = new Set(options.unlockedStalls)
     this.onInteractStall = options.onInteractStall
     this.onNearStallChange = options.onNearStallChange
+    this.onReady = options.onReady
   }
 
   create() {
@@ -98,6 +101,7 @@ export class SmartMartScene extends Phaser.Scene {
 
     this.scale.on('resize', () => this.fitCamera())
     this.fitCamera()
+    this.onReady?.()
   }
 
   update(_time: number, delta: number) {
