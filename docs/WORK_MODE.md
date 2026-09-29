@@ -1,214 +1,89 @@
 # Work Mode — SmartMart
 
-## 1. Mục tiêu
-Work Mode mở sau khi học sinh hoàn thành hành trình người mua và Mission 01.
+## 1. Vai trò
 
-Role đầu tiên:
-- Nhân viên tập sự;
-- phục vụ khách tại quầy;
-- tính hóa đơn;
-- trả tiền thừa;
-- xử lý event;
-- quan sát hậu quả lên employee rating, store reputation và customer satisfaction.
+Work Mode chỉ mở sau khi học sinh:
+1. hoàn thành Learning progression cần thiết;
+2. hoàn thành Mission mở vai trò.
 
-Toán vẫn là công cụ. Quyết định và hậu quả mới là gameplay.
+Đây là nơi SmartKid Wallet chuyển từ **học/luyện Toán** sang **mô phỏng công việc**.
 
-## 2. Flow một khách
+Chỉ Work Mode có:
+- employee rating;
+- store reputation;
+- customer satisfaction;
+- world flags;
+- deferred consequences;
+- decision-based store simulation.
 
-1. Khách đưa giỏ hàng.
-2. Học sinh tính tổng hóa đơn.
-3. Nếu có event, học sinh chọn cách xử lý.
-4. Event có thể làm thay đổi hóa đơn.
-5. Học sinh tính tiền thừa từ hóa đơn sau event.
-6. Giao dịch được ghi nhận và gọi khách tiếp theo.
+## 2. Demo baseline
 
-Không được tính tiền thừa từ giá trước event nếu event đã thay đổi số tiền phải trả.
+Demo hiện có:
+- Ca 01: 3 khách, 2 scenario;
+- Ca 02: 6 khách seeded, 4 scenario;
+- 10 scenario template;
+- deterministic shift generation;
+- world state;
+- deferred consequence;
+- research event logging;
+- Phaser cashier scene.
 
-## 3. Metrics
+Demo này được coi là đủ để chứng minh engine.
 
-### Employee rating
-Thang 1–5.
+## 3. Production interaction model
 
-Tác động chính:
-- sai hóa đơn;
-- sai tiền thừa;
-- xử lý khách thiếu chính xác;
-- minh bạch khi tư vấn;
-- áp dụng chính sách đúng.
+Không bắt buộc mọi khách đi qua cùng flow.
 
-### Store reputation
-Thang 1–5.
+Các interaction type production:
+- normal checkout;
+- total calculation;
+- change calculation;
+- promotion/voucher;
+- product quality;
+- wrong price;
+- duplicate scan;
+- customer budget;
+- low stock;
+- substitute product;
+- cash discrepancy;
+- refund/return;
+- inventory task.
 
-Tác động chính:
-- hàng dập/hỏng;
-- quy trình đổi hàng;
-- áp dụng voucher/chính sách cửa hàng;
-- khiếu nại;
-- chất lượng phục vụ gắn với quy trình.
+Một khách có thể:
+- chỉ cần tính;
+- chỉ có decision;
+- vừa tính vừa decision;
+- không có vấn đề gì đặc biệt.
 
-### Customer satisfaction
-Thang 1–5.
+Mục tiêu là cảm giác **làm việc tại SmartMart**, không phải lặp bài Toán theo công thức.
 
-Phản ánh trải nghiệm của khách trong ca hiện tại.
+## 4. Math
 
-Không dùng một điểm tổng duy nhất thay cho ba metric này.
-
-## 4. Math mistakes
+Trong Work Mode, Toán là công cụ công việc.
 
 Sai phép tính:
-- không kết thúc ca;
-- học sinh được thử lại;
-- tăng mathMistakes;
-- employee rating giảm nhẹ;
-- customer satisfaction giảm nhẹ.
+- cho phép thử lại;
+- log mọi attempt;
+- có thể tác động nhẹ đến work performance;
+- không được biến cả ca thành chuỗi quiz.
 
-MVP hiện tại:
-- mỗi lần sai: employee −0.10;
-- customer satisfaction −0.05.
+## 5. Scenario
 
-Các hệ số nằm trong engine và có thể cân chỉnh sau pilot.
+Scenario có:
+- stable ID/version;
+- category/difficulty;
+- choices;
+- billDelta nếu cần;
+- immediate effects;
+- world effects;
+- deferred consequences;
+- descriptive feedback.
 
-## 5. Scenario choice effects
+Feedback mô tả hậu quả, không gắn nhãn đạo đức cho học sinh.
 
-Mỗi choice có:
-- billDelta;
-- employeeRatingDelta;
-- storeReputationDelta;
-- customerSatisfactionDelta;
-- feedback.
+## 6. World state
 
-Feedback mô tả hậu quả thực tế, không gắn nhãn học sinh tốt/xấu.
-
-Ví dụ voucher:
-- hóa đơn gốc 115.000đ;
-- voucher hợp lệ −20.000đ;
-- hóa đơn sau xử lý 95.000đ;
-- khách đưa 200.000đ;
-- tiền thừa đúng = 105.000đ.
-
-## 6. Trainee Shift 01
-
-Ca đầu:
-- 3 khách;
-- 2 event;
-- 6 phép tính chính;
-- lưu progress bằng Zustand persist.
-
-Event:
-1. Hộp nước bị móp.
-2. Voucher 20.000đ hợp lệ.
-
-Mục tiêu vertical slice là chứng minh:
-- calculation → choice → consequence;
-- employee/store metric tách biệt;
-- bill có thể thay đổi sau scenario;
-- ca có thể resume sau reload.
-
-## 7. Phaser cashier scene
-
-Work Mode hiện có scene Phaser riêng:
-- khách xếp hàng;
-- khách hiện tại tiến tới quầy;
-- sản phẩm xuất hiện trên băng chuyền;
-- POS đổi trạng thái theo total → scenario → change → done;
-- event có cảnh báo trực quan;
-- billDelta hiển thị tại máy POS;
-- React vẫn giữ input, scenario choice và metrics để logic UI không phụ thuộc render scene.
-
-Scene chỉ dùng vector placeholder ở giai đoạn hiện tại. Sprite/asset thật sẽ thay vào sau mà không đổi contract giữa React và Phaser.
-
-## 8. Scenario bank
-
-Content bank hiện có 10 template:
-1. damaged drink;
-2. valid voucher;
-3. near-expiry yogurt;
-4. wrong shelf price;
-5. duplicate scan;
-6. expired voucher;
-7. customer budget;
-8. low-stock substitute;
-9. extra cash;
-10. stale promotion sign.
-
-Mỗi scenario có:
-- stable ID;
-- version;
-- category;
-- difficulty;
-- 3 choices;
-- billDelta;
-- employee/store/customer effects;
-- descriptive consequence feedback.
-
-Trainee Shift 01 chỉ dùng 2 event đầu để onboarding không bị quá tải.
-
-## 9. Seeded Shift 02
-
-Ca 02 là ca đầu tiên được sinh từ template thay vì hard-code nguyên danh sách khách.
-
-Template:
-- 6 khách;
-- 4 scenario;
-- scenario difficulty 1–2;
-- 2 giao dịch thường;
-- customer names không trùng trong một ca;
-- ưu tiên 4 scenario thuộc 4 category khác nhau khi pool cho phép.
-
-Công thức seed:
-
-```text
-studentKey
-+ templateId
-+ templateVersion
-+ variantIndex
-→ seed
-→ customer/scenario order
-→ WorkShiftInstance
-```
-
-Cùng bốn input trên phải sinh lại đúng cùng một instance. Không dùng `Math.random()` cho Work Mode generation.
-
-Generated WorkShiftInstance lưu:
-- templateId;
-- templateVersion;
-- seed;
-- studentKey;
-- variantIndex;
-- customer order;
-- scenarioId;
-- scenarioVersion.
-
-Điều này cho phép:
-- resume sau reload;
-- replay đúng ca;
-- đối chiếu dữ liệu nghiên cứu;
-- tái tạo ca từ log mà không cần lưu toàn bộ logic random.
-
-Demo hiện tại:
-- Ca 01: onboarding cố định, 3 khách, 2 event.
-- Ca 02: seeded instance, 6 khách, 4 event.
-
-Store lưu progress theo `shift.id`, vì vậy Ca 01 và Ca 02 không ghi đè tiến độ của nhau.
-
-## 10. Scenario/customer compatibility
-
-Không gán scenario ngẫu nhiên vào một giỏ hàng bất kỳ.
-
-Mỗi scenario có customer blueprint tương thích để bảo đảm:
-- nội dung mô tả khớp sản phẩm;
-- billDelta có ý nghĩa;
-- payable total không âm;
-- cashGiven đủ thanh toán cho mọi choice;
-- các constraint đặc biệt như budget/voucher/duplicate scan vẫn đúng.
-
-Generator random scenario + thứ tự + tên khách, nhưng dùng blueprint đã được kiểm chứng cho scenario đó.
-
-## 11. World state giữa các khách
-
-Work Mode hiện duy trì world state riêng cho từng ca.
-
-Các flag MVP:
+World flags hiện có:
 - complaint-risk;
 - pricing-mismatch;
 - inventory-pressure;
@@ -216,96 +91,90 @@ Các flag MVP:
 - billing-dispute;
 - stale-promo-sign.
 
-Flag không phải điểm số. Nó mô tả vấn đề đang tồn tại trong cửa hàng và được mang sang khách tiếp theo.
+Flag mô tả trạng thái vận hành, không phải điểm.
 
-Ví dụ:
-- bán hàng móp mà không xử lý → complaint-risk;
-- không xử lý sai lệch giá → pricing-mismatch;
-- tồn kho thiếu → inventory-pressure;
-- giữ tiền khách đưa dư → cash-discrepancy.
+## 7. Deferred consequences
 
-World state được persist cùng progress của shift.
+Trigger:
+- after-customers;
+- shift-end.
 
-## 12. Deferred consequences
+Consequence phải deterministic và replayable.
 
-Một scenario choice có thể tạo:
-- setFlags;
-- clearFlags;
-- deferredConsequences.
+Khi resolve:
+- metric effects được áp dụng;
+- pending → resolved;
+- flag có thể clear;
+- research event riêng được ghi.
 
-Deferred consequence có hai trigger:
-1. after-customers;
-2. shift-end.
+## 8. Scoring semantics
 
-### after-customers
+### Work performance
+Production result có thể tổng hợp:
+- calculation correctness;
+- attempts;
+- scenario handling;
+- negative consequences;
+- completion quality.
 
-Consequence được schedule khi học sinh ra quyết định và xuất hiện khi chuyển tới một khách sau.
+### Simulation metrics
+- employee rating;
+- store reputation;
+- customer satisfaction.
 
-Ví dụ:
+Simulation metrics **không phải điểm học tập**.
 
-```text
-Khách 2
-→ bán hộp bị móp như bình thường
-→ complaint-risk
-→ giao dịch hoàn tất
+Màn kết quả phải tránh hiểu nhầm kiểu “4.3/5 = chỉ làm đúng 4.3 điểm”.
 
-Khách 3 xuất hiện
-→ khách trước quay lại khiếu nại
-→ Store Reputation giảm thêm
-→ Customer Satisfaction giảm
-→ complaint-risk được clear
-```
+## 9. Seeded shift
 
-Như vậy hậu quả không còn dừng ở một đoạn feedback ngay sau lựa chọn.
-
-### shift-end
-
-Dùng cho các việc chỉ phát hiện khi đối soát.
-
-Ví dụ:
+Công thức:
 
 ```text
-Khách đưa dư tiền
-→ nhân viên giữ phần dư
-→ cash-discrepancy
-
-... tiếp tục ca ...
-
-Kết thúc ca
-→ kiểm kê ngăn kéo
-→ phát hiện chênh lệch
-→ employee/store metrics bị tác động
+studentKey
++ templateId
++ templateVersion
++ variantIndex
+→ seed
+→ WorkShiftInstance
 ```
 
-### Resolution
+Generated instance lưu:
+- templateId/version;
+- seed;
+- studentKey;
+- variant;
+- customer order;
+- scenario ID/version.
 
-Khi consequence resolve:
-- metric delta được áp dụng;
-- pending consequence chuyển sang resolvedConsequences;
-- các world flag được chỉ định có thể được clear;
-- UI hiển thị consequence history;
-- Phaser scene hiển thị cảnh báo khi flag còn active.
+Không dùng Math.random() rải rác.
 
-## 13. Current deferred examples
+## 10. Persistence
 
-Đã có deferred effects cho:
-- damaged item complaint;
-- near-expiry return;
-- repeated shelf/POS price dispute;
-- duplicate scan refund/dispute;
-- low-stock follow-up;
-- incorrect substitute pricing;
-- cash drawer audit;
-- customer returning for extra cash;
-- stale promotion sign affecting a later customer.
+Demo:
+- Zustand persist local;
+- research log local + Supabase append-only sync.
 
-Các effect nằm trong `src/data/workWorldEffects.ts`, không hard-code trong React component.
+Production:
+- active shift/progress phải có server persistence;
+- local store là cache/offline support;
+- resume phải hoạt động cross-device khi account thật được dùng.
 
-## 14. Next expansion
+## 11. Production UX
 
-Sau world state MVP:
-- event log cho research;
-- nhiều shift template/difficulty;
-- consequence chain nhiều bước;
-- Supabase persistence;
-- asset/sprite thật cho cashier scene.
+Ưu tiên:
+- quầy/task hiện tại là focal point;
+- giảm panel/KPI cùng lúc;
+- world warning chỉ xuất hiện khi relevant;
+- result screen tách performance và simulation;
+- research export không nằm trong student UI.
+
+## 12. Production content quality
+
+Trước pilot:
+- review scenario wording;
+- review ambiguity;
+- validate bill constraints;
+- validate consequence chain;
+- validate difficulty;
+- version-lock content dùng cho research.
