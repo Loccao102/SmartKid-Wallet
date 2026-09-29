@@ -1,95 +1,47 @@
 # UI Design — SmartKid Wallet
 
-## 1. Mục tiêu trải nghiệm
-Giao diện phải tạo cảm giác **đang bước vào một thế giới học tập**, không phải LMS hoặc form bài tập.
+## 1. Visual direction
+Phong cách: **modern educational simulation + colorful 2.5D/isometric world**.
 
-Đối tượng chính là học sinh lớp 4–5 nên UI cần:
-- rõ ràng;
-- ít chữ trên một màn;
-- vùng bấm lớn;
-- phản hồi trực quan;
-- màu tươi nhưng không quá trẻ con;
-- ưu tiên tablet;
-- desktop tốt cho demo/NCKH;
-- mobile vẫn sử dụng được.
+Teal/xanh lá làm màu thương hiệu, kem/trắng làm nền, vàng ấm cho reward/action. Map art nhiều màu nhưng không neon; thân thiện lớp 4–5 nhưng không quá babyish.
 
-## 2. Visual direction
-Phong cách: **modern educational simulation + miniature supermarket**.
+Ưu tiên tablet, desktop tốt cho demo/NCKH, mobile phải dùng được.
 
-Tông chính:
-- xanh lá/teal: tin cậy, tiến bộ;
-- kem/trắng: nền sạch;
-- vàng ấm: nhiệm vụ/phần thưởng;
-- coral, xanh lam, tím nhạt: phân biệt gian hàng.
+## 2. Student navigation
+Các màn chính:
+1. Trang chủ
+2. Bản đồ
+3. Nhiệm vụ
+4. Bảng xếp hạng
+5. Hồ sơ
 
-Không dùng quá nhiều gradient neon hoặc UI kiểu game mobile thương mại.
+Desktop dùng sidebar; mobile dùng bottom nav.
 
-## 3. Student shell
-Desktop:
-- sidebar trái;
-- header chào học sinh;
-- nội dung nhiệm vụ;
-- profile và streak chỉ là gamification nhẹ.
+## 3. World Map screen
+Hiển thị luôn 4 map.
 
-Mobile:
-- sidebar chuyển thành bottom navigation;
-- nội dung xếp một cột;
-- challenge modal full-width gần như sheet.
+SmartMart full color, có progress và CTA Tiếp tục/Bắt đầu.
 
-## 4. Assignment screen
-Thứ tự thị giác:
-1. Ai giao bài?
-2. Bài gì?
-3. Hạn khi nào?
-4. Tiến độ bao nhiêu?
-5. Tiếp theo phải làm gì?
+Ba map locked phải desaturated/grayscale, có lock overlay, vẫn hiển thị tên + mô tả ngắn và không giả vờ có gameplay chưa xây.
 
-Assignment banner phải luôn cho học sinh biết giáo viên là nguồn giao nhiệm vụ.
+## 4. SmartMart screen
+SmartMart phải giống không gian siêu thị chứ không phải 5 card LMS. Có 5 stall, trạng thái locked/open/completed, Mission HUD, budget/cart và character/route khi gameplay được dựng.
 
-## 5. Supermarket mission map
-Không hiển thị 5 gian như 5 card LMS thông thường.
+Gian đã mở có thể quay lại tự do.
 
-Mỗi gian phải trông giống một quầy nhỏ trong siêu thị:
-- mái quầy;
-- icon mặt hàng;
-- tên gian;
-- skill chính;
-- trạng thái;
-- số thứ tự.
+## 5. Unlock Exercise UI
+Panel ngắn gồm stall, skill, câu hỏi, answer input và feedback. Không hiển thị Teacher Assignment trong core flow.
 
-Trạng thái:
-- locked: giảm saturation/opacity + khóa;
-- available: nổi bật, có viền focus;
-- completed: xanh nhẹ + check.
+## 6. Profile
+Hiển thị avatar, level/XP/streak, SmartMart progress, skill strengths, badges và 4-map journey progress.
 
-Đích cuối bản đồ là **Ca làm việc**, chỉ mở khi Assignment đạt điều kiện.
+## 7. Leaderboard
+Không ưu tiên doanh thu. Có thể dùng sao challenge chuẩn hóa, Mission hoàn thành, độ chính xác, streak và progress/improvement.
 
-## 6. Challenge modal
-Modal gồm:
-- gian hàng;
-- giáo viên giao;
-- skill tags;
-- câu hỏi;
-- input;
-- feedback.
+Nếu so sánh trực tiếp về bài học, cần cùng challenge/seed hoặc metric đã chuẩn hóa.
 
-Không đưa barem nghiên cứu vào UI học sinh.
+## 8. Gameplay camera
+MVP hướng tới góc nhìn **2.5D/isometric top-down**: nhìn thấy nhiều khu vực siêu thị, nhân vật nhỏ nhưng biểu cảm, stall/sign dễ nhận ra, HUD nằm ngoài game canvas hoặc React overlay.
 
-## 7. Teacher UI — phase tiếp theo
-Teacher UI giữ cùng design language nhưng ít “game” hơn:
-- class switcher;
-- assignment builder;
-- content bank;
-- preview;
-- progress analytics.
-
-Flow tạo bài:
-**Đối tượng → Map → Gian hàng → Nội dung/skill → Điều kiện → Preview → Giao bài.**
-
-## 8. Accessibility
-- touch target tối thiểu khoảng 44px;
-- không dùng màu là tín hiệu duy nhất;
-- focus-visible rõ;
-- text contrast đủ;
-- interaction chính phải dùng button/input thật;
-- animation sau này phải hỗ trợ reduced-motion.
+## 9. Accessibility
+Touch target khoảng 44px trở lên, focus-visible, không dùng màu làm tín hiệu duy nhất, contrast đủ và hỗ trợ reduced motion ở phase polish.
