@@ -1,17 +1,26 @@
 # SmartKid Wallet
 
-Nền tảng nhập vai mô phỏng dành cho học sinh lớp 4–5, tích hợp **Toán học + Đạo đức + giáo dục tài chính + ra quyết định**.
+Web nhập vai tài chính cho học sinh lớp 4–5, tích hợp **Toán học + giáo dục tài chính + ra quyết định + trách nhiệm**.
 
-## MVP hiện tại
+## Concept hiện tại
+Hệ thống có 4 bản đồ hiển thị từ đầu:
+- 🛒 **SmartMart – Siêu thị** — mở trong MVP.
+- 🏦 Ngân hàng tí hon — khóa.
+- 🍽️ Nhà hàng vui vẻ — khóa.
+- ⛺ Chợ cuối tuần — khóa.
 
-Tập trung làm sâu **một map Siêu thị** theo luồng:
+SmartMart có 5 gian. Mỗi gian gắn cố định với một nhóm kiến thức Toán lớp 4–5.
 
-1. **Teacher Assignment** — giáo viên chọn nội dung, lớp/học sinh, độ khó và giao bài.
-2. **Learn-to-Unlock** — học sinh làm đúng các bài thuộc Assignment để mở khóa 5 gian hàng.
-3. **Full Shift Simulation** — khi đáp ứng điều kiện Assignment và mở đủ gian, học sinh bước vào ca làm việc gồm 5–6 khách hàng và các sự kiện ngẫu nhiên.
+Core loop:
+**Unlock Exercise → mở gian → Mission vận dụng → Work Mode/thu ngân → hậu quả & tiến bộ**
 
-> Kho bài là nguồn nội dung. Học sinh không tự lấy bài từ kho; giáo viên là người phân phối nội dung qua Assignment.
+Unlock Exercise là bài có đáp số được sinh từ parameterized Exercise Family. Scenario là bài vận dụng nâng cao có lựa chọn và hậu quả; hai hệ thống tách nhau.
 
-Tài liệu sản phẩm, luật thiết kế và kiến trúc nằm trong `docs/`. Quy tắc bắt buộc cho coding agents nằm trong `AGENTS.md`.
+Giáo viên không còn là dependency bắt buộc để học sinh có nội dung chơi. Role giáo viên trong MVP thiên về theo dõi tiến bộ lớp.
 
-> Trạng thái: đang phát triển MVP.
+## Stack
+React 19 + TypeScript + Vite, Phaser 4 cho gameplay, Zustand, TanStack Query, Zod; Supabase sẽ nối ở phase backend.
+
+Tài liệu nguồn chuẩn nằm trong docs/. Coding agent phải tuân theo AGENTS.md.
+
+> Trạng thái: đang phát triển MVP SmartMart.
