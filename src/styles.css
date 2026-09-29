@@ -5770,3 +5770,97 @@ input:focus-visible {
     flex-direction: column;
   }
 }
+
+
+/* === Research logging/export === */
+
+.research-export-panel {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 13px 14px;
+  border: 1px solid #d9e5dc;
+  border-radius: 15px;
+  background: #f6faf7;
+  text-align: left;
+}
+
+.research-export-heading {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 9px;
+  align-items: center;
+}
+
+.research-export-heading > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #e1f1e7;
+  color: #1d6d56;
+}
+
+.research-export-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.research-export-heading strong {
+  color: #345349;
+  font-size: .66rem;
+}
+
+.research-export-heading p {
+  margin: 0;
+  color: #83918d;
+  font-size: .54rem;
+}
+
+.research-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.research-export-actions button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cfe0d5;
+  border-radius: 11px;
+  padding: 0 11px;
+  background: white;
+  color: #346555;
+  font-size: .58rem;
+  font-weight: 900;
+}
+
+.research-export-actions button:hover:not(:disabled) {
+  border-color: #96c3a8;
+  background: #edf7f1;
+}
+
+.research-export-actions button:disabled {
+  opacity: .45;
+}
+
+@media (max-width: 700px) {
+  .research-export-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .research-export-actions {
+    justify-content: stretch;
+  }
+
+  .research-export-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+}
