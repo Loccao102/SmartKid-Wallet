@@ -1,8 +1,10 @@
 import type {
   WorkBasketItem,
   WorkScenarioChoice,
+  WorkShiftCustomerProgress,
   WorkShiftDefinition,
   WorkShiftMetrics,
+  WorkShiftProgress,
 } from './types'
 
 const clampRating = (value: number) => Math.min(5, Math.max(1, Number(value.toFixed(2))))
@@ -26,6 +28,15 @@ export function calculateChange(
   return cashGiven - calculateEffectiveTotal(items, choice)
 }
 
+function createCustomerProgress(): WorkShiftCustomerProgress {
+  return {
+    totalSolved: false,
+    changeSolved: false,
+    totalAttempts: 0,
+    changeAttempts: 0,
+  }
+}
+
 export function createInitialShiftMetrics(
   shift: WorkShiftDefinition,
 ): WorkShiftMetrics {
@@ -36,6 +47,20 @@ export function createInitialShiftMetrics(
     revenue: 0,
     servedCustomers: 0,
     mathMistakes: 0,
+  }
+}
+
+export function createInitialWorkShiftProgress(
+  shift: WorkShiftDefinition,
+): WorkShiftProgress {
+  return {
+    shiftId: shift.id,
+    customerIndex: 0,
+    customerProgress: Object.fromEntries(
+      shift.customers.map((customer) => [customer.id, createCustomerProgress()]),
+    ),
+    metrics: createInitialShiftMetrics(shift),
+    completed: false,
   }
 }
 
