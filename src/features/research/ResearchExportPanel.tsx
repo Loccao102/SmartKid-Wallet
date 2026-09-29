@@ -77,7 +77,7 @@ export function ResearchExportPanel({ shiftId }: { shiftId: string }) {
           onClick={() =>
             downloadTextFile(
               baseName + '.csv',
-              researchEventsToCsv(sessionEvents),
+              '\ufeff' + researchEventsToCsv(sessionEvents),
               'text/csv;charset=utf-8',
             )
           }
