@@ -28,7 +28,7 @@ const navItems: Array<{
 ]
 
 const placeholderContent: Record<
-  Exclude<StudentPage, 'maps' | 'smartmart'>,
+  Exclude<StudentPage, 'maps' | 'smartmart' | 'mission-class-party'>,
   { icon: LucideIcon; title: string; description: string }
 > = {
   home: {
