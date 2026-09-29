@@ -22,9 +22,9 @@
 ## Phase 2 — Exercise engine
 - [x] seeded RNG service
 - [x] exercise instance model
-- [ ] generator constraints
-- [ ] 20–25 exercise families cho 5 stalls
-- [ ] 2–4 unlock exercises mỗi stall
+- [x] generator constraints + generated-instance validation
+- [x] 20 exercise families cho 5 stalls (4/gian)
+- [x] 3 unlock families mỗi stall + 1 practice family
 - [x] persistent long-term stall progression
 - [x] unit tests generator nền tảng
 
