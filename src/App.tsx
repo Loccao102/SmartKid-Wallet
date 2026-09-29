@@ -9,6 +9,8 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react'
+import { traineeShift } from './data/workShift'
+import { getWorkShiftById } from './data/workShiftInstances'
 import { HomeScreen } from './features/home/HomeScreen'
 import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
@@ -50,6 +52,8 @@ function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
 
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
+  const [activeWorkShiftId, setActiveWorkShiftId] = useState(traineeShift.id)
+  const activeWorkShift = getWorkShiftById(activeWorkShiftId)
   const activeNavPage =
     page === 'smartmart'
       ? 'maps'
@@ -146,11 +150,17 @@ export function App() {
         ) : page === 'mission-class-party' ? (
           <ClassPartyMissionScreen onBack={() => setPage('smartmart')} />
         ) : page === 'work-mode' ? (
-          <WorkModeScreen onBack={() => setPage('missions')} />
+          <WorkModeScreen
+            shift={activeWorkShift}
+            onBack={() => setPage('missions')}
+          />
         ) : page === 'missions' ? (
           <MissionsScreen
             onOpenMission={() => setPage('mission-class-party')}
-            onOpenWorkMode={() => setPage('work-mode')}
+            onOpenWorkMode={(shiftId) => {
+              setActiveWorkShiftId(shiftId)
+              setPage('work-mode')
+            }}
           />
         ) : page === 'leaderboard' ? (
           <LeaderboardScreen />
