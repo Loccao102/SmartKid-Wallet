@@ -5629,3 +5629,144 @@ input:focus-visible {
 .seeded-shift-card.is-unlocked {
   border-color: #bfdcc9;
 }
+
+
+/* === Work Mode world state === */
+
+.work-world-state-card {
+  display: grid;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid #dce6dd;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 94% 8%, rgba(243,195,77,.12), transparent 11rem),
+    rgba(255,255,255,.9);
+  box-shadow: 0 10px 26px rgba(43,73,60,.045);
+}
+
+.work-world-state-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.work-world-state-heading h2 {
+  margin: 4px 0 0;
+  font-size: .9rem;
+}
+
+.work-world-state-heading > span {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: #fff2c8;
+  color: #7b5e13;
+  font-size: .55rem;
+  font-weight: 900;
+}
+
+.work-world-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.work-world-flags > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #fff0df;
+  color: #95591e;
+  font-size: .55rem;
+  font-weight: 850;
+}
+
+.work-world-flags > span.is-stable {
+  background: #e4f3e9;
+  color: #1d6b55;
+}
+
+.work-latest-consequence {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 9px;
+  align-items: center;
+  padding: 10px 11px;
+  border-radius: 13px;
+  background: #fff7df;
+  color: #755d22;
+}
+
+.work-latest-consequence > svg {
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #ffe9a9;
+}
+
+.work-latest-consequence strong {
+  font-size: .65rem;
+}
+
+.work-latest-consequence p {
+  margin: 3px 0 0;
+  font-size: .57rem;
+  line-height: 1.48;
+}
+
+.work-consequence-history {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.work-consequence-history > strong {
+  color: #3c5a50;
+  font-size: .69rem;
+}
+
+.work-consequence-history > div {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: #fff8e6;
+  color: #745e28;
+}
+
+.work-consequence-history > div > svg {
+  margin-top: 1px;
+}
+
+.work-consequence-history span {
+  display: grid;
+  gap: 3px;
+}
+
+.work-consequence-history b {
+  font-size: .61rem;
+}
+
+.work-consequence-history small {
+  color: #897647;
+  font-size: .55rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 700px) {
+  .work-world-state-heading {
+    flex-direction: column;
+  }
+}
