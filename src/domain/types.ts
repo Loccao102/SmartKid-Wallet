@@ -52,6 +52,17 @@ export interface ExerciseFamilyDefinition {
   generatorType: string
 }
 
+export interface ExerciseInstance {
+  id: string
+  familyId: string
+  stallId: StallId
+  seed: number
+  prompt: string
+  answer: number
+  unit?: string
+  parameters: Record<string, number | string>
+}
+
 export interface StallDefinition {
   id: StallId
   order: number
