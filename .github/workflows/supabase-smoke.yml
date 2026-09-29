@@ -1,0 +1,108 @@
+name: Supabase Smoke
+
+on:
+  push:
+    paths:
+      - ".github/workflows/supabase-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Verify anonymous auth and research RLS
+        env:
+          SUPABASE_URL: https://mmppqzxkjbifizuiyrnx.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_3oa7Dw5xMnzW49CP_ndLug_sma1ltni
+        run: |
+          node --input-type=module <<'NODE'
+          import { createClient } from '@supabase/supabase-js'
+
+          const supabase = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_PUBLISHABLE_KEY,
+          )
+
+          const { data: authData, error: authError } =
+            await supabase.auth.signInAnonymously()
+
+          if (authError) {
+            throw new Error('Anonymous auth failed: ' + authError.message)
+          }
+
+          if (!authData.user) {
+            throw new Error('Anonymous auth returned no user')
+          }
+
+          const eventId = 'smoke-' + Date.now()
+          const sessionId = 'smoke-session-' + Date.now()
+
+          const { data: inserted, error: insertError } = await supabase
+            .from('research_events')
+            .insert({
+              event_id: eventId,
+              schema_version: 1,
+              session_id: sessionId,
+              event_type: 'shift_started',
+              occurred_at: new Date().toISOString(),
+              student_key: 'smoke-pseudonymous-user',
+              shift_id: 'smoke-shift',
+              metadata: { source: 'github-actions-smoke' },
+            })
+            .select('event_id, auth_user_id')
+            .single()
+
+          if (insertError) {
+            throw new Error('Research insert failed: ' + insertError.message)
+          }
+
+          if (inserted.auth_user_id !== authData.user.id) {
+            throw new Error('auth_user_id default did not bind to auth.uid()')
+          }
+
+          const { data: selected, error: selectError } = await supabase
+            .from('research_events')
+            .select('event_id')
+            .eq('event_id', eventId)
+
+          if (selectError || selected?.length !== 1) {
+            throw new Error(
+              'Own-row select failed: ' +
+                (selectError?.message ?? 'unexpected row count'),
+            )
+          }
+
+          const { error: updateError } = await supabase
+            .from('research_events')
+            .update({ student_key: 'must-not-update' })
+            .eq('event_id', eventId)
+
+          if (!updateError) {
+            throw new Error('UPDATE unexpectedly succeeded')
+          }
+
+          const { error: deleteError } = await supabase
+            .from('research_events')
+            .delete()
+            .eq('event_id', eventId)
+
+          if (!deleteError) {
+            throw new Error('DELETE unexpectedly succeeded')
+          }
+
+          console.log('SUPABASE_SMOKE_OK event_id=' + eventId)
+          await supabase.auth.signOut()
+          NODE
