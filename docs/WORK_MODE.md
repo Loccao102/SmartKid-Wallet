@@ -104,7 +104,46 @@ Mục tiêu vertical slice là chứng minh:
 - bill có thể thay đổi sau scenario;
 - ca có thể resume sau reload.
 
-## 7. Next expansion
+## 7. Phaser cashier scene
+
+Work Mode hiện có scene Phaser riêng:
+- khách xếp hàng;
+- khách hiện tại tiến tới quầy;
+- sản phẩm xuất hiện trên băng chuyền;
+- POS đổi trạng thái theo total → scenario → change → done;
+- event có cảnh báo trực quan;
+- billDelta hiển thị tại máy POS;
+- React vẫn giữ input, scenario choice và metrics để logic UI không phụ thuộc render scene.
+
+Scene chỉ dùng vector placeholder ở giai đoạn hiện tại. Sprite/asset thật sẽ thay vào sau mà không đổi contract giữa React và Phaser.
+
+## 8. Scenario bank
+
+Content bank hiện có 10 template:
+1. damaged drink;
+2. valid voucher;
+3. near-expiry yogurt;
+4. wrong shelf price;
+5. duplicate scan;
+6. expired voucher;
+7. customer budget;
+8. low-stock substitute;
+9. extra cash;
+10. stale promotion sign.
+
+Mỗi scenario có:
+- stable ID;
+- version;
+- category;
+- difficulty;
+- 3 choices;
+- billDelta;
+- employee/store/customer effects;
+- descriptive consequence feedback.
+
+Trainee Shift 01 chỉ dùng 2 event đầu để onboarding không bị quá tải.
+
+## 9. Next expansion
 
 Sau vertical slice:
 - 5–6 khách/ca;
