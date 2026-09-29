@@ -38,7 +38,11 @@ Không gán skill không liên quan vào stall.
 - Scenario choice có thể thay đổi bill trước bước tính tiền thừa.
 - Employee rating, store reputation và customer satisfaction là ba metric riêng.
 - Feedback mô tả hậu quả, không gắn nhãn đạo đức tốt/xấu.
-- Event trước có thể ảnh hưởng scenario sau qua world state.
+- Event trước phải có thể ảnh hưởng khách sau qua world state/deferred consequence khi content yêu cầu.
+- World flag mô tả trạng thái hệ thống, không dùng thay cho metric.
+- Deferred consequence phải nằm trong data, không hard-code trong React/Phaser.
+- Trigger hỗ trợ next-customer/after-customers và shift-end; resolve phải deterministic.
+- Resolved consequence phải được lưu trong shift progress để audit/research.
 - Work Shift random phải deterministic từ studentKey + templateId + templateVersion + variantIndex.
 - Generated customer có scenario thì phải lưu scenarioId + scenarioVersion.
 - Không gán scenario vào giỏ bất kỳ nếu context/billDelta không tương thích; dùng validated customer blueprint.
