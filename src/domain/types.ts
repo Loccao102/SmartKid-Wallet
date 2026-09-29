@@ -188,6 +188,50 @@ export interface WorkShiftInstance extends WorkShiftDefinition {
   variantIndex: number
 }
 
+export type WorkWorldFlag =
+  | 'complaint-risk'
+  | 'pricing-mismatch'
+  | 'inventory-pressure'
+  | 'cash-discrepancy'
+  | 'billing-dispute'
+  | 'stale-promo-sign'
+
+export interface WorkDeferredConsequenceDefinition {
+  id: string
+  trigger: 'after-customers' | 'shift-end'
+  delayCustomers?: number
+  title: string
+  description: string
+  employeeRatingDelta: number
+  storeReputationDelta: number
+  customerSatisfactionDelta: number
+  clearFlags?: WorkWorldFlag[]
+}
+
+export interface WorkWorldEffect {
+  setFlags?: WorkWorldFlag[]
+  clearFlags?: WorkWorldFlag[]
+  deferredConsequences?: WorkDeferredConsequenceDefinition[]
+}
+
+export interface WorkPendingConsequence
+  extends WorkDeferredConsequenceDefinition {
+  instanceId: string
+  scheduledAtServedCustomers: number
+  dueAtServedCustomers?: number
+}
+
+export interface WorkResolvedConsequence
+  extends WorkPendingConsequence {
+  resolvedAtServedCustomers: number
+}
+
+export interface WorkWorldState {
+  flags: WorkWorldFlag[]
+  pendingConsequences: WorkPendingConsequence[]
+  resolvedConsequences: WorkResolvedConsequence[]
+}
+
 export interface WorkShiftMetrics {
   employeeRating: number
   storeReputation: number
@@ -210,5 +254,6 @@ export interface WorkShiftProgress {
   customerIndex: number
   customerProgress: Record<string, WorkShiftCustomerProgress>
   metrics: WorkShiftMetrics
+  worldState: WorkWorldState
   completed: boolean
 }
