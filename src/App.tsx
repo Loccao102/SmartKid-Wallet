@@ -16,7 +16,7 @@ import { WorldMapScreen } from './features/world/WorldMapScreen'
 type StudentPage = 'home' | 'maps' | 'smartmart' | 'mission-class-party' | 'missions' | 'leaderboard' | 'profile'
 
 const navItems: Array<{
-  id: Exclude<StudentPage, 'smartmart'>
+  id: Exclude<StudentPage, 'smartmart' | 'mission-class-party'>
   icon: LucideIcon
   label: string
 }> = [
@@ -68,7 +68,7 @@ function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
 function PlaceholderScreen({
   page,
 }: {
-  page: Exclude<StudentPage, 'maps' | 'smartmart'>
+  page: Exclude<StudentPage, 'maps' | 'smartmart' | 'mission-class-party'>
 }) {
   const content = placeholderContent[page]
   const Icon = content.icon
