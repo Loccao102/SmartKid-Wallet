@@ -14,27 +14,42 @@ import {
   Users,
   WalletCards,
   Gamepad2,
+  CircleAlert,
+  Boxes,
 } from 'lucide-react'
 import { getWorkScenario } from '../../data/workShift'
+import { getWorkWorldEffect } from '../../data/workWorldEffects'
 import {
   applyMathAttempt,
   applyScenarioChoice,
+  applyWorkWorldEffect,
   calculateBasketTotal,
   calculateChange,
   calculateEffectiveTotal,
   createInitialWorkShiftProgress,
+  resolveDueConsequences,
   settleCustomer,
 } from '../../domain/workShiftEngine'
 import type {
   WorkScenarioChoice,
   WorkShiftDefinition,
   WorkShiftProgress,
+  WorkWorldFlag,
 } from '../../domain/types'
 import { useWorkShiftStore } from '../../store/workShift'
 
 const WorkModeGame = lazy(() => import('../../game/WorkModeGame'))
 
 const money = new Intl.NumberFormat('vi-VN')
+
+const worldFlagLabels: Record<WorkWorldFlag, string> = {
+  'complaint-risk': 'Nguy cơ khiếu nại',
+  'pricing-mismatch': 'Sai lệch giá',
+  'inventory-pressure': 'Tồn kho căng',
+  'cash-discrepancy': 'Chênh lệch tiền mặt',
+  'billing-dispute': 'Tranh chấp hóa đơn',
+  'stale-promo-sign': 'Biển khuyến mãi cũ',
+}
 
 function normalizeMoney(value: string) {
   return Number(value.replace(/[.,\sđ]/gi, ''))
@@ -172,7 +187,26 @@ export function WorkModeScreen({
               <span>Sai số tính toán</span>
               <strong>{progress.metrics.mathMistakes}</strong>
             </div>
+            <div>
+              <span>Hệ quả đã phát sinh</span>
+              <strong>{progress.worldState.resolvedConsequences.length}</strong>
+            </div>
           </div>
+
+          {progress.worldState.resolvedConsequences.length > 0 ? (
+            <div className="work-consequence-history">
+              <strong>Những việc đã xảy ra sau quyết định của em</strong>
+              {progress.worldState.resolvedConsequences.map((item) => (
+                <div key={item.instanceId}>
+                  <CircleAlert size={15} aria-hidden="true" />
+                  <span>
+                    <b>{item.title}</b>
+                    <small>{item.description}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : null}
 
           <button
             type="button"
@@ -246,13 +280,21 @@ export function WorkModeScreen({
   }
 
   const chooseScenario = (choice: WorkScenarioChoice) => {
+    if (!scenario) return
+
     const next = updateCustomerProgress(progress, customer.id, {
       scenarioChoiceId: choice.id,
     })
+    const worldEffect = getWorkWorldEffect(scenario.id, choice.id)
 
     setProgress(shift.id, {
       ...next,
       metrics: applyScenarioChoice(progress.metrics, choice),
+      worldState: applyWorkWorldEffect(
+        progress.worldState,
+        worldEffect,
+        progress.metrics.servedCustomers,
+      ),
     })
     setFeedback('idle')
   }
@@ -264,10 +306,17 @@ export function WorkModeScreen({
       selectedChoice,
     )
     const isLast = progress.customerIndex >= shift.customers.length - 1
+    const resolved = resolveDueConsequences(
+      settledMetrics,
+      progress.worldState,
+      settledMetrics.servedCustomers,
+      isLast,
+    )
 
     setProgress(shift.id, {
       ...progress,
-      metrics: settledMetrics,
+      metrics: resolved.metrics,
+      worldState: resolved.worldState,
       customerIndex: isLast
         ? progress.customerIndex
         : progress.customerIndex + 1,
@@ -371,6 +420,57 @@ export function WorkModeScreen({
           <span><i className="active" /> Khách tại quầy</span>
           <span><i className="event" /> Event cần xử lý</span>
         </div>
+      </section>
+
+      <section className="work-world-state-card">
+        <div className="work-world-state-heading">
+          <div>
+            <p className="page-kicker">WORLD STATE</p>
+            <h2>Trạng thái cửa hàng đang được mang sang khách tiếp theo</h2>
+          </div>
+          <span>
+            <Boxes size={17} aria-hidden="true" />
+            {progress.worldState.pendingConsequences.length} hệ quả đang chờ
+          </span>
+        </div>
+
+        <div className="work-world-flags">
+          {progress.worldState.flags.length > 0 ? (
+            progress.worldState.flags.map((flag) => (
+              <span key={flag}>
+                <CircleAlert size={13} aria-hidden="true" />
+                {worldFlagLabels[flag]}
+              </span>
+            ))
+          ) : (
+            <span className="is-stable">
+              <Check size={13} aria-hidden="true" />
+              Cửa hàng đang ổn định
+            </span>
+          )}
+        </div>
+
+        {progress.worldState.resolvedConsequences.length > 0 ? (
+          <div className="work-latest-consequence">
+            <CircleAlert size={18} aria-hidden="true" />
+            <div>
+              <strong>
+                {
+                  progress.worldState.resolvedConsequences[
+                    progress.worldState.resolvedConsequences.length - 1
+                  ].title
+                }
+              </strong>
+              <p>
+                {
+                  progress.worldState.resolvedConsequences[
+                    progress.worldState.resolvedConsequences.length - 1
+                  ].description
+                }
+              </p>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <div className="work-mode-layout">
