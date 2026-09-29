@@ -40,8 +40,9 @@
 
 ## Phase 4 — Scenario + Work Mode
 - [x] Work Mode vertical slice — Ca làm việc 01
-- [ ] 10–15 scenario templates
-  - [x] 2 scenario đầu: damaged item + valid voucher
+- [x] Phaser cashier scene: queue + counter + conveyor + POS state
+- [x] 10 scenario templates
+  - [x] damaged item / voucher / near-expiry / wrong price / duplicate scan / expired voucher / customer budget / low stock / extra cash / stale promo sign
 - [ ] 5–6 customers/shift
   - [x] 3 customers trong Trainee Shift 01
 - [x] 1–2 events/shift
