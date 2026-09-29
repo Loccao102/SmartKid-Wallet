@@ -2,9 +2,33 @@
 
 ## Current status
 
-The repository is ready for Supabase research-event sync, but it must use a **dedicated SmartKid Wallet project**.
+Dedicated Supabase project has been provisioned:
 
-Do not reuse an unrelated Supabase project just because it is available in the same account.
+```text
+Project: SmartKid-Wallet
+Project ref: mmppqzxkjbifizuiyrnx
+Region: ap-southeast-1 (Singapore)
+API URL: https://mmppqzxkjbifizuiyrnx.supabase.co
+Migration: 20260929092230_create_research_events
+```
+
+The unrelated existing Supabase project was intentionally left untouched.
+
+Deployment verification completed:
+- `public.research_events` exists;
+- RLS is enabled;
+- authenticated role has SELECT + INSERT only;
+- anon has no table privileges;
+- policies restrict rows to `auth.uid() = auth_user_id`;
+- Supabase security advisor reports 0 lints;
+- performance advisor only reports the three new indexes as unused because the table has no production data yet;
+- generated TypeScript database types are committed under `src/types/supabase.ts`.
+
+Remaining hosted-app wiring:
+- configure `VITE_SUPABASE_URL`;
+- configure `VITE_SUPABASE_PUBLISHABLE_KEY`;
+- enable Anonymous Sign-Ins if the student app should sync without a permanent login;
+- before public pilot, enable CAPTCHA/Turnstile for anonymous sign-ins.
 
 ## 1. Required project settings
 
@@ -153,6 +177,8 @@ Local export is independent of cloud sync.
 
 ## 8. Verification after applying schema
 
+The database-side checks below have already been run successfully for the current project. Re-run them after future DDL changes:
+
 Run:
 1. table/schema inspection;
 2. RLS security advisor;
@@ -162,7 +188,7 @@ Run:
 6. attempt UPDATE/DELETE and confirm they fail;
 7. attempt cross-user SELECT and confirm no row is visible.
 
-Do not consider the backend deployment complete until these checks pass.
+Current schema deployment passes the database-side checks above. End-to-end browser sync still depends on hosted app env configuration and an authenticated/anonymous Supabase session.
 
 ## 9. Future teacher access
 
