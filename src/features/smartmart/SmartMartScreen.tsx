@@ -69,7 +69,7 @@ function StallCard({
   completedCount: number
   onOpen: () => void
 }) {
-  const total = stall.exerciseFamilyIds.length
+  const total = stall.unlockFamilyIds.length
   const stateText =
     state === 'open'
       ? 'Đã mở · Có thể quay lại'
@@ -352,12 +352,10 @@ export function SmartMartScreen({
 
   const activeFamilyId = activeStall && activeMode
     ? activeMode === 'unlock'
-      ? activeStall.exerciseFamilyIds.find(
+      ? activeStall.unlockFamilyIds.find(
           (familyId) => !activeCompletedFamilies.includes(familyId),
-        ) ?? activeStall.exerciseFamilyIds[activeStall.exerciseFamilyIds.length - 1]
-      : activeStall.exerciseFamilyIds[
-          (activeStall.order - 1) % activeStall.exerciseFamilyIds.length
-        ]
+        ) ?? activeStall.unlockFamilyIds[activeStall.unlockFamilyIds.length - 1]
+      : activeStall.exerciseFamilyIds[activeStall.exerciseFamilyIds.length - 1]
     : null
 
   const activeFamily = activeFamilyId
@@ -374,7 +372,7 @@ export function SmartMartScreen({
 
   const activeStepNumber =
     activeMode === 'unlock' ? activeCompletedFamilies.length + 1 : 1
-  const activeStepTotal = activeStall?.exerciseFamilyIds.length ?? 1
+  const activeStepTotal = activeStall?.unlockFamilyIds.length ?? 1
   const isFinalUnlock =
     activeMode === 'unlock' && activeStepNumber === activeStepTotal
 
@@ -490,7 +488,7 @@ export function SmartMartScreen({
                     {unlockedSet.has(nearStall.id)
                       ? ' · Đã mở'
                       : nearStall.id === nextLockedStall?.id
-                        ? ` · Bài ${nearProgress + 1}/${nearStall.exerciseFamilyIds.length}`
+                        ? ` · Bài ${nearProgress + 1}/${nearStall.unlockFamilyIds.length}`
                         : ' · Đang khóa'}
                   </span>
                 </>
@@ -574,8 +572,8 @@ export function SmartMartScreen({
             <Brain size={22} strokeWidth={1.9} />
           </span>
           <div>
-            <strong>3 dạng Toán cho mỗi gian</strong>
-            <p>Tiến độ từng dạng được lưu lại và mỗi học sinh có seed riêng.</p>
+            <strong>3 bài mở khóa + luyện tập nâng cao</strong>
+            <p>Mỗi gian có 3 family mở khóa và thêm một family để luyện lại sau đó.</p>
           </div>
         </article>
         <article>
