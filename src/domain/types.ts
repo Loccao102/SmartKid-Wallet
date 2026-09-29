@@ -25,3 +25,27 @@ export interface StallDefinition {
   skills: MathSkill[]
   challenge: UnlockChallenge
 }
+
+export type AssignmentTarget =
+  | { type: 'class'; classId: string; className: string }
+  | { type: 'student'; studentId: string; studentName: string }
+
+export interface AssignedStall {
+  stallId: StallId
+  challengeIds: string[]
+  requiredCorrect: number
+}
+
+export interface TeacherAssignment {
+  id: string
+  title: string
+  teacherId: string
+  teacherName: string
+  grade: 4 | 5
+  target: AssignmentTarget
+  status: 'draft' | 'published' | 'closed'
+  assignedAt: string
+  dueAt?: string
+  stalls: AssignedStall[]
+  fullShiftEnabled: boolean
+}
