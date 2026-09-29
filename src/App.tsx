@@ -10,10 +10,20 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
+import { MissionsScreen } from './features/missions/MissionsScreen'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 
-type StudentPage = 'home' | 'maps' | 'smartmart' | 'mission-class-party' | 'missions' | 'leaderboard' | 'profile'
+type StudentPage =
+  | 'home'
+  | 'maps'
+  | 'smartmart'
+  | 'mission-class-party'
+  | 'missions'
+  | 'leaderboard'
+  | 'profile'
+
+type StaticPage = 'home' | 'leaderboard' | 'profile'
 
 const navItems: Array<{
   id: Exclude<StudentPage, 'smartmart' | 'mission-class-party'>
@@ -28,7 +38,7 @@ const navItems: Array<{
 ]
 
 const placeholderContent: Record<
-  Exclude<StudentPage, 'maps' | 'smartmart' | 'mission-class-party'>,
+  StaticPage,
   { icon: LucideIcon; title: string; description: string }
 > = {
   home: {
@@ -36,12 +46,6 @@ const placeholderContent: Record<
     title: 'Trang chủ SmartKid',
     description:
       'Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển khai ở bước tiếp theo.',
-  },
-  missions: {
-    icon: Target,
-    title: 'Nhiệm vụ',
-    description:
-      'Mission sẽ là các bài vận dụng thực tế trong thế giới SmartMart, không phải danh sách câu hỏi.',
   },
   leaderboard: {
     icon: Trophy,
@@ -65,11 +69,7 @@ function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
   )
 }
 
-function PlaceholderScreen({
-  page,
-}: {
-  page: Exclude<StudentPage, 'maps' | 'smartmart' | 'mission-class-party'>
-}) {
+function PlaceholderScreen({ page }: { page: StaticPage }) {
   const content = placeholderContent[page]
   const Icon = content.icon
 
@@ -87,7 +87,12 @@ function PlaceholderScreen({
 
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
-  const activeNavPage = page === 'smartmart' ? 'maps' : page === 'mission-class-party' ? 'missions' : page
+  const activeNavPage =
+    page === 'smartmart'
+      ? 'maps'
+      : page === 'mission-class-party'
+        ? 'missions'
+        : page
 
   return (
     <div className="app-shell">
@@ -177,6 +182,8 @@ export function App() {
           />
         ) : page === 'mission-class-party' ? (
           <ClassPartyMissionScreen onBack={() => setPage('smartmart')} />
+        ) : page === 'missions' ? (
+          <MissionsScreen onOpenMission={() => setPage('mission-class-party')} />
         ) : (
           <PlaceholderScreen page={page} />
         )}
