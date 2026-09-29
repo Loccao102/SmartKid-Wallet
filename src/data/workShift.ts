@@ -13,6 +13,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'replace-and-inform',
         label: 'Báo cho khách và đổi sang hộp nguyên vẹn.',
+        billDelta: 0,
         employeeRatingDelta: 0.2,
         storeReputationDelta: 0.2,
         customerSatisfactionDelta: 0.2,
@@ -22,6 +23,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'sell-as-normal',
         label: 'Cho vào túi như bình thường vì sản phẩm vẫn chưa hết hạn.',
+        billDelta: 0,
         employeeRatingDelta: -0.4,
         storeReputationDelta: -0.5,
         customerSatisfactionDelta: -0.4,
@@ -31,6 +33,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'silent-discount',
         label: 'Tự giảm một ít tiền nhưng không nói rõ lý do.',
+        billDelta: -10000,
         employeeRatingDelta: -0.1,
         storeReputationDelta: -0.2,
         customerSatisfactionDelta: 0,
@@ -48,6 +51,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'apply-voucher',
         label: 'Kiểm tra điều kiện và áp dụng voucher 20.000đ.',
+        billDelta: -20000,
         employeeRatingDelta: 0.15,
         storeReputationDelta: 0.1,
         customerSatisfactionDelta: 0.2,
@@ -57,6 +61,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'reject-voucher',
         label: 'Từ chối voucher để tránh thao tác nhầm.',
+        billDelta: 0,
         employeeRatingDelta: -0.25,
         storeReputationDelta: -0.15,
         customerSatisfactionDelta: -0.3,
@@ -66,6 +71,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'apply-double',
         label: 'Giảm 40.000đ để khách vui hơn.',
+        billDelta: -40000,
         employeeRatingDelta: -0.35,
         storeReputationDelta: -0.25,
         customerSatisfactionDelta: 0.15,
