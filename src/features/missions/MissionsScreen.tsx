@@ -5,19 +5,34 @@ import {
   ShoppingBasket,
   Target,
   UserRoundCheck,
+  UsersRound,
 } from 'lucide-react'
 import { firstMission } from '../../data/missions'
+import { traineeShift } from '../../data/workShift'
+import { advancedShift } from '../../data/workShiftInstances'
 import { useProgressionStore } from '../../store/progression'
 import { useWorkShiftStore } from '../../store/workShift'
 
-export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMission: () => void; onOpenWorkMode: () => void }) {
+export function MissionsScreen({
+  onOpenMission,
+  onOpenWorkMode,
+}: {
+  onOpenMission: () => void
+  onOpenWorkMode: (shiftId: string) => void
+}) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
-  const workShiftCompleted = useWorkShiftStore((state) => state.progress.completed)
+  const traineeCompleted = useWorkShiftStore(
+    (state) => state.progressByShiftId[traineeShift.id]?.completed ?? false,
+  )
+  const advancedCompleted = useWorkShiftStore(
+    (state) => state.progressByShiftId[advancedShift.id]?.completed ?? false,
+  )
 
   const missionUnlocked = unlockedStalls.length >= 5
   const missionCompleted = completedMissionIds.includes(firstMission.id)
   const workModeUnlocked = missionCompleted
+  const advancedUnlocked = traineeCompleted
 
   return (
     <section className="missions-screen">
@@ -29,8 +44,8 @@ export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMissio
           <p className="page-kicker">NHIỆM VỤ CỦA EM</p>
           <h1>Vận dụng những gì em đã học</h1>
           <p>
-            Nhiệm vụ không hỏi em cần dùng phép tính nào. Em tự chọn cách mua,
-            so sánh và điều chỉnh phương án.
+            Mở các gian, hoàn thành Mission mua sắm rồi chuyển sang vai trò nhân
+            viên với những ca làm việc ngày càng khó hơn.
           </p>
         </div>
       </header>
@@ -94,20 +109,20 @@ export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMissio
 
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>WORK MODE · CHẶNG TIẾP THEO</span>
+              <span>WORK MODE · ONBOARDING</span>
               <em
                 className={`journey-status ${
-                  workShiftCompleted ? 'complete' : workModeUnlocked ? 'ready' : 'locked'
+                  traineeCompleted ? 'complete' : workModeUnlocked ? 'ready' : 'locked'
                 }`}
               >
-                {workShiftCompleted ? (
+                {traineeCompleted ? (
                   <Check size={12} />
                 ) : workModeUnlocked ? (
                   <Play size={11} fill="currentColor" />
                 ) : (
                   <LockKeyhole size={12} />
                 )}
-                {workShiftCompleted
+                {traineeCompleted
                   ? 'Đã hoàn thành ca'
                   : workModeUnlocked
                     ? 'Đã mở vai trò'
@@ -115,16 +130,16 @@ export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMissio
               </em>
             </div>
 
-            <h2>Nhân viên tập sự SmartMart</h2>
+            <h2>{traineeShift.title} · Nhân viên tập sự</h2>
             <p>
-              Sau khi hiểu cách mua sắm, em sẽ đổi vai: phục vụ khách hàng,
-              tính hóa đơn và xử lý các tình huống trong ca làm việc.
+              Phục vụ 3 khách đầu tiên, tính hóa đơn, tiền thừa và xử lý hai tình
+              huống cơ bản tại quầy.
             </p>
 
             <div className="journey-mission-meta">
-              <span>Thu ngân</span>
-              <span>Khách hàng</span>
-              <span>Tình huống</span>
+              <span>3 khách</span>
+              <span>2 event</span>
+              <span>Thu ngân cơ bản</span>
             </div>
           </div>
 
@@ -132,13 +147,79 @@ export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMissio
             type="button"
             className="journey-action"
             disabled={!workModeUnlocked}
-            onClick={onOpenWorkMode}
+            onClick={() => onOpenWorkMode(traineeShift.id)}
           >
-            {workShiftCompleted
+            {traineeCompleted
               ? 'Xem kết quả ca'
               : workModeUnlocked
                 ? 'Bắt đầu ca làm việc'
                 : 'Hoàn thành Mission 01'}
+          </button>
+        </article>
+
+        <div className="journey-connector" aria-hidden="true">
+          <span />
+          <Check size={14} />
+          <span />
+        </div>
+
+        <article className={`journey-mission-card work-mode-card seeded-shift-card ${advancedUnlocked ? 'is-unlocked' : 'is-locked'}`}>
+          <div className="journey-step-number">03</div>
+          <div className="journey-mission-icon" aria-hidden="true">
+            <UsersRound size={30} strokeWidth={1.8} />
+          </div>
+
+          <div className="journey-mission-copy">
+            <div className="journey-status-row">
+              <span>WORK MODE · SEEDED SHIFT</span>
+              <em
+                className={`journey-status ${
+                  advancedCompleted
+                    ? 'complete'
+                    : advancedUnlocked
+                      ? 'ready'
+                      : 'locked'
+                }`}
+              >
+                {advancedCompleted ? (
+                  <Check size={12} />
+                ) : advancedUnlocked ? (
+                  <Play size={11} fill="currentColor" />
+                ) : (
+                  <LockKeyhole size={12} />
+                )}
+                {advancedCompleted
+                  ? 'Đã hoàn thành ca'
+                  : advancedUnlocked
+                    ? 'Ca cá nhân đã sẵn sàng'
+                    : 'Hoàn thành Ca 01'}
+              </em>
+            </div>
+
+            <h2>{advancedShift.title} · Quầy đông khách</h2>
+            <p>
+              Một ca 6 khách được sinh riêng cho học sinh. Scenario và thứ tự khách
+              thay đổi theo seed nhưng luôn replay được chính xác.
+            </p>
+
+            <div className="journey-mission-meta">
+              <span>6 khách</span>
+              <span>4 event</span>
+              <span>Seed #{advancedShift.seed}</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="journey-action"
+            disabled={!advancedUnlocked}
+            onClick={() => onOpenWorkMode(advancedShift.id)}
+          >
+            {advancedCompleted
+              ? 'Xem kết quả ca'
+              : advancedUnlocked
+                ? 'Bắt đầu Ca 02'
+                : 'Hoàn thành Ca 01'}
           </button>
         </article>
       </div>
