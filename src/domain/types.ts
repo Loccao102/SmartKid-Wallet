@@ -257,3 +257,55 @@ export interface WorkShiftProgress {
   worldState: WorkWorldState
   completed: boolean
 }
+
+
+export type ResearchEventType =
+  | 'shift_started'
+  | 'math_attempt'
+  | 'scenario_choice'
+  | 'customer_settled'
+  | 'consequence_resolved'
+  | 'shift_completed'
+
+export type WorkMathStage = 'total' | 'change'
+
+export interface ResearchEventSnapshot {
+  metrics: WorkShiftMetrics
+  worldState: WorkWorldState
+}
+
+export interface ResearchEvent {
+  schemaVersion: 1
+  eventId: string
+  sessionId: string
+  eventType: ResearchEventType
+  occurredAt: string
+
+  studentKey: string
+  shiftId: string
+  shiftTemplateId?: string
+  shiftTemplateVersion?: number
+  shiftSeed?: number
+  shiftVariantIndex?: number
+
+  customerId?: string
+  customerIndex?: number
+  scenarioId?: string
+  scenarioVersion?: number
+  choiceId?: string
+
+  mathStage?: WorkMathStage
+  submittedAnswer?: number
+  expectedAnswer?: number
+  correct?: boolean
+  attemptNumber?: number
+  responseTimeMs?: number
+
+  consequenceId?: string
+  consequenceInstanceId?: string
+
+  before?: ResearchEventSnapshot
+  after?: ResearchEventSnapshot
+
+  metadata?: Record<string, string | number | boolean | null>
+}
