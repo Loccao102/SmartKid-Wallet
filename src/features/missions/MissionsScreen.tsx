@@ -9,7 +9,7 @@ import {
 import { firstMission } from '../../data/missions'
 import { useProgressionStore } from '../../store/progression'
 
-export function MissionsScreen({ onOpenMission }: { onOpenMission: () => void }) {
+export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMission: () => void; onOpenWorkMode: () => void }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
 
@@ -112,8 +112,13 @@ export function MissionsScreen({ onOpenMission }: { onOpenMission: () => void })
             </div>
           </div>
 
-          <button type="button" className="journey-action" disabled>
-            {workModeUnlocked ? 'Sắp ra mắt' : 'Hoàn thành Mission 01'}
+          <button
+            type="button"
+            className="journey-action"
+            disabled={!workModeUnlocked}
+            onClick={onOpenWorkMode}
+          >
+            {workModeUnlocked ? 'Bắt đầu ca làm việc' : 'Hoàn thành Mission 01'}
           </button>
         </article>
       </div>
