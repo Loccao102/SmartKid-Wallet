@@ -32,13 +32,17 @@ Không gán skill không liên quan vào stall.
 - Exercise instance đã phát không đổi khi refresh.
 - Generator phải được unit test.
 
-## 4. Scenario rules
+## 4. Scenario / Work Shift rules
 - Scenario ID/version ổn định.
 - Parameters, rubric, effects nằm trong data.
 - Scenario choice có thể thay đổi bill trước bước tính tiền thừa.
 - Employee rating, store reputation và customer satisfaction là ba metric riêng.
 - Feedback mô tả hậu quả, không gắn nhãn đạo đức tốt/xấu.
 - Event trước có thể ảnh hưởng scenario sau qua world state.
+- Work Shift random phải deterministic từ studentKey + templateId + templateVersion + variantIndex.
+- Generated customer có scenario thì phải lưu scenarioId + scenarioVersion.
+- Không gán scenario vào giỏ bất kỳ nếu context/billDelta không tương thích; dùng validated customer blueprint.
+- Progress phải scope theo shift.id, không dùng một global Work Mode progress cho mọi ca.
 
 ## 5. Architecture
 - React + TypeScript cho app UI.
