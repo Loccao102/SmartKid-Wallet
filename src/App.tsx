@@ -9,8 +9,10 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react'
+import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
 import { MissionsScreen } from './features/missions/MissionsScreen'
+import { ProfileScreen } from './features/profile/ProfileScreen'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 
@@ -22,8 +24,6 @@ type StudentPage =
   | 'missions'
   | 'leaderboard'
   | 'profile'
-
-type StaticPage = 'home' | 'leaderboard' | 'profile'
 
 const navItems: Array<{
   id: Exclude<StudentPage, 'smartmart' | 'mission-class-party'>
@@ -37,30 +37,6 @@ const navItems: Array<{
   { id: 'profile', icon: User, label: 'Hồ sơ' },
 ]
 
-const placeholderContent: Record<
-  StaticPage,
-  { icon: LucideIcon; title: string; description: string }
-> = {
-  home: {
-    icon: Home,
-    title: 'Trang chủ SmartKid',
-    description:
-      'Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển khai ở bước tiếp theo.',
-  },
-  leaderboard: {
-    icon: Trophy,
-    title: 'Bảng xếp hạng',
-    description:
-      'Bảng xếp hạng sẽ ưu tiên độ chính xác, nhiệm vụ hoàn thành, chuỗi học và thử thách chuẩn hóa.',
-  },
-  profile: {
-    icon: User,
-    title: 'Hồ sơ của em',
-    description:
-      'Hồ sơ sẽ hiển thị level, XP, tiến độ từng bản đồ, kỹ năng và huy hiệu.',
-  },
-}
-
 function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
   return (
     <span className="nav-icon" aria-hidden="true">
@@ -69,18 +45,18 @@ function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
   )
 }
 
-function PlaceholderScreen({ page }: { page: StaticPage }) {
-  const content = placeholderContent[page]
-  const Icon = content.icon
-
+function HomePlaceholder() {
   return (
     <section className="placeholder-screen">
       <span className="placeholder-icon" aria-hidden="true">
-        <Icon size={30} strokeWidth={1.9} />
+        <Home size={30} strokeWidth={1.9} />
       </span>
       <p className="page-kicker">ĐANG TRIỂN KHAI</p>
-      <h1>{content.title}</h1>
-      <p>{content.description}</p>
+      <h1>Trang chủ SmartKid</h1>
+      <p>
+        Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển
+        khai ở bước tiếp theo.
+      </p>
     </section>
   )
 }
@@ -184,8 +160,12 @@ export function App() {
           <ClassPartyMissionScreen onBack={() => setPage('smartmart')} />
         ) : page === 'missions' ? (
           <MissionsScreen onOpenMission={() => setPage('mission-class-party')} />
+        ) : page === 'leaderboard' ? (
+          <LeaderboardScreen />
+        ) : page === 'profile' ? (
+          <ProfileScreen />
         ) : (
-          <PlaceholderScreen page={page} />
+          <HomePlaceholder />
         )}
       </div>
     </div>
