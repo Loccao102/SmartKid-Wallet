@@ -98,7 +98,7 @@ Không gán skill không liên quan vào stall.
 - Exercise catalog: docs/EXERCISE_CATALOG.md
 - Scenario/rubric: docs/SCENARIO_RUBRIC.md
 - Work Mode: docs/WORK_MODE.md
-- Research logging: docs/RESEARCH_LOGGING.md
+- Research logging: docs/RESEARCH_LOGGING.md\n- Supabase setup: docs/SUPABASE_SETUP.md
 - Architecture: docs/ARCHITECTURE.md
 - UI: docs/UI_DESIGN.md
 - Assets: docs/ASSET_SYSTEM.md
