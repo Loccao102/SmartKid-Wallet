@@ -44,7 +44,7 @@ export const useWorkShiftStore = create<WorkShiftStore>()(
         }),
     }),
     {
-      name: 'smartkid-wallet-work-shifts-v2',
+      name: 'smartkid-wallet-work-shifts-v3',
     },
   ),
 )
