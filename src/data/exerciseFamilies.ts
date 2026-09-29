@@ -10,6 +10,7 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     difficulty: 1,
     generatorType: 'unit-price-total',
     parameters: [
+      { kind: 'list', key: 'product', values: ['cam', 'táo', 'lê', 'nho'] },
       { kind: 'list', key: 'weightKg', values: [1, 2, 3, 4, 5] },
       { kind: 'range', key: 'unitPrice', min: 12000, max: 60000, step: 1000 },
     ],
@@ -23,6 +24,7 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     difficulty: 1,
     generatorType: 'portion-count',
     parameters: [
+      { kind: 'list', key: 'item', values: ['quả trứng', 'hộp sữa chua', 'chiếc bánh mì'] },
       { kind: 'range', key: 'people', min: 4, max: 30, step: 1 },
       { kind: 'list', key: 'portionPerPerson', values: [1, 2, 3, 4] },
     ],
@@ -44,13 +46,16 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     id: 'SUPPLIES_BUDGET',
     stallId: 'supplies',
     name: 'Mua trong ngân sách',
-    description: 'Tính tổng nhiều món và kiểm tra giới hạn ngân sách.',
-    skills: ['addition', 'budget', 'comparison'],
+    description: 'Tính tổng nhiều món và số tiền còn lại trong ngân sách.',
+    skills: ['addition', 'subtraction', 'budget', 'comparison'],
     difficulty: 2,
     generatorType: 'budget-basket',
     parameters: [
-      { kind: 'range', key: 'budget', min: 100000, max: 500000, step: 10000 },
-      { kind: 'list', key: 'itemCount', values: [2, 3, 4] },
+      { kind: 'list', key: 'itemA', values: ['vở', 'bút chì', 'bút mực', 'thước'] },
+      { kind: 'list', key: 'itemB', values: ['tẩy', 'bút màu', 'hộp bút', 'giấy màu'] },
+      { kind: 'range', key: 'priceA', min: 10000, max: 90000, step: 1000 },
+      { kind: 'range', key: 'priceB', min: 5000, max: 100000, step: 1000 },
+      { kind: 'list', key: 'budget', values: [100000, 150000, 200000, 300000, 500000] },
     ],
   },
   {
@@ -62,6 +67,7 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     difficulty: 2,
     generatorType: 'discount-final-price',
     parameters: [
+      { kind: 'list', key: 'product', values: ['áo khoác', 'balo', 'giày thể thao', 'hộp bút'] },
       { kind: 'range', key: 'originalPrice', min: 100000, max: 500000, step: 10000 },
       { kind: 'list', key: 'discountRate', values: [10, 20, 25, 30] },
     ],
