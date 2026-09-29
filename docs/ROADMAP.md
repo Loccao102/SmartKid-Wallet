@@ -14,8 +14,8 @@
 - [x] World map hiển thị 4 map, 3 locked
 - [x] SmartMart entry/progress card
 - [x] navigation shell: Home / Map / Mission / Leaderboard / Profile
-- [ ] Profile UI
-- [ ] Leaderboard UI
+- [x] Profile UI
+- [x] Leaderboard UI
 - [ ] responsive tablet/mobile
 - [ ] asset placeholders → asset thật
 
@@ -29,13 +29,13 @@
 - [x] unit tests generator nền tảng
 
 ## Phase 3 — SmartMart exploration + Mission
-- [ ] Phaser map shell
-- [ ] movement/interactions
+- [x] Phaser map shell
+- [x] movement/interactions desktop + touch
 - [x] product catalog MVP (14 sản phẩm)
 - [x] cart/budget HUD cho Mission 01
 - [ ] 3–5 Missions
   - [x] Mission 01 — Chuẩn bị liên hoan lớp
-- [ ] đi lại tự do giữa stall đã mở
+- [x] đi lại tự do giữa stall đã mở
 - [x] checkout/completion engine + UI cho Mission 01
 
 ## Phase 4 — Scenario + Work Mode
