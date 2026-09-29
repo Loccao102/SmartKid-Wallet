@@ -1,42 +1,50 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { traineeShift } from '../data/workShift'
-import { createInitialShiftMetrics } from '../domain/workShiftEngine'
-import type {
-  WorkShiftCustomerProgress,
-  WorkShiftProgress,
-} from '../domain/types'
+import { getWorkShiftById, workShiftInstances } from '../data/workShiftInstances'
+import { createInitialWorkShiftProgress } from '../domain/workShiftEngine'
+import type { WorkShiftProgress } from '../domain/types'
 
-const createCustomerProgress = (): WorkShiftCustomerProgress => ({
-  totalSolved: false,
-  changeSolved: false,
-  totalAttempts: 0,
-  changeAttempts: 0,
-})
-
-const createInitialProgress = (): WorkShiftProgress => ({
-  shiftId: traineeShift.id,
-  customerIndex: 0,
-  customerProgress: Object.fromEntries(
-    traineeShift.customers.map((customer) => [customer.id, createCustomerProgress()]),
-  ),
-  metrics: createInitialShiftMetrics(traineeShift),
-  completed: false,
-})
+function createInitialProgressMap() {
+  return Object.fromEntries(
+    workShiftInstances.map((shift) => [
+      shift.id,
+      createInitialWorkShiftProgress(shift),
+    ]),
+  )
+}
 
 interface WorkShiftStore {
-  progress: WorkShiftProgress
-  setProgress: (progress: WorkShiftProgress) => void
-  resetShift: () => void
+  progressByShiftId: Record<string, WorkShiftProgress>
+  setProgress: (shiftId: string, progress: WorkShiftProgress) => void
+  resetShift: (shiftId: string) => void
+  resetAllShifts: () => void
 }
 
 export const useWorkShiftStore = create<WorkShiftStore>()(
   persist(
     (set) => ({
-      progress: createInitialProgress(),
-      setProgress: (progress) => set({ progress }),
-      resetShift: () => set({ progress: createInitialProgress() }),
+      progressByShiftId: createInitialProgressMap(),
+      setProgress: (shiftId, progress) =>
+        set((state) => ({
+          progressByShiftId: {
+            ...state.progressByShiftId,
+            [shiftId]: progress,
+          },
+        })),
+      resetShift: (shiftId) =>
+        set((state) => ({
+          progressByShiftId: {
+            ...state.progressByShiftId,
+            [shiftId]: createInitialWorkShiftProgress(getWorkShiftById(shiftId)),
+          },
+        })),
+      resetAllShifts: () =>
+        set({
+          progressByShiftId: createInitialProgressMap(),
+        }),
     }),
-    { name: 'smartkid-wallet-work-shift-v1' },
+    {
+      name: 'smartkid-wallet-work-shifts-v2',
+    },
   ),
 )
