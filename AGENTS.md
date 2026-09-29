@@ -75,6 +75,7 @@ Không gán skill không liên quan vào stall.
 - Product: docs/PRODUCT_SPEC.md
 - Gameplay: docs/GAME_DESIGN.md
 - Content: docs/CONTENT_RULES.md
+- Exercise catalog: docs/EXERCISE_CATALOG.md
 - Scenario/rubric: docs/SCENARIO_RUBRIC.md
 - Architecture: docs/ARCHITECTURE.md
 - UI: docs/UI_DESIGN.md
