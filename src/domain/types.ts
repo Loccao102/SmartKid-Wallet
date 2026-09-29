@@ -151,6 +151,7 @@ export interface WorkCustomerDefinition {
   basket: WorkBasketItem[]
   cashGiven: number
   scenarioId?: string
+  scenarioVersion?: number
 }
 
 export interface WorkShiftDefinition {
@@ -162,6 +163,29 @@ export interface WorkShiftDefinition {
   startingEmployeeRating: number
   startingStoreReputation: number
   startingCustomerSatisfaction: number
+}
+
+export interface WorkShiftTemplateDefinition {
+  id: string
+  version: number
+  title: string
+  subtitle: string
+  roleTitle: string
+  customerCount: number
+  scenarioCount: number
+  minScenarioDifficulty: 1 | 2 | 3
+  maxScenarioDifficulty: 1 | 2 | 3
+  startingEmployeeRating: number
+  startingStoreReputation: number
+  startingCustomerSatisfaction: number
+}
+
+export interface WorkShiftInstance extends WorkShiftDefinition {
+  templateId: string
+  templateVersion: number
+  seed: number
+  studentKey: string
+  variantIndex: number
 }
 
 export interface WorkShiftMetrics {
