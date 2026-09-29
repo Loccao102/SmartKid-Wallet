@@ -90,3 +90,14 @@ canonical main
 ```
 
 No manual file copying between repositories.
+
+
+## 7. Reconnect verification checkpoint
+
+A harmless canonical-repository commit is used after Git reconnect to verify that the existing Vercel project now deploys from:
+
+```text
+Loccao102/SmartKid-Wallet
+```
+
+Verification passes only when new deployment metadata reports `githubRepo = SmartKid-Wallet`.
