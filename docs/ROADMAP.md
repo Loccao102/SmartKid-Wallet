@@ -56,7 +56,10 @@
 - [x] deterministic replay theo student + template + version + variant
 - [x] scenario version đóng vào generated customer instance
 - [x] Work Mode engine + generator tests
-- [ ] deferred consequences
+- [x] world state flags giữa các khách
+- [x] deferred consequences: next-customer + shift-end
+- [x] consequence history + Phaser world warnings
+- [x] deferred consequences
 
 ## Phase 5 — Data + analytics
 - [ ] Supabase schema + RLS
