@@ -68,6 +68,7 @@ export interface StallDefinition {
   name: string
   description: string
   skills: MathSkill[]
+  unlockFamilyIds: string[]
   exerciseFamilyIds: string[]
 }
 
