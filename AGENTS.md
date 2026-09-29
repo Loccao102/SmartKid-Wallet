@@ -35,6 +35,8 @@ Không gán skill không liên quan vào stall.
 ## 4. Scenario rules
 - Scenario ID/version ổn định.
 - Parameters, rubric, effects nằm trong data.
+- Scenario choice có thể thay đổi bill trước bước tính tiền thừa.
+- Employee rating, store reputation và customer satisfaction là ba metric riêng.
 - Feedback mô tả hậu quả, không gắn nhãn đạo đức tốt/xấu.
 - Event trước có thể ảnh hưởng scenario sau qua world state.
 
@@ -77,6 +79,7 @@ Không gán skill không liên quan vào stall.
 - Content: docs/CONTENT_RULES.md
 - Exercise catalog: docs/EXERCISE_CATALOG.md
 - Scenario/rubric: docs/SCENARIO_RUBRIC.md
+- Work Mode: docs/WORK_MODE.md
 - Architecture: docs/ARCHITECTURE.md
 - UI: docs/UI_DESIGN.md
 - Assets: docs/ASSET_SYSTEM.md
