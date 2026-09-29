@@ -3,16 +3,25 @@
 ## Phase 0 — Foundation
 - [x] Product contract
 - [x] 5-stall unlock rule
+- [x] Teacher-driven Assignment rule
 - [x] Scenario/rubric contract
 - [x] Tech architecture
 - [x] Initial React prototype scaffold
-- [ ] Lockfile/CI after package install environment available
+- [x] Lockfile + CI
 
-## Phase 1 — Unlock prototype
+## Phase 1 — Assignment + Unlock prototype
 - [x] 5 gian hàng dạng data-driven
 - [x] sequential unlock state
+- [x] progress scoped by assignment
+- [x] demo teacher Assignment payload
 - [x] simple math challenge
 - [x] Full Shift unlock gate
+- [ ] Teacher: màn tạo Assignment v1
+- [ ] Teacher: chọn lớp/học sinh
+- [ ] Teacher: chọn challenge/bộ skill/độ khó
+- [ ] Teacher: publish Assignment
+- [ ] Student: danh sách “Nhiệm vụ của em”
+- [ ] Supabase schema + RLS cho Assignment
 - [ ] polished isometric supermarket map
 - [ ] 2–4 challenges/stall
 - [ ] seeded random challenge parameters
@@ -25,6 +34,7 @@
 - [ ] discount customer
 - [ ] employee star rating
 - [ ] store reputation
+- [ ] Full Shift parameters controlled by Assignment
 
 ## Phase 3 — Simulation
 - [ ] inventory/world state
@@ -38,11 +48,12 @@
 - [ ] 10–20 event templates
 - [ ] rubric engine
 - [ ] replayable seeds
+- [ ] teacher content filters/presets
 
 ## Phase 5 — Learning analytics
 - [ ] student skill profile
 - [ ] attempt/event logging
-- [ ] teacher dashboard
+- [ ] teacher dashboard theo Assignment
 - [ ] export research data
 
 ## Phase 6 — Parent + gamification
