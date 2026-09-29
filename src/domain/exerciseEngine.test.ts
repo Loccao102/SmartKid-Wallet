@@ -12,17 +12,23 @@ describe('exercise engine', () => {
     expect(replay).toEqual(first)
   })
 
-  it('has three exercise families for every SmartMart stall', () => {
-    expect(exerciseFamilies).toHaveLength(15)
+  it('has four exercise families per stall and three unlock families', () => {
+    expect(exerciseFamilies).toHaveLength(20)
 
     for (const stall of stalls) {
       const families = exerciseFamilies.filter((family) => family.stallId === stall.id)
 
-      expect(stall.exerciseFamilyIds).toHaveLength(3)
-      expect(families).toHaveLength(3)
+      expect(stall.exerciseFamilyIds).toHaveLength(4)
+      expect(stall.unlockFamilyIds).toHaveLength(3)
+      expect(families).toHaveLength(4)
+
       expect(new Set(families.map((family) => family.id))).toEqual(
         new Set(stall.exerciseFamilyIds),
       )
+
+      for (const unlockFamilyId of stall.unlockFamilyIds) {
+        expect(stall.exerciseFamilyIds).toContain(unlockFamilyId)
+      }
     }
   })
 
