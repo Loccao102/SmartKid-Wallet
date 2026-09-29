@@ -43,15 +43,19 @@
 - [x] Phaser cashier scene: queue + counter + conveyor + POS state
 - [x] 10 scenario templates
   - [x] damaged item / voucher / near-expiry / wrong price / duplicate scan / expired voucher / customer budget / low stock / extra cash / stale promo sign
-- [ ] 5–6 customers/shift
+- [x] 5–6 customers/shift
   - [x] 3 customers trong Trainee Shift 01
+  - [x] 6 customers trong Seeded Shift 02
 - [x] 1–2 events/shift
 - [x] employee rating
 - [x] store reputation
 - [x] customer satisfaction
 - [x] bill adjustment từ scenario
-- [x] persistent shift progress
-- [x] Work Mode engine tests
+- [x] persistent shift progress theo shift ID
+- [x] seeded customer/scenario selection
+- [x] deterministic replay theo student + template + version + variant
+- [x] scenario version đóng vào generated customer instance
+- [x] Work Mode engine + generator tests
 - [ ] deferred consequences
 
 ## Phase 5 — Data + analytics
