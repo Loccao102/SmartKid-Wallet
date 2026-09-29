@@ -120,6 +120,7 @@ export interface WorkBasketItem {
 export interface WorkScenarioChoice {
   id: string
   label: string
+  billDelta: number
   employeeRatingDelta: number
   storeReputationDelta: number
   customerSatisfactionDelta: number
