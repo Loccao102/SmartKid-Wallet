@@ -157,9 +157,9 @@ export class WorkModeScene extends Phaser.Scene {
       if (index < this.view.customerIndex) return
 
       const isCurrent = index === this.view.customerIndex
-      const queueOffset = index - this.view.customerIndex
+      const waitingPosition = Math.max(0, index - this.view.customerIndex - 1)
       const x = isCurrent ? 342 : 112
-      const y = isCurrent ? 318 : 128 + queueOffset * 108
+      const y = isCurrent ? 318 : 104 + waitingPosition * 62
 
       const npc = this.createNpc(
         x,
@@ -172,9 +172,9 @@ export class WorkModeScene extends Phaser.Scene {
       if (!isCurrent) {
         this.dynamicLayer.add(
           this.add
-            .text(x, y + 38, customer.name, {
+            .text(x, y + 29, customer.name, {
               fontFamily: 'system-ui, sans-serif',
-              fontSize: '11px',
+              fontSize: '9px',
               fontStyle: 'bold',
               color: '#667a72',
             })
