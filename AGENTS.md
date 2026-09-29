@@ -7,13 +7,17 @@ Tài liệu này là luật bắt buộc cho mọi coding agent, contributor và
 - Core: **Toán học là công cụ → ra quyết định là gameplay → hậu quả là phản hồi học tập**.
 - Không biến sản phẩm thành quiz được phủ giao diện game.
 - MVP chỉ làm sâu **Map Siêu thị** trước.
-- Flow bắt buộc của Map Siêu thị: **mở khóa 5 gian hàng → đủ 5 gian → mở Full Shift → 5–6 khách + 1–2 event**.
+- Flow bắt buộc của Map Siêu thị: **giáo viên giao Assignment → học sinh mở khóa 5 gian hàng theo Assignment → đủ 5 gian → mở Full Shift → 5–6 khách + 1–2 event**.
+- **Học sinh không tự lấy bài trực tiếp từ kho nội dung. Mọi bài/challenge dùng để đánh giá hoặc mở khóa phải thuộc một Assignment do giáo viên giao.**
+- Kho challenge/scenario chỉ là content bank; Assignment là đơn vị phân phối nội dung đến lớp/học sinh.
+- Progress phải gắn với `assignmentId`, không lưu unlock toàn cục theo thiết bị.
 - Nội dung học tập phải nằm trong data/scenario, không hard-code vào component.
 - Học sinh nhìn thấy đánh giá 1–5 sao; dữ liệu nghiên cứu lưu dimension chi tiết bên dưới.
 - Phân biệt rõ **đánh giá nhân viên** và **danh tiếng siêu thị**.
 
 ## 2. Educational rules
 - Mỗi nhiệm vụ phải chỉ rõ: grade, mathSkills, financialSkills, values, difficulty, rubric.
+- Giáo viên phải kiểm soát ít nhất: đối tượng nhận bài, nội dung/bộ bài, độ khó hoặc rule chọn bài, điều kiện hoàn thành và thời hạn nếu có.
 - Không chấm đạo đức bằng nhãn “tốt/xấu”. Phản hồi bằng hậu quả cụ thể.
 - Một lựa chọn có thể đồng thời có lợi và bất lợi.
 - Random phải có kiểm soát theo slot để các lượt chơi vẫn tương đương về cấu trúc.
@@ -33,9 +37,11 @@ Tài liệu này là luật bắt buộc cho mọi coding agent, contributor và
 - Không bao giờ đưa service role/secret key vào frontend.
 - Authorization không dựa vào user-editable metadata.
 - RLS phải kiểm tra ownership/relationship, không chỉ `TO authenticated`.
+- Học sinh chỉ được đọc Assignment được giao cho mình/lớp mình.
+- Chỉ giáo viên sở hữu lớp hoặc người có quyền tương ứng mới được tạo/publish Assignment cho lớp đó.
 - UPDATE policy phải có cả USING và WITH CHECK.
 - Ưu tiên SECURITY INVOKER. SECURITY DEFINER chỉ dùng khi có lý do và phải review.
-- Dependency phải pin version; lockfile phải được commit ngay khi môi trường có thể cài package.
+- Dependency phải pin version; lockfile phải được commit.
 
 ## 5. React rules
 - Component nhỏ, rõ trách nhiệm.
@@ -48,6 +54,7 @@ Tài liệu này là luật bắt buộc cho mọi coding agent, contributor và
 ## 6. Content/data rules
 - Scenario ID ổn định, không tái sử dụng ID.
 - Rubric và effect phải nằm trong data.
+- Assignment phải tham chiếu content bằng ID/version; không copy nội dung tự do vào progress record.
 - Event trước có thể ảnh hưởng scenario sau qua store state.
 - Mọi random seed quan trọng phải có khả năng lưu/replay phục vụ nghiên cứu.
 - Không dùng Math.random() rải rác trong component; random phải đi qua một service/seeded generator.
@@ -55,7 +62,7 @@ Tài liệu này là luật bắt buộc cho mọi coding agent, contributor và
 ## 7. Quality gates
 Trước khi merge feature:
 1. Typecheck/build pass.
-2. Test logic scoring/progression.
+2. Test logic scoring/progression/assignment.
 3. Verify responsive UI trên desktop + tablet + mobile.
 4. Không có secret trong git.
 5. Docs phải được cập nhật nếu thay đổi game rule/schema.
@@ -65,6 +72,7 @@ Trước khi merge feature:
 - Product: `docs/PRODUCT_SPEC.md`
 - Gameplay: `docs/GAME_DESIGN.md`
 - Content rules: `docs/CONTENT_RULES.md`
+- Teacher assignment: `docs/TEACHER_ASSIGNMENTS.md`
 - Scenario/rubric: `docs/SCENARIO_RUBRIC.md`
 - Architecture: `docs/ARCHITECTURE.md`
 - Roadmap: `docs/ROADMAP.md`
