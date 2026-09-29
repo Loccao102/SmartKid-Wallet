@@ -1,4 +1,5 @@
 name: Supabase Smoke
+# rerun after anonymous auth enable
 
 on:
   push:
