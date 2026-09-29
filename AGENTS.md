@@ -1,21 +1,39 @@
 # SmartKid Wallet — Agent Contract
 
-Tài liệu này là luật bắt buộc cho coding agent/contributor trong repository.
+Tài liệu này là luật bắt buộc cho coding agent/contributor.
 
-## 1. Product invariants
+## 1. Canonical product model
+
+SmartKid Wallet có hai pha tách biệt:
+
+### Learning / Customer Mode
+- học sinh làm Toán;
+- Unlock Exercise là bắt buộc để mở stall;
+- Mission là vận dụng kiến thức;
+- không có persistent store-world consequence.
+
+### Employee / Work Mode
+- mở sau Learning/Mission;
+- mô phỏng công việc;
+- Toán xuất hiện khi task cần;
+- decision/world-state/deferred consequence chỉ thuộc pha này.
+
+**Không được bỏ hoặc làm yếu cơ chế mở gian bằng Toán.**
+
+## 2. Product invariants
+
 - Đối tượng chính: học sinh lớp 4–5.
-- Core: **Toán là công cụ → quyết định là gameplay → hậu quả là phản hồi học tập**.
-- Không biến sản phẩm thành quiz phủ skin game.
-- Hiển thị 4 map từ đầu; MVP chỉ mở SmartMart.
-- Ba map locked: Tiny Bank, Happy Restaurant, Weekend Market.
-- SmartMart có 5 stall, mỗi stall gắn cố định với nhóm kiến thức.
-- Teacher Assignment không phải core dependency. Học sinh phải chơi được mà không cần giáo viên tạo bài trước.
-- Stall unlock là account progression dài hạn.
-- Phân biệt Unlock Exercise (có đáp số) và Scenario (vận dụng nâng cao).
-- Sau hành trình người mua, Work Mode/thu ngân mới được mở.
-- Phân biệt employee rating và store reputation.
+- SmartMart là production scope hiện tại.
+- 5 stall gắn cố định với nhóm Toán.
+- Teacher Assignment không phải dependency core.
+- Stall unlock là progression dài hạn.
+- Unlock Exercise và Scenario là hai hệ thống khác nhau.
+- World-changing decision chỉ ở Employee Mode.
+- Simulation metrics không phải learning score.
+- Research/admin control không xuất hiện trong student UI production.
 
-## 2. Stall curriculum
+## 3. Stall curriculum
+
 - Produce: measurement, unit price, multiplication/division.
 - Food: quantity, portions, division, multi-step.
 - Drinks: bill, addition/subtraction, change.
@@ -24,82 +42,117 @@ Tài liệu này là luật bắt buộc cho coding agent/contributor trong repo
 
 Không gán skill không liên quan vào stall.
 
-## 3. Exercise rules
-- Exercise được sinh từ Exercise Family.
-- Family phải có stable ID, skills, parameters, generator, constraint, answer model.
-- Random phải deterministic/replayable bằng seed.
-- Không dùng Math.random() rải rác trong component.
-- Exercise instance đã phát không đổi khi refresh.
-- Generator phải được unit test.
+## 4. Exercise rules
 
-## 4. Scenario / Work Shift rules
+- Exercise sinh từ Exercise Family.
+- Stable ID/version.
+- Deterministic seed.
+- Không Math.random() rải trong component.
+- Issued instance không đổi khi refresh.
+- Generator có unit test.
+- Unlock flow vẫn là Toán → hoàn thành → mở stall.
+
+## 5. Mission rules
+
+- Mission là learning/application layer.
+- Có shopping/budget/planning.
+- Không dùng employee/store world-state.
+- Mission completion không tạo consequence chain kiểu Work Mode.
+
+## 6. Work Mode rules
+
 - Scenario ID/version ổn định.
-- Parameters, rubric, effects nằm trong data.
-- Scenario choice có thể thay đổi bill trước bước tính tiền thừa.
-- Employee rating, store reputation và customer satisfaction là ba metric riêng.
-- Feedback mô tả hậu quả, không gắn nhãn đạo đức tốt/xấu.
-- Event trước phải có thể ảnh hưởng khách sau qua world state/deferred consequence khi content yêu cầu.
-- World flag mô tả trạng thái hệ thống, không dùng thay cho metric.
-- Deferred consequence phải nằm trong data, không hard-code trong React/Phaser.
-- Trigger hỗ trợ next-customer/after-customers và shift-end; resolve phải deterministic.
-- Resolved consequence phải được lưu trong shift progress để audit/research.
-- Work Shift random phải deterministic từ studentKey + templateId + templateVersion + variantIndex.
-- Generated customer có scenario thì phải lưu scenarioId + scenarioVersion.
-- Không gán scenario vào giỏ bất kỳ nếu context/billDelta không tương thích; dùng validated customer blueprint.
-- Progress phải scope theo shift.id, không dùng một global Work Mode progress cho mọi ca.
+- Work Shift deterministic từ studentKey + templateId + templateVersion + variantIndex.
+- Không bắt buộc mọi customer có cùng total → scenario → change flow trong production.
+- Decision/world effect nằm trong data/domain, không hard-code React/Phaser.
+- Employee/store/customer metrics tách biệt.
+- World flag không phải score.
+- Deferred consequence deterministic.
+- Resolved consequence lưu trong shift progress + research log.
+- Scenario/customer context phải tương thích.
 
-## 5. Research logging rules
-- Research events là append-only; không rewrite event cũ để khớp state mới.
-- Mọi event phải có schemaVersion, eventId, sessionId, occurredAt, studentKey và context cần thiết.
-- Không log tên hiển thị/email/số điện thoại của học sinh vào research event; dùng pseudonymous studentKey/ID.
-- Math submit phải log mọi attempt, không chỉ lần đúng.
-- Scenario decision phải log scenario/version + choice + responseTime + before/after snapshot.
-- Deferred consequence resolve phải là event riêng.
-- Seed/template/version phải được log để tái tạo seeded shift.
-- Local Zustand chỉ là MVP sink; khi nối Supabase phải giữ event contract và RLS append-only.
+## 7. Research logging rules
 
-## 6. Architecture
+- append-only;
+- schema-versioned;
+- pseudonymous;
+- mọi math attempt được log;
+- scenario choice log version/choice/time/before-after;
+- consequence resolve là event riêng;
+- seed/template/version đủ replay;
+- Supabase research_events là live sink;
+- student production UI không hiển thị raw session/schema/export controls.
+
+## 8. Architecture
+
 - React + TypeScript cho app UI.
-- Phaser cho gameplay spatial/animation và phải lazy-load.
-- Zustand local game state.
-- TanStack Query server state.
-- Zod validate content từ JSON/CMS/backend.
-- Supabase khi backend được nối.
-- Không thêm microservice/Redis/K8s nếu chưa có nhu cầu.
+- Phaser cho spatial/animation, lazy-loaded.
+- Domain rule không nằm trong Phaser.
+- Zustand là UI/cache/offline state; production learning progress phải chuyển server source-of-truth.
+- TanStack Query cho server state.
+- Zod validate content.
+- Supabase cho Auth/Postgres/Storage.
+- Không thêm microservice/Redis/K8s khi chưa có nhu cầu.
 
-## 7. Asset rules
+## 9. Production reliability rules
+
+- Canonical repo: `Loccao102/SmartKid-Wallet`.
+- Production deployment phải theo canonical repo.
+- Không chấp nhận white-screen crash: gameplay boundary cần Error Boundary/fallback.
+- Zustand selector không được tạo object/array fallback mới mỗi snapshot; dùng stable reference/select primitive.
+- Thay schema/store persistence phải có migration/version plan.
+- Critical flow cần integration/E2E trước pilot.
+
+## 10. UI rules
+
+- Student UI không mang cảm giác dashboard SaaS.
+- Learning và Employee có visual language khác nhau.
+- Body text production cho trẻ không dùng dày đặc .5rem/.6rem.
+- Touch target ≥44px.
+- Mobile là first-class.
+- Simulation metric và learning performance phải trình bày tách biệt.
+- Research technical UI chuyển sang Researcher/Admin.
+
+## 11. Asset rules
+
 - Stable assets: public/assets.
-- UI/system icons mặc định dùng `lucide-react`; import từng icon trực tiếp.
-- Không dùng emoji làm UI icon production. Emoji chỉ được dùng tạm trong prototype hoặc nội dung minh họa có chủ đích.
-- Component/game code phải resolve qua src/assets/registry.ts khi có asset canonical.
-- Không rải hard-coded asset path khắp code.
-- Ưu tiên WebP/AVIF cho static art; sprite atlas cho animation Phaser.
-- Xem docs/ASSET_SYSTEM.md.
+- UI icon: lucide-react.
+- Không dùng emoji như production system icon.
+- Canonical asset path qua registry khi có.
+- Ưu tiên WebP/AVIF + sprite atlas.
 
-## 8. Security
-- RLS cho bảng exposed.
-- Không đưa service role/secret vào frontend.
+## 12. Security
+
+- RLS cho mọi bảng exposed.
+- Không service-role/secret trong frontend.
 - Teacher chỉ xem lớp thuộc quyền.
-- Student chỉ truy cập dữ liệu của mình theo policy.
-- UPDATE policy có USING + WITH CHECK.
+- Student chỉ truy cập dữ liệu của mình.
+- UPDATE policy dùng USING + WITH CHECK.
+- Research event append-only.
 
-## 9. Quality gates
-1. Typecheck/build pass.
-2. Test generator/progression/scoring khi liên quan.
-3. Verify responsive desktop/tablet/mobile.
-4. Không secret trong git.
-5. Cập nhật docs khi đổi game rule/schema.
-6. Supabase change phải review RLS.
+## 13. Quality gates
 
-## 10. Source of truth
+1. Build/typecheck pass.
+2. Relevant unit tests pass.
+3. Critical flow smoke/E2E khi liên quan.
+4. Responsive desktop/tablet/mobile.
+5. Không secret trong git.
+6. Docs update khi đổi rule/schema.
+7. Supabase change review RLS + generated types.
+8. Production deploy source phải là canonical repo.
+
+## 14. Source of truth
+
+- Production direction: docs/PRODUCTION_PLAN.md
 - Product: docs/PRODUCT_SPEC.md
 - Gameplay: docs/GAME_DESIGN.md
+- UI/UX: docs/UI_DESIGN.md
+- Work Mode: docs/WORK_MODE.md
+- Architecture: docs/ARCHITECTURE.md
+- Roadmap: docs/ROADMAP.md
+- Research logging: docs/RESEARCH_LOGGING.md
+- Supabase: docs/SUPABASE_SETUP.md
 - Content: docs/CONTENT_RULES.md
 - Exercise catalog: docs/EXERCISE_CATALOG.md
 - Scenario/rubric: docs/SCENARIO_RUBRIC.md
-- Work Mode: docs/WORK_MODE.md
-- Research logging: docs/RESEARCH_LOGGING.md\n- Supabase setup: docs/SUPABASE_SETUP.md
-- Architecture: docs/ARCHITECTURE.md
-- UI: docs/UI_DESIGN.md
 - Assets: docs/ASSET_SYSTEM.md
-- Roadmap: docs/ROADMAP.md
