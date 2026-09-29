@@ -5864,3 +5864,45 @@ input:focus-visible {
     justify-content: center;
   }
 }
+
+
+.research-sync-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  font-size: .5rem;
+  font-weight: 900;
+}
+
+.research-sync-status.is-local {
+  background: #edf0ed;
+  color: #6f7e79;
+}
+
+.research-sync-status.is-pending {
+  background: #fff2c9;
+  color: #7d6018;
+}
+
+.research-sync-status.is-synced {
+  background: #def2e6;
+  color: #176a53;
+}
+
+.research-sync-status.is-error {
+  background: #ffe4df;
+  color: #a04b3d;
+}
+
+.research-sync-error {
+  display: block;
+  max-width: 540px;
+  margin-top: 4px;
+  color: #a04b3d;
+  font-size: .5rem;
+  line-height: 1.4;
+}
