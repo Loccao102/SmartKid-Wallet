@@ -1,68 +1,46 @@
-# Game Design — Supermarket MVP
+# Game Design — SmartKid Wallet MVP
 
 ## Core loop
-**Quan sát → Tính toán → Quyết định → Hậu quả → Phản hồi → Tiếp tục**
+**Khám phá → Làm Toán → Mở khóa → Trải nghiệm → Mission → Quyết định → Hậu quả → Tiến bộ**
 
-## Macro loop
-**Mở gian hàng → học mechanic → mở đủ 5 gian → Full Shift → tổng kết → replay/tiến bộ**
+## World loop
+Bốn map luôn hiển thị trên bản đồ hành trình. MVP chỉ mở **SmartMart**; ba map còn lại ở trạng thái locked để thể hiện progression tương lai.
 
-## Phase A: 5 gian hàng
-### 1. Rau củ & trái cây
-Kỹ năng: kg, đơn giá, nhân/chia, chất lượng.
-Ví dụ: 3kg cam × 38.000đ/kg.
+## SmartMart loop
+1. Học sinh bước vào SmartMart.
+2. Gặp 5 gian hàng.
+3. Mỗi gian có bộ Exercise Family cố định.
+4. Làm đủ Unlock Exercise → gian được mở dài hạn.
+5. Gian đã mở có thể vào/ra/quay lại tự do.
+6. Mission yêu cầu kết hợp nhiều gian và quản lý ngân sách.
+7. Hoàn thành hành trình nhập môn → mở Nhân viên tập sự / Work Mode.
 
-### 2. Thực phẩm
-Kỹ năng: định mức, số lượng, nhiều bước.
-Ví dụ: mua đủ 4 người nhưng không vượt giới hạn.
+## 5 gian hàng
+- Rau củ & Hoa quả: khối lượng, đơn giá, nhân/chia, đổi đơn vị.
+- Thực phẩm: số lượng, chia đều, định mức, nhiều bước.
+- Đồ uống: cộng/trừ tiền, hóa đơn, tiền thừa.
+- Đồ dùng: ngân sách, tổng nhiều món, so sánh phương án.
+- Khuyến mãi: phần trăm, tăng/giảm giá, voucher.
 
-### 3. Đồ uống
-Kỹ năng: cộng, trừ, hóa đơn, tiền thừa.
-Ví dụ: khách đưa 200.000đ sau hóa đơn 137.000đ.
+## Unlock Exercise
+- Có đáp số.
+- Ngắn, kiểm tra kiến thức nền.
+- Sinh từ family + parameters.
+- Không random lại khi refresh.
+- Seed gắn với học sinh/progression/family.
 
-### 4. Đồ dùng
-Kỹ năng: ngân sách, so sánh.
-Ví dụ: chọn giỏ hàng ≤ 150.000đ đáp ứng đủ yêu cầu.
+## Mission
+Mission là mục tiêu thực tế. Học sinh tự quyết định đi gian nào, chọn sản phẩm gì, quay lại gian trước, bỏ/thêm món, áp dụng khuyến mãi và khi nào thanh toán.
 
-### 5. Khuyến mãi
-Kỹ năng: phần trăm, giảm giá.
-Ví dụ: 250.000đ giảm 20%.
+## Work Mode
+Sau onboarding, học sinh có thể nhập vai nhân viên/thu ngân. Một ca chuẩn có 5–6 khách và 1–2 event.
 
-## Phase B: Full Shift
-Một ca có mục tiêu cấu hình. Học sinh gặp 5–6 khách.
-
-### Employee rating
-Mỗi khách có thể đánh giá 1–5 sao dựa trên:
-- math correctness;
-- requirement fit;
-- honesty/transparency;
-- service quality;
-- optional efficiency.
-
-### Store reputation
-Danh tiếng siêu thị 1–5 sao, chịu ảnh hưởng bởi:
-- chất lượng hàng;
-- hàng dập/hỏng;
-- minh bạch;
-- giải quyết khiếu nại;
-- lãng phí;
-- lỗi hệ thống được nhân viên xử lý hay bỏ qua.
+## Ratings
+- Employee rating: 1–5 sao.
+- Store reputation: 1–5 sao.
 
 ## Deferred consequences
-Quyết định không nhất thiết trừ điểm ngay.
-Ví dụ để táo dập lẫn hàng đẹp:
-- ngay lúc xử lý: chưa có phản hồi;
-- 2 khách sau có thể mua phải;
-- complaint xuất hiện;
-- store reputation giảm.
+Quyết định có thể gây hậu quả ở scenario sau. Ví dụ giữ táo dập trên kệ có thể dẫn tới complaint sau vài khách.
 
-## End-of-shift
-Hiển thị:
-- employee stars;
-- store reputation;
-- revenue vs target;
-- waste;
-- customer outcomes;
-- math skill breakdown;
-- 1–2 feedback quan trọng.
-
-Không dùng một score tổng duy nhất để đại diện năng lực.
+## Leaderboard
+Không xếp hạng đơn thuần bằng doanh thu. Ưu tiên challenge cùng seed, độ chính xác, Mission hoàn thành, streak và tiến bộ.
