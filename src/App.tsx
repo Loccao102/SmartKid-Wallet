@@ -1,4 +1,14 @@
 import { useState } from 'react'
+import {
+  Flame,
+  Home,
+  Map,
+  Star,
+  Target,
+  Trophy,
+  User,
+  type LucideIcon,
+} from 'lucide-react'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 
@@ -6,18 +16,52 @@ type StudentPage = 'home' | 'maps' | 'smartmart' | 'missions' | 'leaderboard' | 
 
 const navItems: Array<{
   id: Exclude<StudentPage, 'smartmart'>
-  icon: string
+  icon: LucideIcon
   label: string
 }> = [
-  { id: 'home', icon: '⌂', label: 'Trang chủ' },
-  { id: 'maps', icon: '▣', label: 'Bản đồ' },
-  { id: 'missions', icon: '✓', label: 'Nhiệm vụ' },
-  { id: 'leaderboard', icon: '★', label: 'Bảng xếp hạng' },
-  { id: 'profile', icon: '●', label: 'Hồ sơ' },
+  { id: 'home', icon: Home, label: 'Trang chủ' },
+  { id: 'maps', icon: Map, label: 'Bản đồ' },
+  { id: 'missions', icon: Target, label: 'Nhiệm vụ' },
+  { id: 'leaderboard', icon: Trophy, label: 'Bảng xếp hạng' },
+  { id: 'profile', icon: User, label: 'Hồ sơ' },
 ]
 
-function NavIcon({ children }: { children: string }) {
-  return <span className="nav-icon" aria-hidden="true">{children}</span>
+const placeholderContent: Record<
+  Exclude<StudentPage, 'maps' | 'smartmart'>,
+  { icon: LucideIcon; title: string; description: string }
+> = {
+  home: {
+    icon: Home,
+    title: 'Trang chủ SmartKid',
+    description:
+      'Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển khai ở bước tiếp theo.',
+  },
+  missions: {
+    icon: Target,
+    title: 'Nhiệm vụ',
+    description:
+      'Mission sẽ là các bài vận dụng thực tế trong thế giới SmartMart, không phải danh sách câu hỏi.',
+  },
+  leaderboard: {
+    icon: Trophy,
+    title: 'Bảng xếp hạng',
+    description:
+      'Bảng xếp hạng sẽ ưu tiên độ chính xác, nhiệm vụ hoàn thành, chuỗi học và thử thách chuẩn hóa.',
+  },
+  profile: {
+    icon: User,
+    title: 'Hồ sơ của em',
+    description:
+      'Hồ sơ sẽ hiển thị level, XP, tiến độ từng bản đồ, kỹ năng và huy hiệu.',
+  },
+}
+
+function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
+  return (
+    <span className="nav-icon" aria-hidden="true">
+      <Icon size={18} strokeWidth={2.25} />
+    </span>
+  )
 }
 
 function PlaceholderScreen({
@@ -25,36 +69,14 @@ function PlaceholderScreen({
 }: {
   page: Exclude<StudentPage, 'maps' | 'smartmart'>
 }) {
-  const content = {
-    home: {
-      icon: '🏠',
-      title: 'Trang chủ SmartKid',
-      description:
-        'Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển khai ở bước tiếp theo.',
-    },
-    missions: {
-      icon: '🎯',
-      title: 'Nhiệm vụ',
-      description:
-        'Mission sẽ là các bài vận dụng thực tế trong thế giới SmartMart, không phải danh sách câu hỏi.',
-    },
-    leaderboard: {
-      icon: '🏆',
-      title: 'Bảng xếp hạng',
-      description:
-        'Bảng xếp hạng sẽ ưu tiên độ chính xác, nhiệm vụ hoàn thành, chuỗi học và thử thách chuẩn hóa.',
-    },
-    profile: {
-      icon: '👤',
-      title: 'Hồ sơ của em',
-      description:
-        'Hồ sơ sẽ hiển thị level, XP, tiến độ từng bản đồ, kỹ năng và huy hiệu.',
-    },
-  }[page]
+  const content = placeholderContent[page]
+  const Icon = content.icon
 
   return (
     <section className="placeholder-screen">
-      <span className="placeholder-icon" aria-hidden="true">{content.icon}</span>
+      <span className="placeholder-icon" aria-hidden="true">
+        <Icon size={30} strokeWidth={1.9} />
+      </span>
       <p className="page-kicker">ĐANG TRIỂN KHAI</p>
       <h1>{content.title}</h1>
       <p>{content.description}</p>
@@ -70,7 +92,9 @@ export function App() {
     <div className="app-shell">
       <aside className="student-sidebar">
         <div className="brand-lockup">
-          <div className="brand-symbol">★</div>
+          <div className="brand-symbol" aria-hidden="true">
+            <Star size={20} strokeWidth={2.4} />
+          </div>
           <div className="brand-copy">
             <strong>SmartKid</strong>
             <span>Wallet</span>
@@ -87,14 +111,16 @@ export function App() {
               aria-current={activeNavPage === item.id ? 'page' : undefined}
               onClick={() => setPage(item.id)}
             >
-              <NavIcon>{item.icon}</NavIcon>
+              <NavIcon icon={item.icon} />
               <span>{item.label}</span>
             </button>
           ))}
         </nav>
 
         <div className="sidebar-tip">
-          <span className="tip-spark">✦</span>
+          <span className="tip-spark" aria-hidden="true">
+            <Star size={15} strokeWidth={2.2} />
+          </span>
           <strong>Mẹo nhỏ</strong>
           <p>Mỗi khu vực trong SmartMart giúp em luyện một nhóm kỹ năng Toán khác nhau.</p>
         </div>
@@ -121,14 +147,18 @@ export function App() {
 
           <div className="header-actions">
             <div className="level-pill">
-              <span aria-hidden="true">⭐</span>
+              <span aria-hidden="true">
+                <Star size={20} strokeWidth={2.2} />
+              </span>
               <div>
                 <strong>Lv. 3</strong>
                 <small>120 / 300 XP</small>
               </div>
             </div>
             <div className="streak-pill">
-              <span aria-hidden="true">🔥</span>
+              <span aria-hidden="true">
+                <Flame size={20} strokeWidth={2.2} />
+              </span>
               <div>
                 <strong>7 ngày</strong>
                 <small>chuỗi học</small>
