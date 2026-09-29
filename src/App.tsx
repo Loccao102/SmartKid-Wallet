@@ -1,9 +1,14 @@
 import { useState } from 'react'
+import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 
-type StudentPage = 'home' | 'maps' | 'missions' | 'leaderboard' | 'profile'
+type StudentPage = 'home' | 'maps' | 'smartmart' | 'missions' | 'leaderboard' | 'profile'
 
-const navItems: Array<{ id: StudentPage; icon: string; label: string }> = [
+const navItems: Array<{
+  id: Exclude<StudentPage, 'smartmart'>
+  icon: string
+  label: string
+}> = [
   { id: 'home', icon: '⌂', label: 'Trang chủ' },
   { id: 'maps', icon: '▣', label: 'Bản đồ' },
   { id: 'missions', icon: '✓', label: 'Nhiệm vụ' },
@@ -15,27 +20,35 @@ function NavIcon({ children }: { children: string }) {
   return <span className="nav-icon" aria-hidden="true">{children}</span>
 }
 
-function PlaceholderScreen({ page }: { page: Exclude<StudentPage, 'maps'> }) {
+function PlaceholderScreen({
+  page,
+}: {
+  page: Exclude<StudentPage, 'maps' | 'smartmart'>
+}) {
   const content = {
     home: {
       icon: '🏠',
       title: 'Trang chủ SmartKid',
-      description: 'Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển khai ở bước tiếp theo.',
+      description:
+        'Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển khai ở bước tiếp theo.',
     },
     missions: {
       icon: '🎯',
       title: 'Nhiệm vụ',
-      description: 'Mission sẽ là các bài vận dụng thực tế trong thế giới SmartMart, không phải danh sách câu hỏi.',
+      description:
+        'Mission sẽ là các bài vận dụng thực tế trong thế giới SmartMart, không phải danh sách câu hỏi.',
     },
     leaderboard: {
       icon: '🏆',
       title: 'Bảng xếp hạng',
-      description: 'Bảng xếp hạng sẽ ưu tiên độ chính xác, nhiệm vụ hoàn thành, chuỗi học và thử thách chuẩn hóa.',
+      description:
+        'Bảng xếp hạng sẽ ưu tiên độ chính xác, nhiệm vụ hoàn thành, chuỗi học và thử thách chuẩn hóa.',
     },
     profile: {
       icon: '👤',
       title: 'Hồ sơ của em',
-      description: 'Hồ sơ sẽ hiển thị level, XP, tiến độ từng bản đồ, kỹ năng và huy hiệu.',
+      description:
+        'Hồ sơ sẽ hiển thị level, XP, tiến độ từng bản đồ, kỹ năng và huy hiệu.',
     },
   }[page]
 
@@ -51,6 +64,7 @@ function PlaceholderScreen({ page }: { page: Exclude<StudentPage, 'maps'> }) {
 
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
+  const activeNavPage = page === 'smartmart' ? 'maps' : page
 
   return (
     <div className="app-shell">
@@ -68,9 +82,9 @@ export function App() {
             <button
               key={item.id}
               type="button"
-              className={page === item.id ? 'is-active' : ''}
+              className={activeNavPage === item.id ? 'is-active' : ''}
               aria-label={item.label}
-              aria-current={page === item.id ? 'page' : undefined}
+              aria-current={activeNavPage === item.id ? 'page' : undefined}
               onClick={() => setPage(item.id)}
             >
               <NavIcon>{item.icon}</NavIcon>
@@ -91,7 +105,9 @@ export function App() {
             <strong>Minh Anh</strong>
             <span>Lớp 5A · Lv. 3</span>
           </div>
-          <button type="button" aria-label="Mở hồ sơ" onClick={() => setPage('profile')}>⋯</button>
+          <button type="button" aria-label="Mở hồ sơ" onClick={() => setPage('profile')}>
+            ⋯
+          </button>
         </div>
       </aside>
 
@@ -121,7 +137,13 @@ export function App() {
           </div>
         </header>
 
-        {page === 'maps' ? <WorldMapScreen /> : <PlaceholderScreen page={page} />}
+        {page === 'maps' ? (
+          <WorldMapScreen onOpenSmartMart={() => setPage('smartmart')} />
+        ) : page === 'smartmart' ? (
+          <SmartMartScreen onBack={() => setPage('maps')} />
+        ) : (
+          <PlaceholderScreen page={page} />
+        )}
       </div>
     </div>
   )
