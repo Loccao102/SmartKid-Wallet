@@ -3508,3 +3508,159 @@ input:focus-visible {
     flex-direction: column;
   }
 }
+
+
+/* === Phaser SmartMart gameplay shell === */
+
+.smartmart-view-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid #dde6de;
+  border-radius: 14px;
+  background: rgba(255,255,255,.86);
+}
+
+.smartmart-view-switch button {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 10px;
+  background: transparent;
+  color: #71817c;
+  font-size: .63rem;
+  font-weight: 900;
+}
+
+.smartmart-view-switch button.is-active {
+  background: #dff2e7;
+  color: #176e57;
+  box-shadow: 0 2px 7px rgba(44,91,72,.08);
+}
+
+.smartmart-game-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.smartmart-game-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 13px;
+  border: 1px solid #dde6dd;
+  border-radius: 15px;
+  background: rgba(255,255,255,.88);
+}
+
+.smartmart-game-hud > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #677a73;
+  font-size: .64rem;
+}
+
+.smartmart-game-hud strong {
+  color: #34564c;
+}
+
+.smartmart-near-stall {
+  min-height: 32px;
+  padding: 6px 9px;
+  border-radius: 10px;
+  background: #f1f5f1;
+  transition: background .16s ease, color .16s ease;
+}
+
+.smartmart-near-stall.is-visible {
+  background: #e3f4ea;
+  color: #176b54;
+}
+
+.smartmart-phaser-host {
+  position: relative;
+  width: 100%;
+  height: min(72vh, 740px);
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid #d9e3d9;
+  border-radius: 26px;
+  background: #e8efe5;
+  box-shadow:
+    inset 0 0 0 5px rgba(255,255,255,.48),
+    0 20px 44px rgba(41,72,59,.1);
+}
+
+.smartmart-phaser-host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.smartmart-game-loading {
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  border: 1px solid #dbe5dc;
+  border-radius: 26px;
+  background: #eef5ef;
+  color: #557068;
+}
+
+.smartmart-game-loading strong {
+  font-size: .75rem;
+}
+
+.smartmart-game-shell .smartmart-mission-gate {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .smartmart-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .smartmart-view-switch {
+    order: 3;
+    width: 100%;
+  }
+
+  .smartmart-view-switch button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .smartmart-game-hud {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .smartmart-phaser-host {
+    height: 640px;
+  }
+}
+
+@media (max-width: 600px) {
+  .smartmart-phaser-host {
+    min-height: 520px;
+    height: 65vh;
+    border-radius: 20px;
+  }
+
+  .smartmart-game-loading {
+    min-height: 520px;
+  }
+
+  .smartmart-game-hud > div:first-child {
+    display: none;
+  }
+}
