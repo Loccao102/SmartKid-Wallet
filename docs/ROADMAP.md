@@ -31,11 +31,12 @@
 ## Phase 3 — SmartMart exploration + Mission
 - [ ] Phaser map shell
 - [ ] movement/interactions
-- [ ] product catalog
-- [ ] cart/budget HUD
+- [x] product catalog MVP (14 sản phẩm)
+- [x] cart/budget HUD cho Mission 01
 - [ ] 3–5 Missions
+  - [x] Mission 01 — Chuẩn bị liên hoan lớp
 - [ ] đi lại tự do giữa stall đã mở
-- [ ] checkout/completion
+- [x] checkout/completion engine + UI cho Mission 01
 
 ## Phase 4 — Scenario + Work Mode
 - [ ] 10–15 scenario templates
