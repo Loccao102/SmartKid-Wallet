@@ -1,6 +1,7 @@
 import type { ExerciseFamilyDefinition } from '../domain/types'
 
 export const exerciseFamilies: ExerciseFamilyDefinition[] = [
+  // Produce
   {
     id: 'PRODUCE_UNIT_PRICE',
     stallId: 'produce',
@@ -16,6 +17,35 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     ],
   },
   {
+    id: 'PRODUCE_FIND_WEIGHT',
+    stallId: 'produce',
+    name: 'Tìm khối lượng',
+    description: 'Tìm số kg khi biết đơn giá và tổng tiền.',
+    skills: ['division', 'unit-price', 'measurement'],
+    difficulty: 1,
+    generatorType: 'find-weight-from-total',
+    parameters: [
+      { kind: 'list', key: 'product', values: ['cam', 'táo', 'lê', 'nho'] },
+      { kind: 'list', key: 'weightKg', values: [2, 3, 4, 5, 6] },
+      { kind: 'range', key: 'unitPrice', min: 12000, max: 50000, step: 1000 },
+    ],
+  },
+  {
+    id: 'PRODUCE_KG_TO_GRAMS',
+    stallId: 'produce',
+    name: 'Đổi kg sang gam',
+    description: 'Đổi khối lượng từ kg sang gam.',
+    skills: ['multiplication', 'measurement'],
+    difficulty: 1,
+    generatorType: 'kg-to-grams',
+    parameters: [
+      { kind: 'list', key: 'product', values: ['cam', 'táo', 'khoai tây', 'cà chua'] },
+      { kind: 'list', key: 'weightKg', values: [1, 2, 3, 4, 5] },
+    ],
+  },
+
+  // Food
+  {
     id: 'FOOD_PORTION_COUNT',
     stallId: 'food',
     name: 'Định mức theo số người',
@@ -30,6 +60,36 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     ],
   },
   {
+    id: 'FOOD_PACK_COUNT',
+    stallId: 'food',
+    name: 'Tính số gói cần mua',
+    description: 'Tìm số gói khi biết tổng số món cần và số món mỗi gói.',
+    skills: ['division'],
+    difficulty: 1,
+    generatorType: 'pack-count',
+    parameters: [
+      { kind: 'list', key: 'item', values: ['bánh', 'xúc xích', 'hộp sữa'] },
+      { kind: 'list', key: 'packSize', values: [2, 3, 4, 5, 6] },
+      { kind: 'list', key: 'packCount', values: [2, 3, 4, 5, 6] },
+    ],
+  },
+  {
+    id: 'FOOD_EQUAL_SHARE',
+    stallId: 'food',
+    name: 'Chia đều',
+    description: 'Chia đều một số lượng món ăn cho các nhóm.',
+    skills: ['division'],
+    difficulty: 1,
+    generatorType: 'equal-share',
+    parameters: [
+      { kind: 'list', key: 'item', values: ['chiếc bánh', 'quả trứng', 'hộp sữa chua'] },
+      { kind: 'list', key: 'groupCount', values: [2, 3, 4, 5, 6] },
+      { kind: 'list', key: 'perGroup', values: [2, 3, 4, 5] },
+    ],
+  },
+
+  // Drinks
+  {
     id: 'DRINKS_CHANGE',
     stallId: 'drinks',
     name: 'Tính tiền thừa',
@@ -42,6 +102,39 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
       { kind: 'list', key: 'cashGiven', values: [50000, 100000, 200000, 500000] },
     ],
   },
+  {
+    id: 'DRINKS_QUANTITY_TOTAL',
+    stallId: 'drinks',
+    name: 'Số lượng × đơn giá',
+    description: 'Tính tổng tiền của nhiều chai cùng loại.',
+    skills: ['multiplication', 'addition'],
+    difficulty: 1,
+    generatorType: 'quantity-total',
+    parameters: [
+      { kind: 'list', key: 'drink', values: ['nước suối', 'sữa hộp', 'nước ép', 'trà trái cây'] },
+      { kind: 'list', key: 'quantity', values: [2, 3, 4, 5, 6, 8] },
+      { kind: 'range', key: 'unitPrice', min: 8000, max: 30000, step: 1000 },
+    ],
+  },
+  {
+    id: 'DRINKS_TWO_ITEM_TOTAL',
+    stallId: 'drinks',
+    name: 'Hóa đơn hai loại đồ uống',
+    description: 'Tính tổng hóa đơn từ hai loại đồ uống.',
+    skills: ['addition', 'multiplication'],
+    difficulty: 2,
+    generatorType: 'two-item-total',
+    parameters: [
+      { kind: 'list', key: 'drinkA', values: ['nước suối', 'sữa hộp'] },
+      { kind: 'list', key: 'drinkB', values: ['nước ép', 'trà trái cây'] },
+      { kind: 'list', key: 'quantityA', values: [2, 3, 4] },
+      { kind: 'list', key: 'quantityB', values: [2, 3, 4] },
+      { kind: 'range', key: 'priceA', min: 8000, max: 20000, step: 1000 },
+      { kind: 'range', key: 'priceB', min: 12000, max: 30000, step: 1000 },
+    ],
+  },
+
+  // Supplies
   {
     id: 'SUPPLIES_BUDGET',
     stallId: 'supplies',
@@ -59,10 +152,40 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
     ],
   },
   {
+    id: 'SUPPLIES_PRICE_DIFFERENCE',
+    stallId: 'supplies',
+    name: 'So sánh hai mức giá',
+    description: 'Tính chênh lệch giữa hai lựa chọn.',
+    skills: ['subtraction', 'comparison'],
+    difficulty: 1,
+    generatorType: 'price-difference',
+    parameters: [
+      { kind: 'list', key: 'item', values: ['hộp bút', 'balo', 'bộ bút màu', 'quyển vở'] },
+      { kind: 'range', key: 'lowerPrice', min: 10000, max: 120000, step: 5000 },
+      { kind: 'list', key: 'difference', values: [5000, 10000, 15000, 20000, 25000] },
+    ],
+  },
+  {
+    id: 'SUPPLIES_MAX_QUANTITY',
+    stallId: 'supplies',
+    name: 'Mua tối đa bao nhiêu món',
+    description: 'Tìm số lượng tối đa có thể mua trong một ngân sách.',
+    skills: ['division', 'budget'],
+    difficulty: 2,
+    generatorType: 'max-quantity-budget',
+    parameters: [
+      { kind: 'list', key: 'item', values: ['quyển vở', 'chiếc bút', 'thước kẻ', 'hộp màu'] },
+      { kind: 'list', key: 'unitPrice', values: [10000, 12000, 15000, 20000, 25000] },
+      { kind: 'list', key: 'budget', values: [50000, 80000, 100000, 120000, 150000, 200000] },
+    ],
+  },
+
+  // Promotion
+  {
     id: 'PROMO_FINAL_PRICE',
     stallId: 'promotion',
     name: 'Giá sau giảm',
-    description: 'Tính số tiền được giảm và giá phải trả sau khuyến mãi.',
+    description: 'Tính giá phải trả sau khuyến mãi.',
     skills: ['percentage', 'subtraction'],
     difficulty: 2,
     generatorType: 'discount-final-price',
@@ -72,4 +195,42 @@ export const exerciseFamilies: ExerciseFamilyDefinition[] = [
       { kind: 'list', key: 'discountRate', values: [10, 20, 25, 30] },
     ],
   },
+  {
+    id: 'PROMO_DISCOUNT_AMOUNT',
+    stallId: 'promotion',
+    name: 'Số tiền được giảm',
+    description: 'Tính số tiền giảm từ giá gốc và phần trăm giảm.',
+    skills: ['percentage', 'multiplication'],
+    difficulty: 2,
+    generatorType: 'discount-amount',
+    parameters: [
+      { kind: 'list', key: 'product', values: ['áo khoác', 'balo', 'giày thể thao', 'hộp bút'] },
+      { kind: 'range', key: 'originalPrice', min: 100000, max: 500000, step: 10000 },
+      { kind: 'list', key: 'discountRate', values: [10, 20, 25, 30] },
+    ],
+  },
+  {
+    id: 'PROMO_PRICE_INCREASE',
+    stallId: 'promotion',
+    name: 'Giá sau tăng',
+    description: 'Tính giá mới sau khi tăng theo phần trăm.',
+    skills: ['percentage', 'addition'],
+    difficulty: 2,
+    generatorType: 'price-increase',
+    parameters: [
+      { kind: 'list', key: 'product', values: ['balo', 'hộp bút', 'bình nước', 'áo khoác'] },
+      { kind: 'range', key: 'originalPrice', min: 100000, max: 400000, step: 10000 },
+      { kind: 'list', key: 'increaseRate', values: [10, 20, 25] },
+    ],
+  },
 ]
+
+export function getExerciseFamilyById(id: string) {
+  const family = exerciseFamilies.find((item) => item.id === id)
+
+  if (!family) {
+    throw new Error(`Unknown exercise family: ${id}`)
+  }
+
+  return family
+}
