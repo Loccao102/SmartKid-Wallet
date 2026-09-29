@@ -24,3 +24,14 @@ React 19 + TypeScript + Vite, Phaser 4 cho gameplay, Zustand, TanStack Query, Zo
 Tài liệu nguồn chuẩn nằm trong docs/. Coding agent phải tuân theo AGENTS.md.
 
 > Trạng thái: đang phát triển MVP SmartMart.
+
+
+## Deploy production
+
+Frontend is Vercel-ready through `vercel.json`.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FLoccao102%2FSmartKid-Wallet&project-name=smartkid-wallet&repository-name=SmartKid-Wallet)
+
+The production Supabase URL and publishable key are safe public client defaults in `src/lib/supabase.ts`, so Vercel import does not require secret environment variables.
+
+Before cloud research sync can work, enable **Anonymous Sign-Ins** in the dedicated SmartKid Supabase project. The repository includes a manual `Supabase Smoke` GitHub Action to verify anonymous auth + INSERT/SELECT RLS + blocked UPDATE/DELETE.
