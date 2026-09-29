@@ -49,6 +49,8 @@ Không gán skill không liên quan vào stall.
 
 ## 6. Asset rules
 - Stable assets: public/assets.
+- UI/system icons mặc định dùng `lucide-react`; import từng icon trực tiếp.
+- Không dùng emoji làm UI icon production. Emoji chỉ được dùng tạm trong prototype hoặc nội dung minh họa có chủ đích.
 - Component/game code phải resolve qua src/assets/registry.ts khi có asset canonical.
 - Không rải hard-coded asset path khắp code.
 - Ưu tiên WebP/AVIF cho static art; sprite atlas cho animation Phaser.
