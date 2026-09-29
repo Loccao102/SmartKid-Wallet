@@ -165,6 +165,21 @@ export function generateExercise(
       })
     }
 
+    case 'find-unit-price-from-total': {
+      const product = String(pickListValue(family, 'product', random))
+      const weightKg = Number(pickListValue(family, 'weightKg', random))
+      const unitPrice = pickRangeValue(family, 'unitPrice', random)
+      const totalPrice = weightKg * unitPrice
+
+      return finalize({
+        ...base,
+        prompt: `${weightKg} kg ${product} có tổng giá ${formatMoney(totalPrice)}đ. Giá 1 kg ${product} là bao nhiêu?`,
+        answer: unitPrice,
+        unit: 'đ/kg',
+        parameters: { product, weightKg, unitPrice, totalPrice },
+      })
+    }
+
     case 'portion-count': {
       const item = String(pickListValue(family, 'item', random))
       const people = pickRangeValue(family, 'people', random)
@@ -207,6 +222,21 @@ export function generateExercise(
         answer: perGroup,
         unit: item,
         parameters: { item, groupCount, perGroup, totalItems },
+      })
+    }
+
+    case 'stock-remaining': {
+      const item = String(pickListValue(family, 'item', random))
+      const sold = Number(pickListValue(family, 'sold', random))
+      const remaining = Number(pickListValue(family, 'remaining', random))
+      const initialStock = sold + remaining
+
+      return finalize({
+        ...base,
+        prompt: `Quầy có ${initialStock} ${item}. Đã bán ${sold} ${item}. Quầy còn lại bao nhiêu ${item}?`,
+        answer: remaining,
+        unit: item,
+        parameters: { item, sold, remaining, initialStock },
       })
     }
 
@@ -254,6 +284,21 @@ export function generateExercise(
         answer,
         unit: 'đ',
         parameters: { drinkA, drinkB, quantityA, quantityB, priceA, priceB },
+      })
+    }
+
+    case 'find-drink-unit-price': {
+      const drink = String(pickListValue(family, 'drink', random))
+      const quantity = Number(pickListValue(family, 'quantity', random))
+      const unitPrice = pickRangeValue(family, 'unitPrice', random)
+      const totalPrice = quantity * unitPrice
+
+      return finalize({
+        ...base,
+        prompt: `Mua ${quantity} ${drink} hết ${formatMoney(totalPrice)}đ. Giá mỗi hộp/chai là bao nhiêu?`,
+        answer: unitPrice,
+        unit: 'đ',
+        parameters: { drink, quantity, unitPrice, totalPrice },
       })
     }
 
@@ -309,6 +354,24 @@ export function generateExercise(
       })
     }
 
+    case 'supplies-multi-item-total': {
+      const itemA = String(pickListValue(family, 'itemA', random))
+      const itemB = String(pickListValue(family, 'itemB', random))
+      const quantityA = Number(pickListValue(family, 'quantityA', random))
+      const quantityB = Number(pickListValue(family, 'quantityB', random))
+      const priceA = pickRangeValue(family, 'priceA', random)
+      const priceB = pickRangeValue(family, 'priceB', random)
+      const answer = quantityA * priceA + quantityB * priceB
+
+      return finalize({
+        ...base,
+        prompt: `Mua ${quantityA} ${itemA}, mỗi món ${formatMoney(priceA)}đ và ${quantityB} ${itemB}, mỗi món ${formatMoney(priceB)}đ. Tổng tiền là bao nhiêu?`,
+        answer,
+        unit: 'đ',
+        parameters: { itemA, itemB, quantityA, quantityB, priceA, priceB },
+      })
+    }
+
     case 'discount-final-price': {
       const product = String(pickListValue(family, 'product', random))
       const originalPrice = pickRangeValue(family, 'originalPrice', random)
@@ -353,6 +416,29 @@ export function generateExercise(
         answer,
         unit: 'đ',
         parameters: { product, originalPrice, increaseRate, increaseAmount },
+      })
+    }
+
+    case 'compare-promotion-savings': {
+      const product = String(pickListValue(family, 'product', random))
+      const originalPrice = pickRangeValue(family, 'originalPrice', random)
+      const discountRate = Number(pickListValue(family, 'discountRate', random))
+      const voucherValue = Number(pickListValue(family, 'voucherValue', random))
+      const percentageSaving = (originalPrice * discountRate) / 100
+      const answer = Math.abs(percentageSaving - voucherValue)
+
+      return finalize({
+        ...base,
+        prompt: `Một ${product} giá ${formatMoney(originalPrice)}đ. Ưu đãi A giảm ${discountRate}%, ưu đãi B dùng voucher ${formatMoney(voucherValue)}đ. Số tiền tiết kiệm của hai ưu đãi chênh nhau bao nhiêu?`,
+        answer,
+        unit: 'đ',
+        parameters: {
+          product,
+          originalPrice,
+          discountRate,
+          voucherValue,
+          percentageSaving,
+        },
       })
     }
 
