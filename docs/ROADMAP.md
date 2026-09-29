@@ -20,13 +20,13 @@
 - [ ] asset placeholders → asset thật
 
 ## Phase 2 — Exercise engine
-- [ ] seeded RNG service
-- [ ] exercise instance model
+- [x] seeded RNG service
+- [x] exercise instance model
 - [ ] generator constraints
 - [ ] 20–25 exercise families cho 5 stalls
 - [ ] 2–4 unlock exercises mỗi stall
-- [ ] persistent long-term stall progression
-- [ ] unit tests generators
+- [x] persistent long-term stall progression
+- [x] unit tests generator nền tảng
 
 ## Phase 3 — SmartMart exploration + Mission
 - [ ] Phaser map shell
