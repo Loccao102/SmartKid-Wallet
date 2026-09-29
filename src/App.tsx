@@ -9,6 +9,7 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react'
+import { HomeScreen } from './features/home/HomeScreen'
 import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
 import { MissionsScreen } from './features/missions/MissionsScreen'
@@ -42,22 +43,6 @@ function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
     <span className="nav-icon" aria-hidden="true">
       <Icon size={18} strokeWidth={2.25} />
     </span>
-  )
-}
-
-function HomePlaceholder() {
-  return (
-    <section className="placeholder-screen">
-      <span className="placeholder-icon" aria-hidden="true">
-        <Home size={30} strokeWidth={1.9} />
-      </span>
-      <p className="page-kicker">ĐANG TRIỂN KHAI</p>
-      <h1>Trang chủ SmartKid</h1>
-      <p>
-        Màn tổng quan hành trình, nhiệm vụ gần nhất và gợi ý tiếp tục sẽ được triển
-        khai ở bước tiếp theo.
-      </p>
-    </section>
   )
 }
 
@@ -165,7 +150,11 @@ export function App() {
         ) : page === 'profile' ? (
           <ProfileScreen />
         ) : (
-          <HomePlaceholder />
+          <HomeScreen
+            onContinueSmartMart={() => setPage('smartmart')}
+            onOpenMission={() => setPage('mission-class-party')}
+            onOpenLeaderboard={() => setPage('leaderboard')}
+          />
         )}
       </div>
     </div>
