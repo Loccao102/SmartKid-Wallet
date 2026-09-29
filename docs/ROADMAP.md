@@ -63,7 +63,7 @@
 
 ## Phase 5 — Data + analytics
 - [ ] Supabase schema + RLS
-- [x] attempts/events logging — local append-only MVP
+- [x] Work Mode attempts/events logging — local append-only MVP
 - [ ] teacher class dashboard
 - [ ] skill profile
 - [x] research export — JSON/CSV session export
