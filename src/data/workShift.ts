@@ -429,8 +429,8 @@ export const traineeShift: WorkShiftDefinition = {
       id: 'customer-lan',
       name: 'Cô Lan',
       basket: [
-        { name: '2 lốc sữa', quantity: 2, unitPrice: 36000 },
-        { name: '1 túi táo', quantity: 1, unitPrice: 30000 },
+        { name: 'lốc sữa', quantity: 2, unitPrice: 36000 },
+        { name: 'túi táo', quantity: 1, unitPrice: 30000 },
       ],
       cashGiven: 200000,
     },
@@ -439,7 +439,7 @@ export const traineeShift: WorkShiftDefinition = {
       name: 'Anh Minh',
       basket: [
         { name: '3 lốc nước ép', quantity: 3, unitPrice: 42000 },
-        { name: '1 gói khăn giấy', quantity: 1, unitPrice: 15000 },
+        { name: 'gói khăn giấy', quantity: 1, unitPrice: 15000 },
       ],
       cashGiven: 200000,
       scenarioId: 'SCENARIO_DAMAGED_DRINK',
@@ -448,8 +448,8 @@ export const traineeShift: WorkShiftDefinition = {
       id: 'customer-thao',
       name: 'Chị Thảo',
       basket: [
-        { name: '2 hộp cupcake', quantity: 2, unitPrice: 40000 },
-        { name: '1 lốc trà trái cây', quantity: 1, unitPrice: 35000 },
+        { name: 'hộp cupcake', quantity: 2, unitPrice: 40000 },
+        { name: 'lốc trà trái cây', quantity: 1, unitPrice: 35000 },
       ],
       cashGiven: 200000,
       scenarioId: 'SCENARIO_VALID_VOUCHER',
