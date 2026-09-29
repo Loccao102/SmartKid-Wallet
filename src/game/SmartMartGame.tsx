@@ -1,4 +1,11 @@
 import { useEffect, useRef } from 'react'
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  CircleDot,
+} from 'lucide-react'
 import Phaser from 'phaser'
 import type { StallId } from '../domain/types'
 import { SmartMartScene } from './SmartMartScene'
@@ -75,17 +82,92 @@ export default function SmartMartGame({
     if (!scene) return
 
     if (paused) {
+      scene.setVirtualMove(0, 0)
       scene.scene.pause()
     } else if (scene.scene.isPaused()) {
       scene.scene.resume()
     }
   }, [paused])
 
+  const startMove = (
+    event: React.PointerEvent<HTMLButtonElement>,
+    x: number,
+    y: number,
+  ) => {
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    sceneRef.current?.setVirtualMove(x, y)
+  }
+
+  const stopMove = () => {
+    sceneRef.current?.setVirtualMove(0, 0)
+  }
+
   return (
-    <div
-      ref={hostRef}
-      className="smartmart-phaser-host"
-      aria-label="Không gian SmartMart tương tác. Dùng WASD hoặc phím mũi tên để di chuyển."
-    />
+    <div className="smartmart-game-wrapper">
+      <div
+        ref={hostRef}
+        className="smartmart-phaser-host"
+        aria-label="Không gian SmartMart tương tác. Dùng WASD hoặc phím mũi tên để di chuyển."
+      />
+
+      <div className="smartmart-touch-controls" aria-label="Điều khiển cảm ứng">
+        <div className="smartmart-dpad">
+          <button
+            type="button"
+            className="move-up"
+            aria-label="Đi lên"
+            onPointerDown={(event) => startMove(event, 0, -1)}
+            onPointerUp={stopMove}
+            onPointerCancel={stopMove}
+          >
+            <ArrowUp size={22} />
+          </button>
+          <button
+            type="button"
+            className="move-left"
+            aria-label="Đi sang trái"
+            onPointerDown={(event) => startMove(event, -1, 0)}
+            onPointerUp={stopMove}
+            onPointerCancel={stopMove}
+          >
+            <ArrowLeft size={22} />
+          </button>
+          <button
+            type="button"
+            className="move-right"
+            aria-label="Đi sang phải"
+            onPointerDown={(event) => startMove(event, 1, 0)}
+            onPointerUp={stopMove}
+            onPointerCancel={stopMove}
+          >
+            <ArrowRight size={22} />
+          </button>
+          <button
+            type="button"
+            className="move-down"
+            aria-label="Đi xuống"
+            onPointerDown={(event) => startMove(event, 0, 1)}
+            onPointerUp={stopMove}
+            onPointerCancel={stopMove}
+          >
+            <ArrowDown size={22} />
+          </button>
+        </div>
+
+        <button
+          type="button"
+          className="smartmart-touch-action"
+          aria-label="Tương tác với gian hàng"
+          onPointerDown={(event) => {
+            event.preventDefault()
+            sceneRef.current?.triggerInteraction()
+          }}
+        >
+          <CircleDot size={26} />
+          <span>Tương tác</span>
+        </button>
+      </div>
+    </div>
   )
 }
