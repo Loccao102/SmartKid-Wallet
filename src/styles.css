@@ -3664,3 +3664,123 @@ input:focus-visible {
     display: none;
   }
 }
+
+
+.smartmart-game-wrapper {
+  position: relative;
+}
+
+.smartmart-touch-controls {
+  position: absolute;
+  inset: auto 18px 18px;
+  z-index: 8;
+  display: none;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  pointer-events: none;
+}
+
+.smartmart-dpad {
+  width: 126px;
+  height: 126px;
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+  gap: 3px;
+}
+
+.smartmart-dpad button,
+.smartmart-touch-action {
+  pointer-events: auto;
+  touch-action: none;
+  border: 1px solid rgba(255,255,255,.78);
+  background: rgba(35,79,67,.82);
+  color: white;
+  box-shadow: 0 8px 20px rgba(33,60,51,.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.smartmart-dpad button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+}
+
+.smartmart-dpad button:active,
+.smartmart-touch-action:active {
+  transform: translateY(2px);
+  background: rgba(22,105,82,.92);
+}
+
+.smartmart-dpad .move-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.smartmart-dpad .move-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.smartmart-dpad .move-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.smartmart-dpad .move-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.smartmart-touch-action {
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+  border-radius: 50%;
+}
+
+.smartmart-touch-action span {
+  font-size: .56rem;
+  font-weight: 900;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .smartmart-touch-controls {
+    display: flex;
+  }
+
+  .smartmart-phaser-host {
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .smartmart-touch-controls {
+    inset: auto 10px 10px;
+  }
+
+  .smartmart-dpad {
+    width: 111px;
+    height: 111px;
+    grid-template-columns: repeat(3, 35px);
+    grid-template-rows: repeat(3, 35px);
+  }
+
+  .smartmart-dpad button {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+  }
+
+  .smartmart-touch-action {
+    width: 76px;
+    height: 76px;
+  }
+}
