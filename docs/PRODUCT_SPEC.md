@@ -1,106 +1,92 @@
 # Product Spec — SmartKid Wallet
 
 ## 1. Product statement
-SmartKid Wallet là môi trường nhập vai mô phỏng cho học sinh lớp 4–5. Học sinh dùng Toán để xử lý những vấn đề đời sống và tài chính, sau đó quan sát hậu quả của quyết định đối với khách hàng, bản thân và tổ chức.
+SmartKid Wallet là thế giới nhập vai tài chính dành cho học sinh lớp 4–5. Học sinh dùng kiến thức Toán trong các hoạt động quen thuộc như mua sắm, quản lý ngân sách, tính hóa đơn và xử lý tình huống, sau đó quan sát hậu quả của quyết định.
 
-## 2. MVP scope
-MVP tập trung duy nhất vào **Siêu thị** nhưng làm đủ sâu để kiểm chứng:
-- giáo viên giao nhiệm vụ học tập;
-- học Toán theo ngữ cảnh;
-- mở khóa progression;
-- ra quyết định;
-- đánh giá 5 sao;
-- danh tiếng siêu thị;
-- trạng thái hàng hóa;
-- scenario ngẫu nhiên có kiểm soát;
-- dữ liệu phục vụ giáo viên/nghiên cứu.
+Core: **Học kiến thức → sử dụng kiến thức → ra quyết định → nhìn thấy hậu quả.**
 
-## 3. Luồng học tập bắt buộc
+Sản phẩm không phải LMS giao bài và không phải quiz được phủ giao diện game.
 
-### Bước 0 — Giáo viên giao Assignment
-Học sinh **không tự chọn bài trực tiếp từ kho bài**.
+## 2. World concept
+Hệ thống hiển thị sẵn 4 bản đồ:
+1. **SmartMart – Siêu thị** — mở sẵn trong MVP.
+2. **Ngân hàng tí hon** — khóa.
+3. **Nhà hàng vui vẻ** — khóa.
+4. **Chợ cuối tuần** — khóa.
 
-Giáo viên:
-1. chọn lớp hoặc học sinh;
-2. chọn Map Siêu thị;
-3. chọn bộ challenge cho từng gian hoặc rule sinh bài;
-4. cấu hình độ khó/số lượng;
-5. cấu hình điều kiện hoàn thành;
-6. bật/tắt Full Shift sau khi hoàn tất;
-7. đặt hạn hoàn thành nếu cần;
-8. Publish Assignment.
+Ba map sau tồn tại từ đầu để tạo cảm giác hành trình dài hạn, nhưng MVP chỉ triển khai gameplay đầy đủ cho SmartMart.
 
-Assignment trở thành đơn vị học sinh nhìn thấy ở màn “Nhiệm vụ của em”.
+## 3. SmartMart learning model
+SmartMart có 5 gian. Mỗi gian gắn cố định với một nhóm kiến thức:
+1. Rau củ & Hoa quả — khối lượng, đơn giá, nhân/chia, đổi đơn vị.
+2. Thực phẩm — số lượng, chia đều, định mức, bài nhiều bước.
+3. Đồ uống — tổng tiền, hóa đơn, tiền thừa.
+4. Đồ dùng — ngân sách, nhiều món, so sánh phương án.
+5. Khuyến mãi — phần trăm, tăng/giảm giá, voucher.
 
-### Pha A — Learn-to-Unlock
-Siêu thị có 5 gian hàng. Mỗi gian chứa các challenge **thuộc Assignment giáo viên đã giao**.
+Giáo viên không cấu hình nội dung Toán cho từng gian trong MVP. Curriculum được thiết kế sẵn trong thế giới.
 
-Mục đích:
-- onboarding tự nhiên;
-- ôn/kiểm tra kiến thức theo mục tiêu bài học của giáo viên;
-- giới thiệu từng loại hàng và mechanic;
-- tạo cảm giác tiến triển;
-- đảm bảo học sinh đã hiểu các phép tính cần thiết trước Full Shift.
+## 4. Ba tầng gameplay
+### Tầng 1 — Unlock Exercise
+- bài Toán ngắn, có đáp số xác định;
+- sinh từ Exercise Family + bộ tham số;
+- dùng để chứng minh kiến thức nền của gian;
+- mỗi học sinh có thể nhận biến thể khác nhau nhưng seed phải replay được.
 
-Progress được ghi theo `studentId + assignmentId`.
+### Tầng 2 — Mission
+Mission là bài vận dụng tổng hợp, không phải danh sách câu hỏi.
 
-Chỉ khi học sinh đáp ứng điều kiện hoàn thành của Assignment và **mở đủ 5/5 gian được yêu cầu** mới mở khóa Pha B.
+Ví dụ Chuẩn bị liên hoan lớp: 20 bạn, ngân sách 500.000đ, cần đồ uống + trái cây + đồ ăn, sau mua phải còn ít nhất 30.000đ.
 
-### Pha B — Full Shift Simulation
-Nếu giáo viên bật Full Shift cho Assignment, học sinh nhập vai nhân viên siêu thị trong một ca. Một lượt gồm khoảng 5–6 khách hàng và 1–2 event xen kẽ.
+Học sinh được đi lại giữa các gian đã mở, xem giá, thêm/bớt sản phẩm, so sánh và điều chỉnh phương án.
 
-Mỗi khách là mini-scenario:
-**yêu cầu → thu thập dữ kiện → tính toán → lựa chọn → hậu quả → đánh giá sao**.
+### Tầng 3 — Work Mode
+Sau khi hoàn thành hành trình nhập môn SmartMart, học sinh mở vai trò nhân viên. Một ca chuẩn có 5–6 khách + 1–2 event.
 
-Scenario trong Full Shift cũng phải tuân theo phạm vi/độ khó giáo viên đã giao.
+## 5. Progression
+Progress là dài hạn theo tài khoản, không gắn với Assignment giáo viên.
+Ví dụ: Người mới → Khách hàng thông minh → Nhân viên tập sự → Thu ngân → Nhân viên 5 sao → Quản lý ca.
 
-## 4. 5 gian hàng đề xuất
-1. **Rau củ & trái cây** — khối lượng, đơn giá, nhân/chia, chất lượng hàng.
-2. **Thực phẩm** — số lượng, định mức, combo, nhiều bước.
-3. **Đồ uống** — cộng/trừ, hóa đơn, tiền thừa.
-4. **Đồ dùng học tập & gia đình** — ngân sách, so sánh phương án.
-5. **Khuyến mãi** — phần trăm, giảm giá, voucher.
+Gian đã mở không bị khóa lại ở lần chơi sau.
 
-Tên và nội dung có thể thay đổi sau pilot nhưng phải giữ nguyên nguyên tắc: mỗi gian unlock một nhóm năng lực.
+## 6. Exercise generation
+Mỗi gian chứa nhiều Exercise Family. Mỗi family định nghĩa kỹ năng, độ khó, tham số, generator, constraint và công thức đáp án.
 
-## 5. Chỉ số trải nghiệm
-- Đánh giá nhân viên: 1–5 sao, chủ yếu do từng khách hàng phản hồi.
-- Danh tiếng siêu thị: 1–5 sao, tích lũy từ chất lượng hàng, minh bạch, khiếu nại và quyết định vận hành.
-- Doanh thu: mục tiêu tài chính của ca.
-- Lãng phí: số lượng/tỉ lệ hàng bị bỏ.
-- Progress: Assignment đã nhận, gian đã mở, ca đã hoàn thành, huy hiệu.
+Không cố hỗ trợ mọi bài Toán tự do. MVP chỉ xây các dạng toán phù hợp bối cảnh tài chính/siêu thị lớp 4–5.
 
-## 6. Success condition
-Không có một “điểm thắng” duy nhất. Điều kiện hoàn thành phải do Assignment quy định.
+## 7. Scenario
+Scenario là bài vận dụng nâng cao có bối cảnh, random có kiểm soát, constraint, lựa chọn, hậu quả, rubric và feedback.
 
-Ví dụ một Assignment có thể yêu cầu:
-- hoàn thành đủ challenge ở 5 gian;
-- độ chính xác Toán ≥ 70%;
-- Full Shift hoàn thành ít nhất 1 lần;
-- danh tiếng siêu thị không dưới ngưỡng;
-- lãng phí không vượt mức.
+Exercise và Scenario là hai hệ thống riêng.
 
-## 7. User roles
+## 8. Đánh giá
+- Employee rating: 1–5 sao, phản ánh tính toán, phục vụ, tư vấn, minh bạch và xử lý khách.
+- Store reputation: 1–5 sao, phản ánh chất lượng hàng, khiếu nại, hàng lỗi/hết hạn, minh bạch và lãng phí.
 
+Không dùng một score tổng duy nhất để đại diện năng lực.
+
+## 9. User roles
 ### Học sinh
-- xem các Assignment được giao;
-- làm đúng bộ bài giáo viên giao;
-- mở gian trong phạm vi Assignment;
-- hoàn thành Full Shift khi được phép;
-- xem tiến bộ và huy hiệu.
+Core user. Khám phá map, mở gian, làm Mission, Work Mode, nhận badge và xem tiến bộ.
 
 ### Giáo viên
-- quản lý lớp/học sinh;
-- chọn nội dung từ kho;
-- tạo, lưu nháp, publish và đóng Assignment;
-- giao cho cả lớp/nhóm/cá nhân;
-- cấu hình độ khó, số challenge, deadline, Full Shift;
-- xem tiến độ và skill breakdown theo Assignment;
-- xem lỗi phổ biến;
-- export dữ liệu.
+Trong MVP chủ yếu quan sát tiến độ lớp, kỹ năng mạnh/yếu, số lần thử, độ chính xác và hoạt động đã hoàn thành. Giáo viên không phải điều kiện để học sinh có nội dung chơi.
 
 ### Phụ huynh
-Theo dõi tiến bộ của con theo các nhiệm vụ đã được giáo viên giao và nhận gợi ý hoạt động đời thực; không ưu tiên xếp hạng con so với bạn khác.
+Phase sau: xem tiến bộ và gợi ý hoạt động đời thực.
 
 ### Admin/Researcher
-Quản lý content bank, scenario, rubric, product catalog, event và dữ liệu nghiên cứu. Admin tạo **nguồn nội dung**, không thay thế vai trò giao bài của giáo viên.
+Quản lý content, Exercise Family, Scenario Template, product catalog, rubric và dữ liệu nghiên cứu.
+
+## 10. MVP 3 tháng
+- 4 map hiển thị, chỉ SmartMart mở;
+- 5 gian SmartMart;
+- khoảng 20–25 Exercise Family;
+- seeded exercise generator;
+- 3–5 Mission;
+- 10–15 Scenario;
+- 1 Work Shift hoàn chỉnh;
+- profile/progression;
+- leaderboard công bằng;
+- teacher analytics cơ bản;
+- asset system thống nhất.
