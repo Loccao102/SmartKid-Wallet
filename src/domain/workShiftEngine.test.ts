@@ -95,13 +95,13 @@ describe('work shift engine', () => {
 
     expect(scheduled.flags).toContain('complaint-risk')
     expect(scheduled.pendingConsequences).toHaveLength(1)
-    expect(scheduled.pendingConsequences[0].dueAtServedCustomers).toBe(3)
+    expect(scheduled.pendingConsequences[0].dueAtServedCustomers).toBe(2)
 
     const initialMetrics = createInitialShiftMetrics(traineeShift)
     const tooEarly = resolveDueConsequences(
       initialMetrics,
       scheduled,
-      2,
+      1,
       false,
     )
 
@@ -111,7 +111,7 @@ describe('work shift engine', () => {
     const resolved = resolveDueConsequences(
       initialMetrics,
       scheduled,
-      3,
+      2,
       false,
     )
 
