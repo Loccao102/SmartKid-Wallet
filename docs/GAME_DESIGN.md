@@ -1,46 +1,170 @@
-# Game Design — SmartKid Wallet MVP
+# Game Design — SmartKid Wallet
 
-## Core loop
-**Khám phá → Làm Toán → Mở khóa → Trải nghiệm → Mission → Quyết định → Hậu quả → Tiến bộ**
+## 1. Hai game loop tách biệt
 
-## World loop
-Bốn map luôn hiển thị trên bản đồ hành trình. MVP chỉ mở **SmartMart**; ba map còn lại ở trạng thái locked để thể hiện progression tương lai.
+### Learning / Customer Loop
 
-## SmartMart loop
-1. Học sinh bước vào SmartMart.
-2. Gặp 5 gian hàng.
-3. Mỗi gian có bộ Exercise Family cố định.
-4. Làm đủ Unlock Exercise → gian được mở dài hạn.
-5. Gian đã mở có thể vào/ra/quay lại tự do.
-6. Mission yêu cầu kết hợp nhiều gian và quản lý ngân sách.
-7. Hoàn thành hành trình nhập môn → mở Nhân viên tập sự / Work Mode.
+```text
+Khám phá SmartMart
+→ làm Unlock Exercise
+→ mở stall
+→ luyện tập
+→ mở đủ điều kiện
+→ Mission vận dụng
+→ mở Employee Mode
+```
 
-## 5 gian hàng
-- Rau củ & Hoa quả: khối lượng, đơn giá, nhân/chia, đổi đơn vị.
-- Thực phẩm: số lượng, chia đều, định mức, nhiều bước.
-- Đồ uống: cộng/trừ tiền, hóa đơn, tiền thừa.
-- Đồ dùng: ngân sách, tổng nhiều món, so sánh phương án.
-- Khuyến mãi: phần trăm, tăng/giảm giá, voucher.
+Unlock bằng Toán là gameplay bắt buộc.
 
-## Unlock Exercise
-- Có đáp số.
-- Ngắn, kiểm tra kiến thức nền.
-- Sinh từ family + parameters.
-- Không random lại khi refresh.
-- Seed gắn với học sinh/progression/family.
+### Employee / Work Loop
 
-## Mission
-Mission là mục tiêu thực tế. Học sinh tự quyết định đi gian nào, chọn sản phẩm gì, quay lại gian trước, bỏ/thêm món, áp dụng khuyến mãi và khi nào thanh toán.
+```text
+Nhận ca
+→ khách/task xuất hiện
+→ xử lý công việc
+→ tính toán nếu cần
+→ quyết định nếu có scenario
+→ cập nhật world state
+→ consequence có thể xuất hiện sau
+→ kết ca
+```
 
-## Work Mode
-Sau onboarding, học sinh có thể nhập vai nhân viên/thu ngân. Một ca chuẩn có 5–6 khách và 1–2 event.
+Chỉ Employee Mode có persistent world-state/consequence simulation.
 
-## Ratings
-- Employee rating: 1–5 sao.
-- Store reputation: 1–5 sao.
+## 2. SmartMart Learning
 
-## Deferred consequences
-Quyết định có thể gây hậu quả ở scenario sau. Ví dụ giữ táo dập trên kệ có thể dẫn tới complaint sau vài khách.
+5 stall:
+- Produce;
+- Food;
+- Drinks;
+- Supplies;
+- Promotion.
 
-## Leaderboard
-Không xếp hạng đơn thuần bằng doanh thu. Ưu tiên challenge cùng seed, độ chính xác, Mission hoàn thành, streak và tiến bộ.
+Mỗi stall:
+- 3 unlock exercise family;
+- 1 advanced practice family;
+- unlock dài hạn.
+
+Exercise:
+- có đáp số;
+- seeded/replayable;
+- không random lại sau refresh;
+- không dùng Math.random() trong component.
+
+## 3. Mission
+
+Mission là bài vận dụng Toán/tài chính tổng hợp.
+
+Mission có thể yêu cầu:
+- đủ số người;
+- ngân sách;
+- reserve;
+- lựa chọn sản phẩm;
+- comparison;
+- promotion.
+
+Mission **không** dùng employee/store world-state.
+
+Mission completion là learning/application outcome.
+
+## 4. Employee Mode production target
+
+Demo hiện tại dùng flow khá đều:
+`total → optional scenario → change`.
+
+Production phải đa dạng hơn.
+
+Customer/task type có thể là:
+- normal checkout;
+- total/change calculation;
+- voucher/promotion;
+- wrong POS price;
+- duplicate scan;
+- product quality;
+- near-expiry;
+- low stock/substitute;
+- customer budget;
+- extra cash;
+- return/refund;
+- inventory check.
+
+Không bắt buộc mọi khách đều có cả tổng tiền + scenario + tiền thừa.
+
+Mục tiêu là tạo cảm giác làm việc tại SmartMart, không phải chuỗi bài Toán giống nhau.
+
+## 5. Scenario & consequence
+
+Scenario có:
+- stable ID/version;
+- category/difficulty;
+- choices;
+- billDelta nếu cần;
+- immediate effects;
+- world effects;
+- deferred consequences.
+
+Consequence:
+- after-customers;
+- shift-end.
+
+Event trước có thể ảnh hưởng khách sau nhưng phải deterministic/replayable.
+
+## 6. Scoring
+
+### Learning score
+Dựa trên:
+- first-attempt correctness;
+- attempts;
+- completion;
+- response time khi phù hợp.
+
+### Work performance
+Có thể hiển thị:
+- phép tính đúng;
+- scenario xử lý;
+- negative consequences;
+- completion quality.
+
+### Simulation metrics
+- employee rating;
+- store reputation;
+- customer satisfaction.
+
+Không dùng ba simulation metric làm “điểm bài”.
+
+## 7. Progression reward
+
+Hoàn thành Learning nên tạo cảm giác chuyển vai rõ ràng:
+
+```text
+Khách hàng
+→ Mission hoàn thành
+→ mở đồng phục / quầy nhân viên
+→ Employee Mode
+```
+
+UI/audio/animation production cần nhấn mạnh khoảnh khắc này.
+
+## 8. Demo baseline
+
+Demo v0 đã có:
+- Learning unlock loop;
+- Mission 01;
+- Work Shift 01 cố định;
+- Work Shift 02 seeded;
+- 10 scenario;
+- world flags;
+- deferred consequences.
+
+Từ đây ưu tiên production quality thay vì tăng breadth.
+
+## 9. Production content validation
+
+Trước pilot:
+- exercise correctness review;
+- language phù hợp lớp 4–5;
+- scenario ambiguity review;
+- rubric review;
+- difficulty calibration;
+- seed replay test;
+- no accidental moral labeling.
