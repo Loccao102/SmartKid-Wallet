@@ -28,6 +28,30 @@ export default function SmartMartGame({
   const sceneRef = useRef<SmartMartScene | null>(null)
   const interactRef = useRef(onInteractStall)
   const nearRef = useRef(onNearStallChange)
+  const pausedRef = useRef(paused)
+
+  const applyPausedState = () => {
+    const game = gameRef.current
+    const scene = sceneRef.current
+
+    if (!game || !scene) return
+
+    const sceneKey = 'SmartMartScene'
+
+    if (pausedRef.current) {
+      scene.setVirtualMove(0, 0)
+
+      if (game.scene.isActive(sceneKey)) {
+        game.scene.pause(sceneKey)
+      }
+
+      return
+    }
+
+    if (game.scene.isPaused(sceneKey)) {
+      game.scene.resume(sceneKey)
+    }
+  }
 
   useEffect(() => {
     interactRef.current = onInteractStall
@@ -44,6 +68,7 @@ export default function SmartMartGame({
       unlockedStalls,
       onInteractStall: (stallId) => interactRef.current(stallId),
       onNearStallChange: (stallId) => nearRef.current?.(stallId),
+      onReady: () => applyPausedState(),
     })
 
     sceneRef.current = scene
@@ -78,15 +103,8 @@ export default function SmartMartGame({
   }, [unlockedStalls])
 
   useEffect(() => {
-    const scene = sceneRef.current
-    if (!scene) return
-
-    if (paused) {
-      scene.setVirtualMove(0, 0)
-      scene.scene.pause()
-    } else if (scene.scene.isPaused()) {
-      scene.scene.resume()
-    }
+    pausedRef.current = paused
+    applyPausedState()
   }, [paused])
 
   const startMove = (
