@@ -16,6 +16,7 @@ import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
 import { MissionsScreen } from './features/missions/MissionsScreen'
 import { ProfileScreen } from './features/profile/ProfileScreen'
+import { ResearchSyncBridge } from './features/research/ResearchSyncBridge'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
@@ -63,6 +64,7 @@ export function App() {
 
   return (
     <div className="app-shell">
+      <ResearchSyncBridge />
       <aside className="student-sidebar">
         <div className="brand-lockup">
           <div className="brand-symbol" aria-hidden="true">
