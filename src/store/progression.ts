@@ -3,23 +3,37 @@ import { persist } from 'zustand/middleware'
 import type { StallId } from '../domain/types'
 
 interface ProgressionState {
-  completedStalls: StallId[]
-  completeStall: (stallId: StallId) => void
-  reset: () => void
+  completedByAssignment: Record<string, StallId[]>
+  completeStall: (assignmentId: string, stallId: StallId) => void
+  resetAssignment: (assignmentId: string) => void
 }
 
 export const useProgressionStore = create<ProgressionState>()(
   persist(
     (set) => ({
-      completedStalls: [],
-      completeStall: (stallId) =>
-        set((state) => ({
-          completedStalls: state.completedStalls.includes(stallId)
-            ? state.completedStalls
-            : [...state.completedStalls, stallId],
-        })),
-      reset: () => set({ completedStalls: [] }),
+      completedByAssignment: {},
+      completeStall: (assignmentId, stallId) =>
+        set((state) => {
+          const current = state.completedByAssignment[assignmentId] ?? []
+
+          if (current.includes(stallId)) {
+            return state
+          }
+
+          return {
+            completedByAssignment: {
+              ...state.completedByAssignment,
+              [assignmentId]: [...current, stallId],
+            },
+          }
+        }),
+      resetAssignment: (assignmentId) =>
+        set((state) => {
+          const next = { ...state.completedByAssignment }
+          delete next[assignmentId]
+          return { completedByAssignment: next }
+        }),
     }),
-    { name: 'smartkid-wallet-progression-v1' },
+    { name: 'smartkid-wallet-progression-v2' },
   ),
 )
