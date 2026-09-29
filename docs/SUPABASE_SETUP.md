@@ -199,3 +199,25 @@ When classes/class_members are implemented:
 - do not weaken the student-own-row policy;
 - prefer a security-invoker analytics view or carefully reviewed policy;
 - keep client research events append-only.
+
+
+## Anonymous Auth smoke result
+
+A real network smoke test was run from GitHub Actions against the dedicated project.
+
+Result:
+
+```text
+Anonymous auth failed: Anonymous sign-ins are disabled
+```
+
+This proves the client key/project URL are reachable, but the hosted Auth provider still needs to be enabled in Supabase Dashboard.
+
+After enabling it, manually run the **Supabase Smoke** workflow. A passing smoke verifies:
+- `signInAnonymously()` succeeds;
+- INSERT binds `auth_user_id` to `auth.uid()`;
+- the user can SELECT their own event;
+- UPDATE is rejected;
+- DELETE is rejected.
+
+The smoke workflow creates one temporary row only after anonymous auth succeeds. Remove smoke rows during pilot cleanup if desired.
