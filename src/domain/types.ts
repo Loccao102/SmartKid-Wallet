@@ -20,7 +20,6 @@ export interface WorldMapDefinition {
   name: string
   shortName: string
   description: string
-  icon: string
   status: 'available' | 'locked'
   unlockHint?: string
   theme: 'supermarket' | 'bank' | 'restaurant' | 'market'
@@ -66,7 +65,6 @@ export interface ExerciseInstance {
 export interface StallDefinition {
   id: StallId
   order: number
-  icon: string
   name: string
   description: string
   skills: MathSkill[]
