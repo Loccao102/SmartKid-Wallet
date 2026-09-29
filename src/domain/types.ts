@@ -70,3 +70,41 @@ export interface StallDefinition {
   skills: MathSkill[]
   exerciseFamilyIds: string[]
 }
+
+
+export type ProductStallId = Exclude<StallId, 'promotion'>
+
+export interface ProductDefinition {
+  id: string
+  name: string
+  stallId: ProductStallId
+  price: number
+  unitLabel: string
+  servesPeople: number
+  assetKey: string
+}
+
+export interface CartLine {
+  productId: string
+  quantity: number
+}
+
+export interface MissionDefinition {
+  id: string
+  title: string
+  shortDescription: string
+  story: string
+  people: number
+  budget: number
+  reserveRequired: number
+  requiredStalls: ProductStallId[]
+  rewardTitle: string
+}
+
+export interface MissionEvaluation {
+  success: boolean
+  spent: number
+  remaining: number
+  coverageByStall: Record<ProductStallId, number>
+  reasons: string[]
+}
