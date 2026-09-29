@@ -17,6 +17,7 @@ import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionSc
 import { MissionsScreen } from './features/missions/MissionsScreen'
 import { ProfileScreen } from './features/profile/ProfileScreen'
 import { ResearchSyncBridge } from './features/research/ResearchSyncBridge'
+import { FeatureErrorBoundary } from './features/system/FeatureErrorBoundary'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
@@ -142,7 +143,11 @@ export function App() {
           </div>
         </header>
 
-        {page === 'maps' ? (
+        <FeatureErrorBoundary
+          resetKey={page}
+          onRecover={() => setPage('maps')}
+        >
+          {page === 'maps' ? (
           <WorldMapScreen onOpenSmartMart={() => setPage('smartmart')} />
         ) : page === 'smartmart' ? (
           <SmartMartScreen
@@ -175,6 +180,7 @@ export function App() {
             onOpenLeaderboard={() => setPage('leaderboard')}
           />
         )}
+        </FeatureErrorBoundary>
       </div>
     </div>
   )
