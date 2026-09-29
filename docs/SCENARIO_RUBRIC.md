@@ -1,92 +1,105 @@
 # Scenario & Rubric Specification
 
-## 1. Scenario contract
-Mọi content có thể chấm phải có:
-- id
-- version
-- type
-- grade
-- difficulty
-- location/stall
-- mathSkills
-- values
-- prompt/context
-- parameters
-- constraints
-- answer model
-- rubric
-- effects
-- feedback
+## 1. Scope
 
-## 2. Rubric philosophy
-UI học sinh dùng 1–5 sao. Backend lưu dimension score chi tiết.
+Scenario chỉ thuộc **Employee/Work Mode**.
 
-Ví dụ Customer Budget:
-- math: 0–4
-- budgetFit: 0–2
-- needFit: 0–2
-- responsibility: 0–2
-Tổng raw: 0–10 rồi map sang star rating.
+Unlock Exercise và Mission không dùng rubric này.
 
-Gợi ý mapping mặc định:
-- 9.0–10.0 → 5 sao
-- 7.5–8.9 → 4 sao
-- 6.0–7.4 → 3 sao
-- 4.0–5.9 → 2 sao
-- <4.0 → 1 sao
+## 2. Scenario contract
 
-Mapping có thể override theo scenario type.
+Mỗi scenario cần:
+- id;
+- version;
+- category/type;
+- grade;
+- difficulty;
+- location/stall;
+- mathSkills nếu có;
+- context;
+- constraints;
+- choices;
+- bill effects nếu có;
+- immediate effects;
+- world effects;
+- deferred consequences;
+- feedback.
 
-## 3. Employee vs store
-### Employee effect
+## 3. Rubric philosophy
+
+Production không dùng một star score duy nhất để đại diện toàn bộ năng lực.
+
+Tách ít nhất:
+
+### Learning/work performance
+- calculation correctness;
+- attempts;
+- task completion;
+- scenario handling.
+
+### Simulation state
+- employee rating;
+- store reputation;
+- customer satisfaction.
+
+### Research dimensions
+Có thể lưu dimension score chi tiết theo scenario, ví dụ:
+- math;
+- budgetFit;
+- needFit;
+- transparency;
+- responsibility;
+- waste;
+- financialBalance.
+
+Dimension score là dữ liệu phân tích/rubric, không nhất thiết hiển thị trực tiếp cho học sinh.
+
+## 4. Student result UI
+
+Student result production ưu tiên:
+- “6/6 phép tính đúng”;
+- “2/2 tình huống đã xử lý”;
+- “0 hậu quả tiêu cực”;
+- badge/XP.
+
+Sau đó mới hiển thị simulation state.
+
+Không để simulation rating 4.3/5 bị hiểu như điểm bài học 4.3/5.
+
+## 5. Employee vs store vs customer
+
+### Employee
 Dùng cho:
-- tính sai;
-- không nghe yêu cầu khách;
-- trả tiền thừa sai;
-- tư vấn kém;
-- xử lý minh bạch tốt.
+- calculation accuracy;
+- thao tác;
+- tư vấn;
+- minh bạch;
+- quy trình cá nhân.
 
-### Store reputation effect
+### Store reputation
 Dùng cho:
-- hàng dập/hỏng trên kệ;
-- hàng gần hết hạn bị che giấu;
-- bảng giá sai;
+- chất lượng hàng;
+- bảng giá;
 - khiếu nại;
-- chất lượng/quy trình của siêu thị.
+- tồn kho/quy trình cửa hàng.
 
-Một scenario có thể ảnh hưởng cả hai với trọng số khác nhau.
+### Customer satisfaction
+Phản ánh trải nghiệm của khách trong context hiện tại.
 
-## 4. Example
-```json
-{
-  "id": "SUP-PRODUCE-DAMAGED-001",
-  "version": 1,
-  "type": "quality_decision",
-  "grade": 5,
-  "difficulty": 2,
-  "stallId": "produce",
-  "mathSkills": ["percentage", "multiplication"],
-  "values": ["honesty", "responsibility", "waste_reduction"],
-  "rubric": {
-    "math": 4,
-    "transparency": 2,
-    "customerFit": 1,
-    "waste": 2,
-    "financialBalance": 1
-  }
-}
-```
+Một quyết định đúng quy trình vẫn có thể khiến customer satisfaction giảm nhẹ; điều đó không đồng nghĩa học sinh làm sai.
 
-## 5. Research storage
-Không chỉ lưu final stars. Mỗi attempt phải lưu tối thiểu:
-- scenarioId + version;
-- random seed/parameters;
-- answer;
+## 6. Research storage
+
+Không chỉ lưu final metric.
+
+Mỗi relevant interaction lưu:
+- scenarioId/version;
+- seed/parameters;
 - choice;
-- dimension scores;
+- dimension score nếu có;
 - response time;
-- world state trước/sau;
+- world state before/after;
 - timestamp;
 - session/shift id.
 
-Điều này cho phép replay và phân tích sau pilot.
+Điều này cho phép replay và phân tích pilot.
