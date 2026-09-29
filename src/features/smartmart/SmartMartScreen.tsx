@@ -243,7 +243,7 @@ function ExerciseModal({
   )
 }
 
-export function SmartMartScreen({ onBack }: { onBack: () => void }) {
+export function SmartMartScreen({ onBack, onStartMission }: { onBack: () => void; onStartMission: () => void }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const unlockStall = useProgressionStore((state) => state.unlockStall)
   const resetProgression = useProgressionStore((state) => state.resetProgression)
@@ -369,7 +369,7 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
                 : `Mở thêm ${5 - unlockedCount} gian để bắt đầu bài vận dụng đầu tiên.`}
             </p>
           </div>
-          <button type="button" disabled={!missionUnlocked}>
+          <button type="button" disabled={!missionUnlocked} onClick={onStartMission}>
             {missionUnlocked ? 'Bắt đầu Mission →' : 'Đang khóa'}
           </button>
         </div>
