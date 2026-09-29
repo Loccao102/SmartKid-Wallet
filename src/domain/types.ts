@@ -109,3 +109,70 @@ export interface MissionEvaluation {
   coverageByStall: Record<ProductStallId, number>
   reasons: string[]
 }
+
+
+export interface WorkBasketItem {
+  name: string
+  quantity: number
+  unitPrice: number
+}
+
+export interface WorkScenarioChoice {
+  id: string
+  label: string
+  employeeRatingDelta: number
+  storeReputationDelta: number
+  customerSatisfactionDelta: number
+  feedback: string
+}
+
+export interface WorkScenarioDefinition {
+  id: string
+  title: string
+  description: string
+  choices: WorkScenarioChoice[]
+}
+
+export interface WorkCustomerDefinition {
+  id: string
+  name: string
+  basket: WorkBasketItem[]
+  cashGiven: number
+  scenarioId?: string
+}
+
+export interface WorkShiftDefinition {
+  id: string
+  title: string
+  subtitle: string
+  roleTitle: string
+  customers: WorkCustomerDefinition[]
+  startingEmployeeRating: number
+  startingStoreReputation: number
+  startingCustomerSatisfaction: number
+}
+
+export interface WorkShiftMetrics {
+  employeeRating: number
+  storeReputation: number
+  customerSatisfaction: number
+  revenue: number
+  servedCustomers: number
+  mathMistakes: number
+}
+
+export interface WorkShiftCustomerProgress {
+  totalSolved: boolean
+  changeSolved: boolean
+  scenarioChoiceId?: string
+  totalAttempts: number
+  changeAttempts: number
+}
+
+export interface WorkShiftProgress {
+  shiftId: string
+  customerIndex: number
+  customerProgress: Record<string, WorkShiftCustomerProgress>
+  metrics: WorkShiftMetrics
+  completed: boolean
+}
