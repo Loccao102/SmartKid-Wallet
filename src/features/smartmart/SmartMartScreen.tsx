@@ -1,11 +1,37 @@
 import { useMemo, useState } from 'react'
+import {
+  ArrowLeft,
+  Brain,
+  Check,
+  Coffee,
+  Leaf,
+  LockKeyhole,
+  NotebookPen,
+  Package,
+  Play,
+  RefreshCcw,
+  ShoppingCart,
+  Star,
+  Tag,
+  Target,
+  Wallet,
+  type LucideIcon,
+} from 'lucide-react'
 import { exerciseFamilies } from '../../data/exerciseFamilies'
 import { stalls } from '../../data/stalls'
 import { generateExercise } from '../../domain/exerciseEngine'
-import type { ExerciseInstance, StallDefinition } from '../../domain/types'
+import type { ExerciseInstance, StallDefinition, StallId } from '../../domain/types'
 import { useProgressionStore } from '../../store/progression'
 
 const demoStudentKey = 'student-demo-minh-anh'
+
+const stallIcons: Record<StallId, LucideIcon> = {
+  produce: Leaf,
+  food: Package,
+  drinks: Coffee,
+  supplies: NotebookPen,
+  promotion: Tag,
+}
 
 const skillLabels: Record<string, string> = {
   addition: 'Cộng',
@@ -33,6 +59,11 @@ function getFamilyForStall(stall: StallDefinition) {
   }
 
   return family
+}
+
+function StallIcon({ stallId, size = 34 }: { stallId: StallId; size?: number }) {
+  const Icon = stallIcons[stallId]
+  return <Icon size={size} strokeWidth={1.8} />
 }
 
 function StallCard({
@@ -63,7 +94,9 @@ function StallCard({
       </span>
 
       <span className="smartmart-stall-body">
-        <span className="smartmart-stall-icon" aria-hidden="true">{stall.icon}</span>
+        <span className="smartmart-stall-icon" aria-hidden="true">
+          <StallIcon stallId={stall.id} />
+        </span>
         <strong>{stall.name}</strong>
         <span>{stall.description}</span>
 
@@ -76,7 +109,13 @@ function StallCard({
 
       <span className="smartmart-stall-status">
         <span aria-hidden="true">
-          {state === 'open' ? '✓' : state === 'available' ? '▶' : '🔒'}
+          {state === 'open' ? (
+            <Check size={14} strokeWidth={2.4} />
+          ) : state === 'available' ? (
+            <Play size={13} fill="currentColor" strokeWidth={2} />
+          ) : (
+            <LockKeyhole size={14} strokeWidth={2} />
+          )}
         </span>
         {stateText}
       </span>
@@ -126,7 +165,9 @@ function ExerciseModal({
         </button>
 
         <div className="challenge-topline">
-          <div className="challenge-icon" aria-hidden="true">{stall.icon}</div>
+          <div className="challenge-icon" aria-hidden="true">
+            <StallIcon stallId={stall.id} size={29} />
+          </div>
           <div>
             <p className="page-kicker">
               {mode === 'unlock' ? 'THỬ THÁCH MỞ KHÓA' : 'LUYỆN THÊM'}
@@ -168,7 +209,9 @@ function ExerciseModal({
 
         {result === 'correct' ? (
           <div className="feedback success" id="exercise-feedback">
-            <span aria-hidden="true">✓</span>
+            <span aria-hidden="true">
+              <Check size={16} strokeWidth={2.5} />
+            </span>
             <p>
               {mode === 'unlock'
                 ? 'Chính xác! Gian hàng đã được mở và sẽ không bị khóa lại.'
@@ -179,7 +222,9 @@ function ExerciseModal({
 
         {result === 'wrong' ? (
           <div className="feedback" id="exercise-feedback">
-            <span aria-hidden="true">↻</span>
+            <span aria-hidden="true">
+              <RefreshCcw size={15} strokeWidth={2.2} />
+            </span>
             <p>Chưa đúng. Em thử đọc lại dữ kiện và tính từng bước nhé.</p>
           </div>
         ) : null}
@@ -234,7 +279,8 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
     <section className="smartmart-screen">
       <div className="smartmart-toolbar">
         <button type="button" className="back-button" onClick={onBack}>
-          ← Quay lại bản đồ
+          <ArrowLeft size={15} aria-hidden="true" />
+          Quay lại bản đồ
         </button>
 
         <div className="smartmart-progress">
@@ -249,7 +295,10 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
       <header className="smartmart-hero">
         <div>
           <p className="page-kicker">BẢN ĐỒ 1 · ĐANG KHÁM PHÁ</p>
-          <h1>🛒 SmartMart – Siêu thị</h1>
+          <h1>
+            <ShoppingCart size={28} strokeWidth={1.9} aria-hidden="true" />
+            SmartMart – Siêu thị
+          </h1>
           <p>
             Mỗi gian hàng đại diện cho một nhóm Toán khác nhau. Làm thử thách để mở
             gian, sau đó em có thể quay lại bất cứ lúc nào.
@@ -257,7 +306,9 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="smartmart-wallet">
-          <span aria-hidden="true">👛</span>
+          <span aria-hidden="true">
+            <Wallet size={25} strokeWidth={1.9} />
+          </span>
           <div>
             <small>HÀNH TRÌNH HIỆN TẠI</small>
             <strong>{missionUnlocked ? 'Sẵn sàng nhận Mission' : 'Khám phá các gian'}</strong>
@@ -267,7 +318,9 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
 
       <div className="smartmart-map-stage">
         <div className="smartmart-store-sign">
-          <span aria-hidden="true">⭐</span>
+          <span aria-hidden="true">
+            <Star size={20} strokeWidth={2} />
+          </span>
           <div>
             <strong>SMARTMART</strong>
             <small>HỌC TOÁN QUA MUA SẮM</small>
@@ -301,7 +354,11 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
 
         <div className={`smartmart-mission-gate ${missionUnlocked ? 'is-open' : ''}`}>
           <span className="mission-gate-icon" aria-hidden="true">
-            {missionUnlocked ? '🎯' : '🔐'}
+            {missionUnlocked ? (
+              <Target size={24} strokeWidth={2} />
+            ) : (
+              <LockKeyhole size={22} strokeWidth={2} />
+            )}
           </span>
           <div>
             <small>CHẶNG TIẾP THEO</small>
@@ -320,21 +377,26 @@ export function SmartMartScreen({ onBack }: { onBack: () => void }) {
 
       <div className="smartmart-info-row">
         <article>
-          <span aria-hidden="true">🧠</span>
+          <span aria-hidden="true">
+            <Brain size={22} strokeWidth={1.9} />
+          </span>
           <div>
             <strong>Bài mở khóa có đáp số</strong>
             <p>Mỗi học sinh nhận một biến thể số liệu ổn định theo seed.</p>
           </div>
         </article>
         <article>
-          <span aria-hidden="true">🔁</span>
+          <span aria-hidden="true">
+            <RefreshCcw size={21} strokeWidth={1.9} />
+          </span>
           <div>
             <strong>Gian mở là mở lâu dài</strong>
             <p>Quay lại gian đã mở để luyện thêm mà không phải mở khóa lại.</p>
           </div>
         </article>
         <button type="button" className="demo-reset" onClick={resetProgression}>
-          ↻ Reset tiến trình demo
+          <RefreshCcw size={13} aria-hidden="true" />
+          Reset tiến trình demo
         </button>
       </div>
 
