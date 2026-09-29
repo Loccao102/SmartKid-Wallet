@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import {
   ArrowLeft,
   BadgeCheck,
@@ -44,7 +44,7 @@ function MetricCard({
   value,
   suffix = '/5',
 }: {
-  icon: React.ReactNode
+  icon: ReactNode
   label: string
   value: number
   suffix?: string
@@ -191,11 +191,15 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
     const correct = normalizeMoney(answer) === expected
 
     if (!correct) {
-      const attemptKey =
-        stage === 'total' ? 'totalAttempts' : 'changeAttempts'
-      const next = updateCustomerProgress(progress, customer.id, {
-        [attemptKey]: customerProgress[attemptKey] + 1,
-      })
+      const attemptPatch =
+        stage === 'total'
+          ? { totalAttempts: customerProgress.totalAttempts + 1 }
+          : { changeAttempts: customerProgress.changeAttempts + 1 }
+      const next = updateCustomerProgress(
+        progress,
+        customer.id,
+        attemptPatch,
+      )
 
       setProgress({
         ...next,
