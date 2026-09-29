@@ -127,7 +127,7 @@ export const scenarioCustomerBlueprints: Record<string, WorkCustomerBlueprint> =
   SCENARIO_DUPLICATE_SCAN: {
     key: 'duplicate-scan',
     basket: [
-      { name: '2 lốc sữa trên POS', quantity: 2, unitPrice: 36000 },
+      { name: 'lốc sữa trên POS', quantity: 2, unitPrice: 36000 },
       { name: '1 túi táo', quantity: 1, unitPrice: 30000 },
     ],
     cashGiven: 200000,
@@ -144,7 +144,7 @@ export const scenarioCustomerBlueprints: Record<string, WorkCustomerBlueprint> =
     key: 'customer-budget',
     basket: [
       { name: '2 hộp cupcake', quantity: 2, unitPrice: 40000 },
-      { name: '1 lốc nước ép', quantity: 1, unitPrice: 42000 },
+      { name: '1 lốc nước suối', quantity: 1, unitPrice: 30000 },
       { name: '1 gói khăn giấy', quantity: 1, unitPrice: 15000 },
     ],
     cashGiven: 200000,
