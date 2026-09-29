@@ -1,76 +1,124 @@
-# Roadmap — 3 tháng
+# Roadmap — Production v1
 
-## Phase 0 — Product reset
-- [x] Chốt 4-map world concept
-- [x] SmartMart là map duy nhất mở trong MVP
-- [x] Bỏ Teacher Assignment khỏi core gameplay
-- [x] Chốt 5 stall ↔ nhóm Toán cố định
-- [x] Tách Unlock Exercise và Scenario
-- [x] Chốt asset architecture
-- [x] Domain types cho world map + exercise family
-- [x] Seed data 4 map + exercise families đầu tiên
+## Baseline — Demo v0
 
-## Phase 1 — Student world UI
-- [x] World map hiển thị 4 map, 3 locked
-- [x] SmartMart entry/progress card
-- [x] navigation shell: Home / Map / Mission / Leaderboard / Profile
-- [x] Profile UI
-- [x] Leaderboard UI
-- [ ] responsive tablet/mobile
-- [ ] asset placeholders → asset thật
+Demo được coi là **đã chốt để làm nền**, không tiếp tục mở rộng breadth trước khi production quality đạt yêu cầu.
 
-## Phase 2 — Exercise engine
-- [x] seeded RNG service
-- [x] exercise instance model
-- [x] generator constraints + generated-instance validation
-- [x] 20 exercise families cho 5 stalls (4/gian)
-- [x] 3 unlock families mỗi stall + 1 practice family
-- [x] persistent long-term stall progression
-- [x] unit tests generator nền tảng
+### Learning
+- [x] 4-map concept
+- [x] SmartMart map
+- [x] 5 stall
+- [x] 20 Exercise Family
+- [x] seeded generator
+- [x] 3 unlock family/stall
+- [x] local stall progression
 
-## Phase 3 — SmartMart exploration + Mission
-- [x] Phaser map shell
-- [x] movement/interactions desktop + touch
-- [x] product catalog MVP (14 sản phẩm)
-- [x] cart/budget HUD cho Mission 01
-- [ ] 3–5 Missions
-  - [x] Mission 01 — Chuẩn bị liên hoan lớp
-- [x] đi lại tự do giữa stall đã mở
-- [x] checkout/completion engine + UI cho Mission 01
+### Mission
+- [x] Mission 01
+- [x] cart/budget/evaluation
 
-## Phase 4 — Scenario + Work Mode
-- [x] Work Mode vertical slice — Ca làm việc 01
-- [x] Phaser cashier scene: queue + counter + conveyor + POS state
-- [x] 10 scenario templates
-  - [x] damaged item / voucher / near-expiry / wrong price / duplicate scan / expired voucher / customer budget / low stock / extra cash / stale promo sign
-- [x] 5–6 customers/shift
-  - [x] 3 customers trong Trainee Shift 01
-  - [x] 6 customers trong Seeded Shift 02
-- [x] 1–2 events/shift
-- [x] employee rating
-- [x] store reputation
-- [x] customer satisfaction
-- [x] bill adjustment từ scenario
-- [x] persistent shift progress theo shift ID
-- [x] seeded customer/scenario selection
-- [x] deterministic replay theo student + template + version + variant
-- [x] scenario version đóng vào generated customer instance
-- [x] Work Mode engine + generator tests
-- [x] world state flags giữa các khách
-- [x] deferred consequences: next-customer + shift-end
-- [x] consequence history + Phaser world warnings
+### Employee
+- [x] Work Shift 01
+- [x] Work Shift 02 seeded
+- [x] 10 scenario
+- [x] world state
 - [x] deferred consequences
+- [x] research event logging
 
-## Phase 5 — Data + analytics
-- [ ] Supabase schema + RLS deployment\n  - [x] research_events schema + explicit grants + RLS prepared\n  - [x] browser sync + offline queue prepared\n  - [ ] apply to dedicated SmartKid Supabase project + run advisors
-- [x] Work Mode attempts/events logging — local append-only MVP
+### Backend slice
+- [x] dedicated Supabase project
+- [x] Anonymous Auth
+- [x] research_events migration
+- [x] RLS/grants
+- [x] offline/idempotent research sync
+- [x] Supabase smoke test
+
+---
+
+## P1 — Runtime & deployment hardening
+
+- [ ] Vercel production reconnect về canonical repo `Loccao102/SmartKid-Wallet`
+- [ ] xóa/archived repo clone production sau khi reconnect
+- [ ] Error Boundary cho app + gameplay routes
+- [ ] user-friendly crash recovery
+- [ ] production source maps
+- [ ] error monitoring
+- [ ] critical E2E smoke
+- [ ] state migration tests
+- [ ] release/version display
+- [ ] deployment rollback checklist
+
+## P2 — Student UI/UX production redesign
+
+- [ ] Learning visual language
+- [ ] Employee visual language
+- [ ] typography production cho lớp 4–5
+- [ ] responsive tablet
+- [ ] responsive mobile
+- [ ] bottom navigation mobile
+- [ ] exercise unlock celebration
+- [ ] Mission UI polish
+- [ ] Work Mode hierarchy redesign
+- [ ] result screen: performance vs simulation
+- [ ] bỏ research JSON/CSV/session detail khỏi student UI
+- [ ] asset placeholder → production art
+- [ ] reduced motion / accessibility
+
+## P3 — Cloud identity & progression
+
+- [ ] profiles
+- [ ] anonymous → permanent account upgrade
+- [ ] student stall progress server-side
+- [ ] exercise instance/attempt persistence
+- [ ] Mission persistence
+- [ ] Work Shift persistence
+- [ ] cross-device resume
+- [ ] offline merge strategy
+- [ ] RLS tests cho progression
+
+## P4 — Content production
+
+- [ ] versioned Exercise Family storage
+- [ ] versioned Mission content
+- [ ] versioned Scenario content
+- [ ] Zod validation pipeline
+- [ ] content migration rules
+- [ ] educational review cho 20 family hiện tại
+- [ ] thêm ít nhất 2 Mission chất lượng
+- [ ] Work Mode interaction types đa dạng
+- [ ] tune rating/consequence coefficients
+
+## P5 — Teacher & Research workspace
+
+- [ ] classes
+- [ ] class_members
 - [ ] teacher class dashboard
-- [ ] skill profile
-- [x] research export — JSON/CSV session export
+- [ ] skill/attempt analytics
+- [ ] research session explorer
+- [ ] JSON/CSV export chuyển khỏi student UI
+- [ ] fixed-seed challenge
+- [ ] data dictionary
+- [ ] researcher/admin access policy
 
-## Phase 6 — Polish/pilot
-- [ ] accessibility/reduced motion
-- [ ] asset optimization
-- [ ] PWA/performance
-- [ ] pilot content validation
-- [ ] fixed-seed research challenge
+## P6 — Pilot readiness
+
+- [ ] privacy/consent flow
+- [ ] data retention policy
+- [ ] CAPTCHA/Turnstile cho Anonymous Auth
+- [ ] accessibility review
+- [ ] performance budget
+- [ ] backup/restore test
+- [ ] content freeze/version pin cho nghiên cứu
+- [ ] pilot checklist
+- [ ] device/browser matrix test
+
+## Deferred
+
+Chưa ưu tiên trước Production v1:
+- Tiny Bank gameplay;
+- Restaurant gameplay;
+- Weekend Market gameplay;
+- social/multiplayer;
+- monetization;
+- advanced leaderboard;
+- microservices/K8s.
