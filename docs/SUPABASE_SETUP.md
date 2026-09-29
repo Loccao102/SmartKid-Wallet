@@ -1,223 +1,91 @@
-# Supabase setup — SmartKid Wallet
+# Supabase — SmartKid Wallet
 
-## Current status
-
-Dedicated Supabase project has been provisioned:
+## 1. Live project
 
 ```text
 Project: SmartKid-Wallet
-Project ref: mmppqzxkjbifizuiyrnx
-Region: ap-southeast-1 (Singapore)
-API URL: https://mmppqzxkjbifizuiyrnx.supabase.co
-Migration: 20260929092230_create_research_events
+Ref: mmppqzxkjbifizuiyrnx
+Region: ap-southeast-1
 ```
 
-The unrelated existing Supabase project was intentionally left untouched.
+Current live backend slice:
+- Anonymous Auth: enabled;
+- research_events: deployed;
+- RLS: enabled;
+- authenticated: SELECT + INSERT own rows;
+- client UPDATE/DELETE: blocked;
+- security advisor: clean at deployment check;
+- smoke workflow: passing.
 
-Deployment verification completed:
-- `public.research_events` exists;
-- RLS is enabled;
-- authenticated role has SELECT + INSERT only;
-- anon has no table privileges;
-- policies restrict rows to `auth.uid() = auth_user_id`;
-- Supabase security advisor reports 0 lints;
-- performance advisor only reports the three new indexes as unused because the table has no production data yet;
-- generated TypeScript database types are committed under `src/types/supabase.ts`.
-
-Remaining hosted-app wiring:
-- configure `VITE_SUPABASE_URL`;
-- configure `VITE_SUPABASE_PUBLISHABLE_KEY`;
-- enable Anonymous Sign-Ins if the student app should sync without a permanent login;
-- before public pilot, enable CAPTCHA/Turnstile for anonymous sign-ins.
-
-## 1. Required project settings
-
-After creating/selecting the dedicated SmartKid project:
-
-1. Copy the project API URL into:
-
-```env
-VITE_SUPABASE_URL=
-```
-
-2. Copy a **publishable key** into:
-
-```env
-VITE_SUPABASE_PUBLISHABLE_KEY=
-```
-
-Never put a service-role/secret key in Vite/browser environment variables.
-
-3. For no-friction student onboarding, enable Supabase Auth **Anonymous Sign-Ins**.
-
-Then set:
-
-```env
-VITE_SUPABASE_ANONYMOUS_AUTH=true
-```
-
-Anonymous Supabase users still use the Postgres `authenticated` role, so RLS must authorize by `auth.uid()`.
-
-Before a public pilot, enable CAPTCHA/Cloudflare Turnstile for anonymous sign-ins to reduce abuse.
-
-## 2. Research schema
-
-Canonical DDL:
-
-```text
-supabase/schema/research_events.sql
-```
-
-The schema creates:
-
-```text
-public.research_events
-```
-
-with:
-- composite primary key `(auth_user_id, event_id)`;
-- explicit event-type/check constraints;
-- JSONB before/after/metadata snapshots;
-- indexes for owner/session/scenario queries;
-- RLS enabled.
-
-## 3. Data API grants
-
-Supabase changed new-table exposure behavior in 2026. Do not rely on implicit grants.
-
-The canonical SQL explicitly grants only:
-
-```text
-authenticated:
-  SELECT
-  INSERT
-```
-
-and explicitly gives `anon` no table access.
-
-Client UPDATE and DELETE are intentionally unavailable.
-
-## 4. RLS
-
-Student select:
-
-```sql
-using (
-  (select auth.uid()) is not null
-  and (select auth.uid()) = auth_user_id
-)
-```
-
-Student insert:
-
-```sql
-with check (
-  (select auth.uid()) is not null
-  and (select auth.uid()) = auth_user_id
-)
-```
-
-The browser sync code obtains `auth_user_id` from the active Supabase session. It does not trust a user ID inside the local research event.
-
-## 5. Client sync
-
-Relevant files:
-
-```text
-src/lib/supabase.ts
-src/lib/researchRemote.ts
-src/features/research/ResearchSyncBridge.tsx
-src/store/researchLog.ts
-```
-
-Behavior:
+## 2. Research sync
 
 ```text
 ResearchEvent
-→ persisted local queue
-→ background sync bridge
-→ ensure Supabase session
-→ batch up to 100 events
-→ ON CONFLICT DO NOTHING semantics
-→ mark local event ID synced
+→ local persistent queue
+→ background batch sync
+→ authenticated/anonymous Supabase user
+→ research_events
 ```
 
-The app remains usable offline.
+Offline gameplay không bị block.
 
-If Supabase is unavailable:
-- gameplay continues;
-- research events remain local;
-- JSON/CSV export still works;
-- sync retries when new work arrives / connection returns.
+## 3. Security rules
 
-## 6. Anonymous Auth
+- publishable key được phép ở browser;
+- service-role/secret key không được commit/frontend;
+- RLS là bắt buộc;
+- research event append-only;
+- auth_user_id lấy từ session Supabase, không tin user ID trong payload local.
 
-When enabled:
+## 4. Production next schema
 
-```text
-No session
-→ signInAnonymously()
-→ authenticated JWT
-→ INSERT research_events under RLS
-```
+Cần bổ sung:
+- profiles;
+- classes;
+- class_members;
+- student_stall_progress;
+- exercise_instances;
+- exercise_attempts;
+- student_missions;
+- shift_instances/progress.
 
-If anonymous auth is disabled and the app has no signed-in user, research events remain queued locally.
+Mọi schema mới:
+1. migration source-controlled;
+2. RLS review;
+3. generated TS types;
+4. CI/build;
+5. advisor check;
+6. smoke/integration test.
 
-This lets the same research sink later work with Google/email/class-account auth without changing the event schema.
+## 5. Anonymous account strategy
 
-## 7. Sync status
+Production onboarding:
+- có thể bắt đầu anonymous;
+- sau đó upgrade/link sang account thật;
+- progression phải giữ nguyên khi upgrade.
 
-The Work Mode result panel displays:
-- Local only;
-- events waiting to sync;
-- synced;
-- sync error.
+Trước pilot công khai:
+- bật CAPTCHA/Turnstile;
+- rate/abuse review;
+- consent/privacy UX.
 
-Local export is independent of cloud sync.
+## 6. Research smoke
 
-## 8. Verification after applying schema
+Workflow `Supabase Smoke` đã xác nhận:
+- anonymous sign-in thành công;
+- insert thành công;
+- auth_user_id = auth.uid();
+- own-row select thành công;
+- UPDATE bị chặn;
+- DELETE bị chặn.
 
-The database-side checks below have already been run successfully for the current project. Re-run them after future DDL changes:
+## 7. Environment
 
-Run:
-1. table/schema inspection;
-2. RLS security advisor;
-3. performance advisor;
-4. authenticated insert test;
-5. authenticated own-row select test;
-6. attempt UPDATE/DELETE and confirm they fail;
-7. attempt cross-user SELECT and confirm no row is visible.
+Client có production URL/publishable-key fallback.
 
-Current schema deployment passes the database-side checks above. End-to-end browser sync still depends on hosted app env configuration and an authenticated/anonymous Supabase session.
+Production deployment có thể override qua:
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_PUBLISHABLE_KEY
+- VITE_SUPABASE_ANONYMOUS_AUTH
 
-## 9. Future teacher access
-
-Teacher access is intentionally **not** added to `research_events` yet.
-
-When classes/class_members are implemented:
-- add teacher read through authorized class membership;
-- do not weaken the student-own-row policy;
-- prefer a security-invoker analytics view or carefully reviewed policy;
-- keep client research events append-only.
-
-
-## Anonymous Auth smoke result
-
-A real network smoke test was run from GitHub Actions against the dedicated project.
-
-Result:
-
-```text
-Anonymous auth failed: Anonymous sign-ins are disabled
-```
-
-This proves the client key/project URL are reachable, but the hosted Auth provider still needs to be enabled in Supabase Dashboard.
-
-After enabling it, manually run the **Supabase Smoke** workflow. A passing smoke verifies:
-- `signInAnonymously()` succeeds;
-- INSERT binds `auth_user_id` to `auth.uid()`;
-- the user can SELECT their own event;
-- UPDATE is rejected;
-- DELETE is rejected.
-
-The smoke workflow creates one temporary row only after anonymous auth succeeds. Remove smoke rows during pilot cleanup if desired.
+Không đưa secret/service key vào Vite env.
