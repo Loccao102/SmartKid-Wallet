@@ -1,7 +1,6 @@
 import { worldMaps } from '../../data/worldMaps'
 import type { WorldMapDefinition } from '../../domain/types'
-
-const smartMartProgress = 72
+import { useProgressionStore } from '../../store/progression'
 
 function MapArtwork({ map }: { map: WorldMapDefinition }) {
   return (
@@ -32,11 +31,16 @@ function MapArtwork({ map }: { map: WorldMapDefinition }) {
 function WorldMapCard({
   map,
   featured,
+  progress,
+  onOpen,
 }: {
   map: WorldMapDefinition
   featured?: boolean
+  progress?: number
+  onOpen?: () => void
 }) {
   const locked = map.status === 'locked'
+  const progressValue = progress ?? 0
 
   return (
     <article
@@ -63,13 +67,14 @@ function WorldMapCard({
           <div className="world-map-progress-area">
             <div className="world-map-progress-copy">
               <span>Tiến độ SmartMart</span>
-              <strong>{smartMartProgress}%</strong>
+              <strong>{progressValue}%</strong>
             </div>
-            <div className="world-map-progress-track" aria-label={`Tiến độ SmartMart ${smartMartProgress}%`}>
-              <span style={{ width: `${smartMartProgress}%` }} />
+            <div className="world-map-progress-track" aria-label={`Tiến độ SmartMart ${progressValue}%`}>
+              <span style={{ width: `${progressValue}%` }} />
             </div>
-            <button type="button" className="world-map-primary-action">
-              Tiếp tục hành trình <span aria-hidden="true">→</span>
+            <button type="button" className="world-map-primary-action" onClick={onOpen}>
+              {progressValue > 0 ? 'Tiếp tục hành trình' : 'Bắt đầu SmartMart'}
+              <span aria-hidden="true">→</span>
             </button>
           </div>
         ) : (
@@ -80,9 +85,11 @@ function WorldMapCard({
   )
 }
 
-export function WorldMapScreen() {
+export function WorldMapScreen({ onOpenSmartMart }: { onOpenSmartMart: () => void }) {
+  const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const smartmart = worldMaps[0]
   const lockedMaps = worldMaps.slice(1)
+  const smartMartProgress = Math.round((unlockedStalls.length / 5) * 100)
 
   return (
     <section className="world-screen">
@@ -98,7 +105,12 @@ export function WorldMapScreen() {
         </div>
       </div>
 
-      <WorldMapCard map={smartmart} featured />
+      <WorldMapCard
+        map={smartmart}
+        featured
+        progress={smartMartProgress}
+        onOpen={onOpenSmartMart}
+      />
 
       <div className="locked-world-grid" aria-label="Các bản đồ chưa mở">
         {lockedMaps.map((map) => (
