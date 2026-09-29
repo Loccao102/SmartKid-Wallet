@@ -1,63 +1,60 @@
 # Roadmap — 3 tháng
 
-## Phase 0 — Foundation
-- [x] Product contract
-- [x] 5-stall unlock rule
-- [x] Teacher-driven Assignment rule
-- [x] Scenario/rubric contract
-- [x] Tech architecture
-- [x] Initial React prototype scaffold
-- [x] Lockfile + CI
+## Phase 0 — Product reset
+- [x] Chốt 4-map world concept
+- [x] SmartMart là map duy nhất mở trong MVP
+- [x] Bỏ Teacher Assignment khỏi core gameplay
+- [x] Chốt 5 stall ↔ nhóm Toán cố định
+- [x] Tách Unlock Exercise và Scenario
+- [x] Chốt asset architecture
+- [x] Domain types cho world map + exercise family
+- [x] Seed data 4 map + exercise families đầu tiên
 
-## Phase 1 — Assignment + Unlock prototype
-- [x] 5 gian hàng dạng data-driven
-- [x] sequential unlock state
-- [x] progress scoped by assignment
-- [x] demo teacher Assignment payload
-- [x] simple math challenge
-- [x] Full Shift unlock gate
-- [ ] Teacher: màn tạo Assignment v1
-- [ ] Teacher: chọn lớp/học sinh
-- [ ] Teacher: chọn challenge/bộ skill/độ khó
-- [ ] Teacher: publish Assignment
-- [ ] Student: danh sách “Nhiệm vụ của em”
-- [ ] Supabase schema + RLS cho Assignment
-- [ ] polished isometric supermarket map
-- [ ] 2–4 challenges/stall
-- [ ] seeded random challenge parameters
+## Phase 1 — Student world UI
+- [ ] World map hiển thị 4 map, 3 locked
+- [ ] SmartMart entry/progress card
+- [ ] navigation: Home / Map / Mission / Leaderboard / Profile
+- [ ] Profile UI
+- [ ] Leaderboard UI
+- [ ] responsive tablet/mobile
+- [ ] asset placeholders → asset thật
 
-## Phase 2 — Full Shift v1
-- [ ] 5–6 customer slots
-- [ ] customer dialogue
-- [ ] payment
-- [ ] budget customer
-- [ ] discount customer
-- [ ] employee star rating
+## Phase 2 — Exercise engine
+- [ ] seeded RNG service
+- [ ] exercise instance model
+- [ ] generator constraints
+- [ ] 20–25 exercise families cho 5 stalls
+- [ ] 2–4 unlock exercises mỗi stall
+- [ ] persistent long-term stall progression
+- [ ] unit tests generators
+
+## Phase 3 — SmartMart exploration + Mission
+- [ ] Phaser map shell
+- [ ] movement/interactions
+- [ ] product catalog
+- [ ] cart/budget HUD
+- [ ] 3–5 Missions
+- [ ] đi lại tự do giữa stall đã mở
+- [ ] checkout/completion
+
+## Phase 4 — Scenario + Work Mode
+- [ ] 10–15 scenario templates
+- [ ] 5–6 customers/shift
+- [ ] 1–2 events/shift
+- [ ] employee rating
 - [ ] store reputation
-- [ ] Full Shift parameters controlled by Assignment
-
-## Phase 3 — Simulation
-- [ ] inventory/world state
-- [ ] damaged produce
-- [ ] near-expiry
 - [ ] deferred consequences
-- [ ] 1–2 random events/shift
 
-## Phase 4 — Content engine
-- [ ] 40–60 scenario templates
-- [ ] 10–20 event templates
-- [ ] rubric engine
-- [ ] replayable seeds
-- [ ] teacher content filters/presets
+## Phase 5 — Data + analytics
+- [ ] Supabase schema + RLS
+- [ ] attempts/events logging
+- [ ] teacher class dashboard
+- [ ] skill profile
+- [ ] research export
 
-## Phase 5 — Learning analytics
-- [ ] student skill profile
-- [ ] attempt/event logging
-- [ ] teacher dashboard theo Assignment
-- [ ] export research data
-
-## Phase 6 — Parent + gamification
-- [ ] parent progress view
-- [ ] badges
-- [ ] class challenge
-- [ ] optional normalized leaderboard
+## Phase 6 — Polish/pilot
+- [ ] accessibility/reduced motion
+- [ ] asset optimization
+- [ ] PWA/performance
+- [ ] pilot content validation
+- [ ] fixed-seed research challenge
