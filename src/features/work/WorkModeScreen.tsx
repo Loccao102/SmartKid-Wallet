@@ -412,6 +412,7 @@ export function WorkModeScreen({
             customerIndex={progress.customerIndex}
             stage={stage}
             selectedChoice={selectedChoice}
+            worldFlags={progress.worldState.flags}
           />
         </Suspense>
 
