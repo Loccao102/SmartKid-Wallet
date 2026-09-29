@@ -1,4 +1,5 @@
 import type { ResearchEvent } from '../domain/types'
+import type { Json } from '../types/supabase'
 import {
   anonymousResearchAuthEnabled,
   isSupabaseConfigured,
@@ -30,9 +31,15 @@ export interface ResearchEventRow {
   response_time_ms: number | null
   consequence_id: string | null
   consequence_instance_id: string | null
-  before_state: ResearchEvent['before'] | null
-  after_state: ResearchEvent['after'] | null
-  metadata: ResearchEvent['metadata'] | null
+  before_state: Json | null
+  after_state: Json | null
+  metadata: Json | null
+}
+
+function toJson(value: unknown): Json | null {
+  if (value === undefined || value === null) return null
+
+  return JSON.parse(JSON.stringify(value)) as Json
 }
 
 export function researchEventToRow(event: ResearchEvent): ResearchEventRow {
@@ -61,9 +68,9 @@ export function researchEventToRow(event: ResearchEvent): ResearchEventRow {
     response_time_ms: event.responseTimeMs ?? null,
     consequence_id: event.consequenceId ?? null,
     consequence_instance_id: event.consequenceInstanceId ?? null,
-    before_state: event.before ?? null,
-    after_state: event.after ?? null,
-    metadata: event.metadata ?? null,
+    before_state: toJson(event.before),
+    after_state: toJson(event.after),
+    metadata: toJson(event.metadata),
   }
 }
 
