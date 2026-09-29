@@ -1,26 +1,41 @@
+import {
+  ArrowRight,
+  Landmark,
+  LockKeyhole,
+  Map,
+  ShoppingCart,
+  Sparkles,
+  Store,
+  UtensilsCrossed,
+  type LucideIcon,
+} from 'lucide-react'
 import { worldMaps } from '../../data/worldMaps'
-import type { WorldMapDefinition } from '../../domain/types'
+import type { MapId, WorldMapDefinition } from '../../domain/types'
 import { useProgressionStore } from '../../store/progression'
 
+const mapIcons: Record<MapId, LucideIcon> = {
+  smartmart: ShoppingCart,
+  'tiny-bank': Landmark,
+  'happy-restaurant': UtensilsCrossed,
+  'weekend-market': Store,
+}
+
 function MapArtwork({ map }: { map: WorldMapDefinition }) {
+  const Icon = mapIcons[map.id]
+
   return (
     <div className={`world-map-art world-map-art--${map.theme}`} aria-hidden="true">
-      <div className="world-map-sky">
-        <span>☁️</span>
-        <span>☀️</span>
-      </div>
       <div className="world-map-landmark">
-        <span className="world-map-landmark-icon">{map.icon}</span>
+        <span className="world-map-landmark-icon">
+          <Icon size={44} strokeWidth={1.8} />
+        </span>
         <strong>{map.shortName}</strong>
-      </div>
-      <div className="world-map-ground">
-        <span>🌳</span>
-        <span>🌿</span>
-        <span>🪴</span>
       </div>
       {map.status === 'locked' ? (
         <div className="world-map-lock">
-          <span>🔒</span>
+          <span>
+            <LockKeyhole size={25} strokeWidth={2} />
+          </span>
           <strong>Chưa mở</strong>
         </div>
       ) : null}
@@ -57,9 +72,12 @@ function WorldMapCard({
           </div>
 
           {locked ? (
-            <span className="world-map-status locked">🔒 Đang khóa</span>
+            <span className="world-map-status locked">
+              <LockKeyhole size={12} aria-hidden="true" />
+              Đang khóa
+            </span>
           ) : (
-            <span className="world-map-status available">▮▮ Đang khám phá</span>
+            <span className="world-map-status available">Đang khám phá</span>
           )}
         </div>
 
@@ -74,7 +92,7 @@ function WorldMapCard({
             </div>
             <button type="button" className="world-map-primary-action" onClick={onOpen}>
               {progressValue > 0 ? 'Tiếp tục hành trình' : 'Bắt đầu SmartMart'}
-              <span aria-hidden="true">→</span>
+              <ArrowRight size={16} aria-hidden="true" />
             </button>
           </div>
         ) : (
@@ -94,7 +112,9 @@ export function WorldMapScreen({ onOpenSmartMart }: { onOpenSmartMart: () => voi
   return (
     <section className="world-screen">
       <div className="world-heading">
-        <div className="world-heading-icon" aria-hidden="true">🗺️</div>
+        <div className="world-heading-icon" aria-hidden="true">
+          <Map size={28} strokeWidth={1.9} />
+        </div>
         <div>
           <p className="page-kicker">HÀNH TRÌNH SMARTKID</p>
           <h1>Chọn bản đồ để tiếp tục hành trình</h1>
@@ -119,7 +139,9 @@ export function WorldMapScreen({ onOpenSmartMart }: { onOpenSmartMart: () => voi
       </div>
 
       <aside className="world-coming-soon">
-        <span aria-hidden="true">✨</span>
+        <span aria-hidden="true">
+          <Sparkles size={20} strokeWidth={2} />
+        </span>
         <div>
           <strong>Một hành trình, nhiều thế giới</strong>
           <p>
