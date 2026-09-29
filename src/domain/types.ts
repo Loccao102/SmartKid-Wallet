@@ -127,8 +127,19 @@ export interface WorkScenarioChoice {
   feedback: string
 }
 
+export type WorkScenarioCategory =
+  | 'product-quality'
+  | 'promotion'
+  | 'billing'
+  | 'customer-needs'
+  | 'inventory'
+  | 'transparency'
+
 export interface WorkScenarioDefinition {
   id: string
+  version: number
+  category: WorkScenarioCategory
+  difficulty: 1 | 2 | 3
   title: string
   description: string
   choices: WorkScenarioChoice[]
