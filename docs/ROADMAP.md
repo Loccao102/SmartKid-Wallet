@@ -11,9 +11,9 @@
 - [x] Seed data 4 map + exercise families đầu tiên
 
 ## Phase 1 — Student world UI
-- [ ] World map hiển thị 4 map, 3 locked
-- [ ] SmartMart entry/progress card
-- [ ] navigation: Home / Map / Mission / Leaderboard / Profile
+- [x] World map hiển thị 4 map, 3 locked
+- [x] SmartMart entry/progress card
+- [x] navigation shell: Home / Map / Mission / Leaderboard / Profile
 - [ ] Profile UI
 - [ ] Leaderboard UI
 - [ ] responsive tablet/mobile
