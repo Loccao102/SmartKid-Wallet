@@ -5,7 +5,9 @@ SmartKid Wallet là môi trường nhập vai mô phỏng cho học sinh lớp 4
 
 ## 2. MVP scope
 MVP tập trung duy nhất vào **Siêu thị** nhưng làm đủ sâu để kiểm chứng:
+- giáo viên giao nhiệm vụ học tập;
 - học Toán theo ngữ cảnh;
+- mở khóa progression;
 - ra quyết định;
 - đánh giá 5 sao;
 - danh tiếng siêu thị;
@@ -13,25 +15,44 @@ MVP tập trung duy nhất vào **Siêu thị** nhưng làm đủ sâu để ki�
 - scenario ngẫu nhiên có kiểm soát;
 - dữ liệu phục vụ giáo viên/nghiên cứu.
 
-## 3. Hai pha trải nghiệm
+## 3. Luồng học tập bắt buộc
+
+### Bước 0 — Giáo viên giao Assignment
+Học sinh **không tự chọn bài trực tiếp từ kho bài**.
+
+Giáo viên:
+1. chọn lớp hoặc học sinh;
+2. chọn Map Siêu thị;
+3. chọn bộ challenge cho từng gian hoặc rule sinh bài;
+4. cấu hình độ khó/số lượng;
+5. cấu hình điều kiện hoàn thành;
+6. bật/tắt Full Shift sau khi hoàn tất;
+7. đặt hạn hoàn thành nếu cần;
+8. Publish Assignment.
+
+Assignment trở thành đơn vị học sinh nhìn thấy ở màn “Nhiệm vụ của em”.
 
 ### Pha A — Learn-to-Unlock
-Siêu thị ban đầu có 5 gian hàng đang khóa. Học sinh hoàn thành bài Toán ngắn tại từng gian để mở khóa.
+Siêu thị có 5 gian hàng. Mỗi gian chứa các challenge **thuộc Assignment giáo viên đã giao**.
 
 Mục đích:
 - onboarding tự nhiên;
-- kiểm tra kiến thức nền;
+- ôn/kiểm tra kiến thức theo mục tiêu bài học của giáo viên;
 - giới thiệu từng loại hàng và mechanic;
 - tạo cảm giác tiến triển;
 - đảm bảo học sinh đã hiểu các phép tính cần thiết trước Full Shift.
 
-Chỉ khi **mở đủ 5/5 gian hàng** mới mở khóa Pha B.
+Progress được ghi theo `studentId + assignmentId`.
+
+Chỉ khi học sinh đáp ứng điều kiện hoàn thành của Assignment và **mở đủ 5/5 gian được yêu cầu** mới mở khóa Pha B.
 
 ### Pha B — Full Shift Simulation
-Học sinh nhập vai nhân viên siêu thị trong một ca. Một lượt gồm khoảng 5–6 khách hàng và 1–2 event xen kẽ.
+Nếu giáo viên bật Full Shift cho Assignment, học sinh nhập vai nhân viên siêu thị trong một ca. Một lượt gồm khoảng 5–6 khách hàng và 1–2 event xen kẽ.
 
 Mỗi khách là mini-scenario:
 **yêu cầu → thu thập dữ kiện → tính toán → lựa chọn → hậu quả → đánh giá sao**.
+
+Scenario trong Full Shift cũng phải tuân theo phạm vi/độ khó giáo viên đã giao.
 
 ## 4. 5 gian hàng đề xuất
 1. **Rau củ & trái cây** — khối lượng, đơn giá, nhân/chia, chất lượng hàng.
@@ -47,25 +68,39 @@ Tên và nội dung có thể thay đổi sau pilot nhưng phải giữ nguyên 
 - Danh tiếng siêu thị: 1–5 sao, tích lũy từ chất lượng hàng, minh bạch, khiếu nại và quyết định vận hành.
 - Doanh thu: mục tiêu tài chính của ca.
 - Lãng phí: số lượng/tỉ lệ hàng bị bỏ.
-- Progress: gian đã mở, ca đã hoàn thành, huy hiệu.
+- Progress: Assignment đã nhận, gian đã mở, ca đã hoàn thành, huy hiệu.
 
 ## 6. Success condition
-Không có một “điểm thắng” duy nhất. Một ca đạt yêu cầu khi thỏa các ngưỡng cấu hình, ví dụ:
-- doanh thu đạt mục tiêu tối thiểu;
-- đánh giá nhân viên đủ tốt;
-- danh tiếng siêu thị không tụt dưới ngưỡng;
-- lãng phí không vượt mức;
-- các bài Toán bắt buộc đã được xử lý.
+Không có một “điểm thắng” duy nhất. Điều kiện hoàn thành phải do Assignment quy định.
+
+Ví dụ một Assignment có thể yêu cầu:
+- hoàn thành đủ challenge ở 5 gian;
+- độ chính xác Toán ≥ 70%;
+- Full Shift hoàn thành ít nhất 1 lần;
+- danh tiếng siêu thị không dưới ngưỡng;
+- lãng phí không vượt mức.
 
 ## 7. User roles
+
 ### Học sinh
-Chơi, mở gian, hoàn thành ca, xem tiến bộ và huy hiệu.
+- xem các Assignment được giao;
+- làm đúng bộ bài giáo viên giao;
+- mở gian trong phạm vi Assignment;
+- hoàn thành Full Shift khi được phép;
+- xem tiến bộ và huy hiệu.
 
 ### Giáo viên
-Quản lý lớp, giao thử thách, xem skill breakdown, xem lỗi phổ biến, export dữ liệu.
+- quản lý lớp/học sinh;
+- chọn nội dung từ kho;
+- tạo, lưu nháp, publish và đóng Assignment;
+- giao cho cả lớp/nhóm/cá nhân;
+- cấu hình độ khó, số challenge, deadline, Full Shift;
+- xem tiến độ và skill breakdown theo Assignment;
+- xem lỗi phổ biến;
+- export dữ liệu.
 
 ### Phụ huynh
-Theo dõi tiến bộ của con và nhận gợi ý hoạt động đời thực; không ưu tiên xếp hạng con so với bạn khác.
+Theo dõi tiến bộ của con theo các nhiệm vụ đã được giáo viên giao và nhận gợi ý hoạt động đời thực; không ưu tiên xếp hạng con so với bạn khác.
 
 ### Admin/Researcher
-Quản lý content, scenario, rubric, product catalog, event và dữ liệu nghiên cứu.
+Quản lý content bank, scenario, rubric, product catalog, event và dữ liệu nghiên cứu. Admin tạo **nguồn nội dung**, không thay thế vai trò giao bài của giáo viên.
