@@ -9,10 +9,11 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react'
+import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 
-type StudentPage = 'home' | 'maps' | 'smartmart' | 'missions' | 'leaderboard' | 'profile'
+type StudentPage = 'home' | 'maps' | 'smartmart' | 'mission-class-party' | 'missions' | 'leaderboard' | 'profile'
 
 const navItems: Array<{
   id: Exclude<StudentPage, 'smartmart'>
@@ -86,7 +87,7 @@ function PlaceholderScreen({
 
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
-  const activeNavPage = page === 'smartmart' ? 'maps' : page
+  const activeNavPage = page === 'smartmart' ? 'maps' : page === 'mission-class-party' ? 'missions' : page
 
   return (
     <div className="app-shell">
@@ -170,7 +171,12 @@ export function App() {
         {page === 'maps' ? (
           <WorldMapScreen onOpenSmartMart={() => setPage('smartmart')} />
         ) : page === 'smartmart' ? (
-          <SmartMartScreen onBack={() => setPage('maps')} />
+          <SmartMartScreen
+            onBack={() => setPage('maps')}
+            onStartMission={() => setPage('mission-class-party')}
+          />
+        ) : page === 'mission-class-party' ? (
+          <ClassPartyMissionScreen onBack={() => setPage('smartmart')} />
         ) : (
           <PlaceholderScreen page={page} />
         )}
