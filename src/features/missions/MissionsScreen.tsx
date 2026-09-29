@@ -8,10 +8,12 @@ import {
 } from 'lucide-react'
 import { firstMission } from '../../data/missions'
 import { useProgressionStore } from '../../store/progression'
+import { useWorkShiftStore } from '../../store/workShift'
 
 export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMission: () => void; onOpenWorkMode: () => void }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
+  const workShiftCompleted = useWorkShiftStore((state) => state.progress.completed)
 
   const missionUnlocked = unlockedStalls.length >= 5
   const missionCompleted = completedMissionIds.includes(firstMission.id)
@@ -93,9 +95,23 @@ export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMissio
           <div className="journey-mission-copy">
             <div className="journey-status-row">
               <span>WORK MODE · CHẶNG TIẾP THEO</span>
-              <em className={`journey-status ${workModeUnlocked ? 'ready' : 'locked'}`}>
-                {workModeUnlocked ? <Play size={11} fill="currentColor" /> : <LockKeyhole size={12} />}
-                {workModeUnlocked ? 'Đã mở vai trò' : 'Chưa mở'}
+              <em
+                className={`journey-status ${
+                  workShiftCompleted ? 'complete' : workModeUnlocked ? 'ready' : 'locked'
+                }`}
+              >
+                {workShiftCompleted ? (
+                  <Check size={12} />
+                ) : workModeUnlocked ? (
+                  <Play size={11} fill="currentColor" />
+                ) : (
+                  <LockKeyhole size={12} />
+                )}
+                {workShiftCompleted
+                  ? 'Đã hoàn thành ca'
+                  : workModeUnlocked
+                    ? 'Đã mở vai trò'
+                    : 'Chưa mở'}
               </em>
             </div>
 
@@ -118,7 +134,11 @@ export function MissionsScreen({ onOpenMission, onOpenWorkMode }: { onOpenMissio
             disabled={!workModeUnlocked}
             onClick={onOpenWorkMode}
           >
-            {workModeUnlocked ? 'Bắt đầu ca làm việc' : 'Hoàn thành Mission 01'}
+            {workShiftCompleted
+              ? 'Xem kết quả ca'
+              : workModeUnlocked
+                ? 'Bắt đầu ca làm việc'
+                : 'Hoàn thành Mission 01'}
           </button>
         </article>
       </div>
