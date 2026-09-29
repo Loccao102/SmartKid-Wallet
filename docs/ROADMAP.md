@@ -38,9 +38,13 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 ## P1 — Runtime & deployment hardening
 
 - [ ] Vercel production reconnect về canonical repo `Loccao102/SmartKid-Wallet`
-- [ ] xóa/archived repo clone production sau khi reconnect
-- [ ] Error Boundary cho app + gameplay routes
-- [ ] user-friendly crash recovery
+  - [x] mirror repo được đánh dấu deployment-only
+  - [x] reconnect procedure được ghi trong docs/DEPLOYMENT.md
+  - [x] tracking issue #1 được tạo
+  - [ ] thực hiện Vercel Git reconnect
+- [ ] archive repo clone production sau khi reconnect + verify
+- [x] recoverable Error Boundary cho student feature screens
+- [x] user-friendly crash recovery về bản đồ
 - [ ] production source maps
 - [ ] error monitoring
 - [ ] critical E2E smoke
