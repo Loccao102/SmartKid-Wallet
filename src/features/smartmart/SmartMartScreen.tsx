@@ -19,7 +19,7 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react'
-import { exerciseFamilies } from '../../data/exerciseFamilies'
+import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { stalls } from '../../data/stalls'
 import { generateExercise } from '../../domain/exerciseEngine'
 import type { ExerciseInstance, StallDefinition, StallId } from '../../domain/types'
@@ -53,17 +53,6 @@ function normalizeAnswer(value: string) {
   return Number(value.replace(/[.,\sđ]/gi, ''))
 }
 
-function getFamilyForStall(stall: StallDefinition) {
-  const familyId = stall.exerciseFamilyIds[0]
-  const family = exerciseFamilies.find((item) => item.id === familyId)
-
-  if (!family) {
-    throw new Error(`Missing exercise family ${familyId} for stall ${stall.id}`)
-  }
-
-  return family
-}
-
 function StallIcon({ stallId, size = 34 }: { stallId: StallId; size?: number }) {
   const Icon = stallIcons[stallId]
   return <Icon size={size} strokeWidth={1.8} />
@@ -72,17 +61,21 @@ function StallIcon({ stallId, size = 34 }: { stallId: StallId; size?: number }) 
 function StallCard({
   stall,
   state,
+  completedCount,
   onOpen,
 }: {
   stall: StallDefinition
   state: 'open' | 'available' | 'locked'
+  completedCount: number
   onOpen: () => void
 }) {
-  const stateText = {
-    open: 'Đã mở · Có thể quay lại',
-    available: 'Thử thách đang mở',
-    locked: 'Hoàn thành gian trước để mở',
-  }[state]
+  const total = stall.exerciseFamilyIds.length
+  const stateText =
+    state === 'open'
+      ? 'Đã mở · Có thể quay lại'
+      : state === 'available'
+        ? `Thử thách ${Math.min(completedCount + 1, total)}/${total}`
+        : 'Hoàn thành gian trước để mở'
 
   return (
     <button
@@ -130,28 +123,36 @@ function ExerciseModal({
   stall,
   exercise,
   mode,
+  stepNumber,
+  stepTotal,
+  isFinalUnlock,
   onClose,
-  onUnlock,
+  onCorrect,
 }: {
   stall: StallDefinition
   exercise: ExerciseInstance
   mode: 'unlock' | 'practice'
+  stepNumber: number
+  stepTotal: number
+  isFinalUnlock: boolean
   onClose: () => void
-  onUnlock: () => void
+  onCorrect: () => void
 }) {
   const [answer, setAnswer] = useState('')
   const [result, setResult] = useState<'idle' | 'correct' | 'wrong'>('idle')
+  const family = getExerciseFamilyById(exercise.familyId)
 
   const submit = () => {
     const numericAnswer = normalizeAnswer(answer)
+    setResult(numericAnswer === exercise.answer ? 'correct' : 'wrong')
+  }
 
-    if (numericAnswer === exercise.answer) {
-      setResult('correct')
-      if (mode === 'unlock') onUnlock()
-      return
+  const continueAfterCorrect = () => {
+    onCorrect()
+
+    if (mode === 'practice' || isFinalUnlock) {
+      onClose()
     }
-
-    setResult('wrong')
   }
 
   return (
@@ -179,8 +180,30 @@ function ExerciseModal({
           </div>
         </div>
 
+        <div className="exercise-step-row">
+          <div className="exercise-step-dots" aria-label={`Bài ${stepNumber} trên ${stepTotal}`}>
+            {Array.from({ length: stepTotal }, (_, index) => (
+              <span
+                key={index}
+                className={
+                  index < stepNumber - 1
+                    ? 'is-complete'
+                    : index === stepNumber - 1
+                      ? 'is-current'
+                      : ''
+                }
+              >
+                {index < stepNumber - 1 ? <Check size={11} /> : index + 1}
+              </span>
+            ))}
+          </div>
+          <strong>
+            {mode === 'unlock' ? `Bài ${stepNumber}/${stepTotal}` : 'Bài luyện thêm'}
+          </strong>
+        </div>
+
         <div className="exercise-family-summary">
-          <strong>{getFamilyForStall(stall).name}</strong>
+          <strong>{family.name}</strong>
           <span>Seed #{exercise.seed}</span>
         </div>
 
@@ -216,9 +239,11 @@ function ExerciseModal({
               <Check size={16} strokeWidth={2.5} />
             </span>
             <p>
-              {mode === 'unlock'
-                ? 'Chính xác! Gian hàng đã được mở và sẽ không bị khóa lại.'
-                : 'Chính xác! Em vẫn nhớ rất tốt kỹ năng ở gian này.'}
+              {mode === 'practice'
+                ? 'Chính xác! Em vẫn nhớ rất tốt kỹ năng ở gian này.'
+                : isFinalUnlock
+                  ? 'Chính xác! Em đã hoàn thành toàn bộ thử thách của gian này.'
+                  : 'Chính xác! Em đã hoàn thành bài này, tiếp tục sang dạng tiếp theo.'}
             </p>
           </div>
         ) : null}
@@ -233,8 +258,12 @@ function ExerciseModal({
         ) : null}
 
         {result === 'correct' ? (
-          <button type="button" className="primary-button" onClick={onClose}>
-            {mode === 'unlock' ? 'Tiếp tục hành trình →' : 'Quay lại gian hàng'}
+          <button type="button" className="primary-button" onClick={continueAfterCorrect}>
+            {mode === 'practice'
+              ? 'Quay lại gian hàng'
+              : isFinalUnlock
+                ? 'Mở gian hàng ✓'
+                : 'Bài tiếp theo →'}
           </button>
         ) : (
           <button type="button" className="primary-button" onClick={submit}>
@@ -288,8 +317,13 @@ export function SmartMartScreen({
   onStartMission: () => void
 }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
+  const stallExerciseProgress = useProgressionStore((state) => state.stallExerciseProgress)
   const unlockStall = useProgressionStore((state) => state.unlockStall)
+  const completeStallExercise = useProgressionStore(
+    (state) => state.completeStallExercise,
+  )
   const resetProgression = useProgressionStore((state) => state.resetProgression)
+
   const [activeStallId, setActiveStallId] = useState<StallId | null>(null)
   const [nearStallId, setNearStallId] = useState<StallId | null>(null)
   const [viewMode, setViewMode] = useState<'overview' | 'game'>('game')
@@ -312,13 +346,37 @@ export function SmartMartScreen({
         : null
     : null
 
-  const activeExercise = activeStall && activeMode
+  const activeCompletedFamilies = activeStall
+    ? stallExerciseProgress[activeStall.id] ?? []
+    : []
+
+  const activeFamilyId = activeStall && activeMode
+    ? activeMode === 'unlock'
+      ? activeStall.exerciseFamilyIds.find(
+          (familyId) => !activeCompletedFamilies.includes(familyId),
+        ) ?? activeStall.exerciseFamilyIds[activeStall.exerciseFamilyIds.length - 1]
+      : activeStall.exerciseFamilyIds[
+          (activeStall.order - 1) % activeStall.exerciseFamilyIds.length
+        ]
+    : null
+
+  const activeFamily = activeFamilyId
+    ? getExerciseFamilyById(activeFamilyId)
+    : null
+
+  const activeExercise = activeStall && activeMode && activeFamily
     ? generateExercise(
-        getFamilyForStall(activeStall),
+        activeFamily,
         demoStudentKey,
-        activeMode === 'unlock' ? 0 : 1,
+        activeMode === 'unlock' ? activeCompletedFamilies.length : 100 + activeStall.order,
       )
     : null
+
+  const activeStepNumber =
+    activeMode === 'unlock' ? activeCompletedFamilies.length + 1 : 1
+  const activeStepTotal = activeStall?.exerciseFamilyIds.length ?? 1
+  const isFinalUnlock =
+    activeMode === 'unlock' && activeStepNumber === activeStepTotal
 
   const nearStall = nearStallId
     ? stalls.find((stall) => stall.id === nearStallId) ?? null
@@ -332,6 +390,26 @@ export function SmartMartScreen({
       setActiveStallId(stallId)
     }
   }
+
+  const handleExerciseCorrect = () => {
+    if (
+      activeMode !== 'unlock' ||
+      !activeStall ||
+      !activeFamilyId
+    ) {
+      return
+    }
+
+    completeStallExercise(activeStall.id, activeFamilyId)
+
+    if (isFinalUnlock) {
+      unlockStall(activeStall.id)
+    }
+  }
+
+  const nearProgress = nearStall
+    ? stallExerciseProgress[nearStall.id]?.length ?? 0
+    : 0
 
   return (
     <section className="smartmart-screen">
@@ -377,8 +455,8 @@ export function SmartMartScreen({
             SmartMart – Siêu thị
           </h1>
           <p>
-            Mỗi gian hàng đại diện cho một nhóm Toán khác nhau. Em có thể đi tới quầy
-            để tương tác hoặc chuyển sang góc tổng quan.
+            Mỗi gian hàng đại diện cho một nhóm Toán khác nhau. Mỗi gian cần hoàn
+            thành 3 dạng bài trước khi được mở lâu dài.
           </p>
         </div>
 
@@ -408,7 +486,12 @@ export function SmartMartScreen({
                 <>
                   <StallIcon stallId={nearStall.id} size={18} />
                   <span>
-                    Gần <strong>{nearStall.name}</strong>
+                    <strong>{nearStall.name}</strong>
+                    {unlockedSet.has(nearStall.id)
+                      ? ' · Đã mở'
+                      : nearStall.id === nextLockedStall?.id
+                        ? ` · Bài ${nearProgress + 1}/${nearStall.exerciseFamilyIds.length}`
+                        : ' · Đang khóa'}
                   </span>
                 </>
               ) : (
@@ -470,6 +553,7 @@ export function SmartMartScreen({
                   key={stall.id}
                   stall={stall}
                   state={state}
+                  completedCount={stallExerciseProgress[stall.id]?.length ?? 0}
                   onOpen={() => setActiveStallId(stall.id)}
                 />
               )
@@ -490,8 +574,8 @@ export function SmartMartScreen({
             <Brain size={22} strokeWidth={1.9} />
           </span>
           <div>
-            <strong>Bài mở khóa có đáp số</strong>
-            <p>Mỗi học sinh nhận một biến thể số liệu ổn định theo seed.</p>
+            <strong>3 dạng Toán cho mỗi gian</strong>
+            <p>Tiến độ từng dạng được lưu lại và mỗi học sinh có seed riêng.</p>
           </div>
         </article>
         <article>
@@ -515,8 +599,11 @@ export function SmartMartScreen({
           stall={activeStall}
           exercise={activeExercise}
           mode={activeMode}
+          stepNumber={activeStepNumber}
+          stepTotal={activeStepTotal}
+          isFinalUnlock={isFinalUnlock}
           onClose={() => setActiveStallId(null)}
-          onUnlock={() => unlockStall(activeStall.id)}
+          onCorrect={handleExerciseCorrect}
         />
       ) : null}
     </section>
