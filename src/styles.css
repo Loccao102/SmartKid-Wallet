@@ -2022,3 +2022,627 @@ input:focus-visible {
     justify-content: center;
   }
 }
+
+
+/* === SmartMart playable unlock slice === */
+
+.smartmart-screen {
+  display: grid;
+  gap: 18px;
+}
+
+.smartmart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.back-button {
+  min-height: 42px;
+  border: 1px solid #dce5dd;
+  border-radius: 13px;
+  padding: 0 14px;
+  background: rgba(255,255,255,.88);
+  color: #315149;
+  font-size: .76rem;
+  font-weight: 850;
+}
+
+.back-button:hover {
+  background: #f0f6f2;
+}
+
+.smartmart-progress {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 220px) auto;
+  align-items: center;
+  gap: 10px;
+  color: #70827c;
+  font-size: .7rem;
+  font-weight: 800;
+}
+
+.smartmart-progress > div {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6ece7;
+}
+
+.smartmart-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1b9a72, #64c98c);
+}
+
+.smartmart-progress strong {
+  color: #16765f;
+  font-size: .78rem;
+}
+
+.smartmart-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 22px 24px;
+  border: 1px solid #dfe8dd;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 92% 18%, rgba(251,205,77,.24), transparent 14rem),
+    linear-gradient(135deg, rgba(255,255,255,.96), rgba(239,248,241,.95));
+  box-shadow: 0 14px 35px rgba(48,81,68,.07);
+}
+
+.smartmart-hero h1 {
+  margin: 4px 0 7px;
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+  letter-spacing: -.035em;
+}
+
+.smartmart-hero p:last-child {
+  max-width: 720px;
+  margin: 0;
+  color: #71847e;
+  line-height: 1.55;
+}
+
+.smartmart-wallet {
+  flex: 0 0 auto;
+  min-width: 230px;
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 15px;
+  border: 1px solid #e6e2c7;
+  border-radius: 17px;
+  background: #fff9e7;
+}
+
+.smartmart-wallet > span {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #ffeaa5;
+  font-size: 1.5rem;
+}
+
+.smartmart-wallet > div {
+  display: grid;
+}
+
+.smartmart-wallet small {
+  color: #9b8439;
+  font-size: .57rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+}
+
+.smartmart-wallet strong {
+  margin-top: 4px;
+  color: #54461b;
+  font-size: .78rem;
+}
+
+.smartmart-map-stage {
+  position: relative;
+  min-height: 720px;
+  overflow: hidden;
+  padding: 105px 30px 30px;
+  border: 1px solid #dce5d9;
+  border-radius: 28px;
+  background:
+    linear-gradient(rgba(255,255,255,.34), rgba(255,255,255,.34)),
+    repeating-linear-gradient(90deg, transparent 0 79px, rgba(77,112,94,.045) 80px),
+    repeating-linear-gradient(0deg, transparent 0 79px, rgba(77,112,94,.045) 80px),
+    #eaf0e5;
+  box-shadow: inset 0 0 80px rgba(62,103,82,.04);
+}
+
+.smartmart-store-sign {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  z-index: 5;
+  min-width: 275px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  transform: translateX(-50%);
+  padding: 10px 17px;
+  border: 4px solid #25584b;
+  border-radius: 13px;
+  background: #fff8d8;
+  box-shadow: 0 8px 0 #c7d1c4, 0 15px 28px rgba(41,74,61,.13);
+}
+
+.smartmart-store-sign > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #159170;
+}
+
+.smartmart-store-sign > div {
+  display: grid;
+}
+
+.smartmart-store-sign strong {
+  color: #255147;
+  font-size: 1rem;
+  letter-spacing: .08em;
+}
+
+.smartmart-store-sign small {
+  margin-top: 1px;
+  color: #7d8e88;
+  font-size: .52rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+
+.smartmart-path {
+  position: absolute;
+  inset: 120px 11% 130px;
+  pointer-events: none;
+}
+
+.smartmart-path span {
+  position: absolute;
+  left: 18%;
+  width: 65%;
+  border-top: 4px dashed rgba(82,127,105,.14);
+  transform-origin: left center;
+}
+
+.smartmart-path span:nth-child(1) {
+  top: 25%;
+  transform: rotate(15deg);
+}
+
+.smartmart-path span:nth-child(2) {
+  top: 48%;
+  transform: rotate(-15deg);
+}
+
+.smartmart-path span:nth-child(3) {
+  top: 70%;
+  transform: rotate(7deg);
+}
+
+.smartmart-stalls-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    "produce produce . food food ."
+    ". drinks drinks . supplies supplies"
+    ". . promotion promotion . .";
+  gap: 34px 22px;
+}
+
+.smartmart-stall {
+  position: relative;
+  min-height: 185px;
+  display: grid;
+  grid-template-rows: 20px 1fr auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 20px;
+  background: #fffdf7;
+  color: #29483f;
+  text-align: left;
+  box-shadow: 0 9px 0 #d7ddd2, 0 17px 29px rgba(47,72,61,.12);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+.smartmart-stall--produce { grid-area: produce; }
+.smartmart-stall--food { grid-area: food; }
+.smartmart-stall--drinks { grid-area: drinks; }
+.smartmart-stall--supplies { grid-area: supplies; }
+.smartmart-stall--promotion { grid-area: promotion; }
+
+.smartmart-stall:not(:disabled):hover {
+  transform: translateY(-5px);
+  box-shadow: 0 11px 0 #d1d9ce, 0 22px 34px rgba(47,72,61,.16);
+}
+
+.smartmart-stall.is-available {
+  box-shadow:
+    0 9px 0 #cbd9cc,
+    0 0 0 4px rgba(27,154,114,.13),
+    0 22px 38px rgba(47,72,61,.15);
+}
+
+.smartmart-stall.is-locked {
+  filter: grayscale(.8);
+  opacity: .53;
+}
+
+.smartmart-stall.is-open {
+  background: #f5fff9;
+}
+
+.smartmart-stall-number {
+  position: absolute;
+  top: 30px;
+  left: -9px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 3px solid #eaf0e5;
+  border-radius: 50%;
+  background: #315f52;
+  color: white;
+  font-size: .72rem;
+  font-weight: 950;
+}
+
+.smartmart-stall.is-available .smartmart-stall-number {
+  background: #f0b832;
+  color: #4b3603;
+}
+
+.smartmart-stall-awning {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: 21px;
+  margin: -1px 11px 0;
+  overflow: hidden;
+  border-radius: 0 0 11px 11px;
+  box-shadow: 0 4px 8px rgba(45,70,58,.08);
+}
+
+.smartmart-stall-awning i:nth-child(odd) {
+  background: #ef8b70;
+}
+
+.smartmart-stall-awning i:nth-child(even) {
+  background: #fff4df;
+}
+
+.smartmart-stall--food .smartmart-stall-awning i:nth-child(odd) { background: #7cbe8c; }
+.smartmart-stall--drinks .smartmart-stall-awning i:nth-child(odd) { background: #6caecd; }
+.smartmart-stall--supplies .smartmart-stall-awning i:nth-child(odd) { background: #e8bf4e; }
+.smartmart-stall--promotion .smartmart-stall-awning i:nth-child(odd) { background: #bc89c7; }
+
+.smartmart-stall-body {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  padding: 14px 15px 12px;
+  text-align: center;
+}
+
+.smartmart-stall-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  filter: drop-shadow(0 5px 3px rgba(39,63,53,.1));
+}
+
+.smartmart-stall-body > strong {
+  font-size: .9rem;
+}
+
+.smartmart-stall-body > span:not(.smartmart-stall-icon):not(.smartmart-stall-skills) {
+  max-width: 220px;
+  color: #7b8b86;
+  font-size: .65rem;
+  line-height: 1.4;
+}
+
+.smartmart-stall-skills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.smartmart-stall-skills em {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #edf4ef;
+  color: #5f766e;
+  font-size: .55rem;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.smartmart-stall-status {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid #edf0e9;
+  color: #7e8d87;
+  font-size: .6rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.smartmart-stall.is-open .smartmart-stall-status {
+  color: #197057;
+}
+
+.smartmart-stall.is-available .smartmart-stall-status {
+  color: #8a6508;
+  background: #fff9e9;
+}
+
+.smartmart-mission-gate {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 92%);
+  min-height: 104px;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 13px;
+  margin: 38px auto 0;
+  padding: 15px 17px;
+  border: 2px dashed #becbc2;
+  border-radius: 20px;
+  background: rgba(255,255,255,.67);
+  color: #70817b;
+}
+
+.smartmart-mission-gate.is-open {
+  border: 0;
+  background: #214f43;
+  color: white;
+  box-shadow: 0 9px 0 #16382f, 0 18px 30px rgba(33,79,67,.16);
+}
+
+.mission-gate-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: rgba(60,91,79,.08);
+  font-size: 1.5rem;
+}
+
+.smartmart-mission-gate.is-open .mission-gate-icon {
+  background: rgba(255,255,255,.12);
+}
+
+.smartmart-mission-gate > div {
+  display: grid;
+}
+
+.smartmart-mission-gate small {
+  font-size: .55rem;
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.smartmart-mission-gate strong {
+  margin: 3px 0;
+  font-size: .9rem;
+}
+
+.smartmart-mission-gate p {
+  margin: 0;
+  font-size: .67rem;
+  line-height: 1.45;
+}
+
+.smartmart-mission-gate button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 12px;
+  padding: 0 14px;
+  background: #dde3dd;
+  color: #8b9792;
+  font-size: .68rem;
+  font-weight: 900;
+}
+
+.smartmart-mission-gate.is-open button {
+  background: #f3c647;
+  color: #4c3907;
+}
+
+.smartmart-info-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.smartmart-info-row article {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 13px 15px;
+  border: 1px solid #dfe7df;
+  border-radius: 17px;
+  background: rgba(255,255,255,.82);
+}
+
+.smartmart-info-row article > span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #edf7f1;
+}
+
+.smartmart-info-row article > div {
+  display: grid;
+}
+
+.smartmart-info-row strong {
+  font-size: .73rem;
+}
+
+.smartmart-info-row p {
+  margin: 3px 0 0;
+  color: #7c8d87;
+  font-size: .63rem;
+  line-height: 1.45;
+}
+
+.smartmart-info-row .demo-reset {
+  align-self: center;
+  padding: 10px;
+}
+
+.smartmart-exercise-modal .exercise-family-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 15px 0 10px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: #eef6f1;
+  color: #567169;
+  font-size: .66rem;
+}
+
+.smartmart-exercise-modal .exercise-family-summary span {
+  color: #87958f;
+  font-size: .58rem;
+  font-weight: 800;
+}
+
+@media (max-width: 1040px) {
+  .smartmart-hero {
+    align-items: flex-start;
+  }
+
+  .smartmart-wallet {
+    min-width: 200px;
+  }
+
+  .smartmart-stalls-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "produce food"
+      "drinks supplies"
+      "promotion promotion";
+  }
+}
+
+@media (max-width: 700px) {
+  .smartmart-toolbar {
+    align-items: flex-start;
+  }
+
+  .smartmart-progress {
+    grid-template-columns: auto auto;
+  }
+
+  .smartmart-progress > div {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .smartmart-hero {
+    display: grid;
+    padding: 18px;
+  }
+
+  .smartmart-wallet {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .smartmart-map-stage {
+    min-height: 0;
+    padding: 100px 15px 22px;
+  }
+
+  .smartmart-path {
+    display: none;
+  }
+
+  .smartmart-stalls-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "produce"
+      "food"
+      "drinks"
+      "supplies"
+      "promotion";
+    gap: 20px;
+  }
+
+  .smartmart-stall {
+    min-height: 160px;
+  }
+
+  .smartmart-mission-gate {
+    width: 100%;
+    grid-template-columns: 46px 1fr;
+  }
+
+  .smartmart-mission-gate button {
+    grid-column: 1 / -1;
+  }
+
+  .smartmart-info-row {
+    grid-template-columns: 1fr;
+  }
+
+  .smartmart-info-row .demo-reset {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 480px) {
+  .smartmart-toolbar {
+    display: grid;
+  }
+
+  .smartmart-progress {
+    width: 100%;
+  }
+
+  .smartmart-store-sign {
+    min-width: 230px;
+  }
+
+  .smartmart-exercise-modal .exercise-family-summary {
+    display: grid;
+  }
+}
