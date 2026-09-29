@@ -39,11 +39,18 @@
 - [x] checkout/completion engine + UI cho Mission 01
 
 ## Phase 4 — Scenario + Work Mode
+- [x] Work Mode vertical slice — Ca làm việc 01
 - [ ] 10–15 scenario templates
+  - [x] 2 scenario đầu: damaged item + valid voucher
 - [ ] 5–6 customers/shift
-- [ ] 1–2 events/shift
-- [ ] employee rating
-- [ ] store reputation
+  - [x] 3 customers trong Trainee Shift 01
+- [x] 1–2 events/shift
+- [x] employee rating
+- [x] store reputation
+- [x] customer satisfaction
+- [x] bill adjustment từ scenario
+- [x] persistent shift progress
+- [x] Work Mode engine tests
 - [ ] deferred consequences
 
 ## Phase 5 — Data + analytics
