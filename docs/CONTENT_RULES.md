@@ -3,25 +3,57 @@
 ## 1. Nguyên tắc
 Content phải tạo ra cảm giác “đang làm việc trong siêu thị”, không phải “đang làm đề”.
 
-## 2. Unlock progression
-Mỗi gian hàng có:
-- 1 intro ngắn;
+**Content bank không tự động xuất hiện cho học sinh. Giáo viên là người giao nội dung thông qua Assignment.**
+
+## 2. Content bank và Assignment
+
+### Content bank
+Chứa các challenge/scenario template đã được duyệt:
+- lớp 4/5;
+- kỹ năng Toán;
+- kỹ năng tài chính;
+- phẩm chất/giá trị;
+- độ khó;
+- rubric;
+- tham số random;
+- feedback.
+
+### Assignment
+Là “gói bài tập” giáo viên giao cho lớp/nhóm/cá nhân.
+
+Assignment tham chiếu challenge/scenario trong content bank và quyết định:
+- ai được nhận;
+- làm Map nào;
+- gian hàng nào;
+- bao nhiêu challenge/gian;
+- challenge cố định hay random theo rule;
+- độ khó;
+- điều kiện đạt;
+- deadline;
+- có mở Full Shift hay không.
+
+Học sinh chỉ được nhìn thấy nội dung nằm trong Assignment đang được giao.
+
+## 3. Unlock progression
+Mỗi gian hàng trong Assignment có:
+- intro ngắn;
 - 2–4 challenge nền;
 - điều kiện unlock;
 - feedback;
 - skill tags.
 
-Trong MVP đầu tiên có thể demo 1 challenge/gian; trước pilot phải nâng lên 2–4 challenge/gian.
+Trong prototype đầu tiên có thể demo 1 challenge/gian; trước pilot phải nâng lên 2–4 challenge/gian.
 
 ### Quy tắc mở khóa
-- Gian 1 mở sẵn.
-- Hoàn thành yêu cầu của gian N → mở gian N+1.
+- Gian đầu tiên của Assignment khả dụng khi Assignment được publish.
+- Hoàn thành yêu cầu gian N → mở gian kế tiếp trong Assignment.
 - Không dùng tiền để mua mở khóa.
 - Không cho bỏ qua toàn bộ learning gate.
-- Sau khi 5/5 gian được mở → Full Shift khả dụng.
-- Có thể replay challenge để luyện nhưng không reset unlock.
+- Progress tách riêng theo từng Assignment.
+- Chỉ khi hoàn thành toàn bộ các gian được yêu cầu và giáo viên bật Full Shift → Full Shift khả dụng.
+- Có thể replay challenge nếu Assignment cho phép.
 
-## 3. Full Shift structure
+## 4. Full Shift structure
 Một ca chuẩn:
 1. Customer warm-up.
 2. Customer budget/quantity.
@@ -33,8 +65,17 @@ Một ca chuẩn:
 
 Tổng 5–6 khách; 1–2 event.
 
-## 4. Randomization
+Scenario pool phải nằm trong phạm vi Assignment hoặc rule giáo viên đã cấu hình.
+
+## 5. Randomization
 Random theo template + parameter, không random hỗn loạn.
+
+Giáo viên có thể giao:
+- bộ câu cố định;
+- random từ một nhóm skill;
+- random trong difficulty range;
+- seed cố định cho bài kiểm tra/challenge chung.
+
 Ví dụ template Budget có thể random:
 - ngân sách;
 - số người;
@@ -44,7 +85,7 @@ Ví dụ template Budget có thể random:
 
 Cấu trúc skill coverage của một ca phải được giữ.
 
-## 5. Các nhóm khách hàng
+## 6. Các nhóm khách hàng
 - Thanh toán hóa đơn.
 - Tiền thừa.
 - Mua theo tổng định mức/ngân sách.
@@ -54,7 +95,7 @@ Cấu trúc skill coverage của một ca phải được giữ.
 - Tư vấn hàng dập/gần hết hạn phù hợp nhu cầu.
 - Nhiều ràng buộc và bài toán nhiều bước.
 
-## 6. Event
+## 7. Event
 Event thay đổi world state:
 - hàng dập;
 - hàng gần hết hạn;
@@ -66,8 +107,9 @@ Event thay đổi world state:
 
 Event phải có thể ảnh hưởng khách đến sau.
 
-## 7. Đạo đức
+## 8. Đạo đức
 Không dùng câu hỏi giáo điều “em có trung thực không?”.
+
 Phải tạo tình huống mà:
 - phương án kiếm tiền cao hơn có thể làm giảm uy tín;
 - giảm giá có thể giảm biên doanh thu nhưng giảm lãng phí;
