@@ -143,14 +143,73 @@ Mỗi scenario có:
 
 Trainee Shift 01 chỉ dùng 2 event đầu để onboarding không bị quá tải.
 
-## 9. Next expansion
+## 9. Seeded Shift 02
 
-Sau vertical slice:
-- 5–6 khách/ca;
-- 10–15 scenario templates;
-- seeded customer/scenario selection;
+Ca 02 là ca đầu tiên được sinh từ template thay vì hard-code nguyên danh sách khách.
+
+Template:
+- 6 khách;
+- 4 scenario;
+- scenario difficulty 1–2;
+- 2 giao dịch thường;
+- customer names không trùng trong một ca;
+- ưu tiên 4 scenario thuộc 4 category khác nhau khi pool cho phép.
+
+Công thức seed:
+
+```text
+studentKey
++ templateId
++ templateVersion
++ variantIndex
+→ seed
+→ customer/scenario order
+→ WorkShiftInstance
+```
+
+Cùng bốn input trên phải sinh lại đúng cùng một instance. Không dùng `Math.random()` cho Work Mode generation.
+
+Generated WorkShiftInstance lưu:
+- templateId;
+- templateVersion;
+- seed;
+- studentKey;
+- variantIndex;
+- customer order;
+- scenarioId;
+- scenarioVersion.
+
+Điều này cho phép:
+- resume sau reload;
+- replay đúng ca;
+- đối chiếu dữ liệu nghiên cứu;
+- tái tạo ca từ log mà không cần lưu toàn bộ logic random.
+
+Demo hiện tại:
+- Ca 01: onboarding cố định, 3 khách, 2 event.
+- Ca 02: seeded instance, 6 khách, 4 event.
+
+Store lưu progress theo `shift.id`, vì vậy Ca 01 và Ca 02 không ghi đè tiến độ của nhau.
+
+## 10. Scenario/customer compatibility
+
+Không gán scenario ngẫu nhiên vào một giỏ hàng bất kỳ.
+
+Mỗi scenario có customer blueprint tương thích để bảo đảm:
+- nội dung mô tả khớp sản phẩm;
+- billDelta có ý nghĩa;
+- payable total không âm;
+- cashGiven đủ thanh toán cho mọi choice;
+- các constraint đặc biệt như budget/voucher/duplicate scan vẫn đúng.
+
+Generator random scenario + thứ tự + tên khách, nhưng dùng blueprint đã được kiểm chứng cho scenario đó.
+
+## 11. Next expansion
+
+Sau Seeded Shift 02:
 - deferred consequences;
 - world state giữa các khách;
 - event log cho research;
-- Phaser cashier scene/animation;
-- Supabase persistence.
+- nhiều shift template/difficulty;
+- Supabase persistence;
+- asset/sprite thật cho cashier scene.
