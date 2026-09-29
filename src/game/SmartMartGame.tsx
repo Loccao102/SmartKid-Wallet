@@ -5,12 +5,14 @@ import { SmartMartScene } from './SmartMartScene'
 
 interface SmartMartGameProps {
   unlockedStalls: StallId[]
+  paused?: boolean
   onInteractStall: (stallId: StallId) => void
   onNearStallChange?: (stallId: StallId | null) => void
 }
 
 export default function SmartMartGame({
   unlockedStalls,
+  paused = false,
   onInteractStall,
   onNearStallChange,
 }: SmartMartGameProps) {
@@ -68,5 +70,22 @@ export default function SmartMartGame({
     sceneRef.current?.setUnlockedStalls(unlockedStalls)
   }, [unlockedStalls])
 
-  return <div ref={hostRef} className="smartmart-phaser-host" aria-label="Không gian SmartMart tương tác" />
+  useEffect(() => {
+    const scene = sceneRef.current
+    if (!scene) return
+
+    if (paused) {
+      scene.scene.pause()
+    } else if (scene.scene.isPaused()) {
+      scene.scene.resume()
+    }
+  }, [paused])
+
+  return (
+    <div
+      ref={hostRef}
+      className="smartmart-phaser-host"
+      aria-label="Không gian SmartMart tương tác. Dùng WASD hoặc phím mũi tên để di chuyển."
+    />
+  )
 }
