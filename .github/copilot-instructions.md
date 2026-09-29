@@ -1,15 +1,18 @@
 # SmartKid Wallet coding instructions
 
-Đọc và tuân thủ `AGENTS.md` trước mọi thay đổi.
+Đọc và tuân thủ AGENTS.md trước mọi thay đổi.
 
 Các invariant quan trọng:
-- MVP: một map Siêu thị sâu.
-- Flow: **giáo viên giao Assignment → học sinh làm Assignment → mở khóa 5 gian → Full Shift**.
-- Học sinh không được tự lấy bài từ content bank.
-- Progress bắt buộc scope theo `assignmentId`.
-- Nội dung/scenario/rubric phải data-driven.
+- MVP hiển thị 4 map nhưng chỉ triển khai sâu SmartMart.
+- Ba map locked: Tiny Bank, Happy Restaurant, Weekend Market.
+- SmartMart có 5 stall; mỗi stall gắn cố định với nhóm kiến thức Toán lớp 4–5.
+- Teacher Assignment không còn là core dependency.
+- Unlock Exercise là bài có đáp số; Scenario là bài vận dụng nâng cao.
+- Progress mở map/stall là dài hạn theo account, không scope theo assignment.
+- Exercise phải sinh qua Exercise Family + seeded generator.
+- Không dùng Math.random() rải rác trong component.
+- Scenario/rubric/effects phải data-driven.
 - Tách employee rating và store reputation.
-- Không hard-code câu hỏi trong component.
+- Stable asset path đi qua src/assets/registry.ts.
 - Supabase exposed tables phải RLS.
-- Student chỉ đọc Assignment được giao cho mình/lớp mình.
 - Không đưa secret/service-role vào frontend.
