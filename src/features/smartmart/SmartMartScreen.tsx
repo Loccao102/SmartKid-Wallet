@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   Brain,
   Check,
   Coffee,
+  Gamepad2,
+  Grid2X2,
   Leaf,
   LockKeyhole,
   NotebookPen,
@@ -23,6 +25,7 @@ import { generateExercise } from '../../domain/exerciseEngine'
 import type { ExerciseInstance, StallDefinition, StallId } from '../../domain/types'
 import { useProgressionStore } from '../../store/progression'
 
+const SmartMartGame = lazy(() => import('../../game/SmartMartGame'))
 const demoStudentKey = 'student-demo-minh-anh'
 
 const stallIcons: Record<StallId, LucideIcon> = {
@@ -243,11 +246,53 @@ function ExerciseModal({
   )
 }
 
-export function SmartMartScreen({ onBack, onStartMission }: { onBack: () => void; onStartMission: () => void }) {
+function MissionGate({
+  missionUnlocked,
+  unlockedCount,
+  onStartMission,
+}: {
+  missionUnlocked: boolean
+  unlockedCount: number
+  onStartMission: () => void
+}) {
+  return (
+    <div className={`smartmart-mission-gate ${missionUnlocked ? 'is-open' : ''}`}>
+      <span className="mission-gate-icon" aria-hidden="true">
+        {missionUnlocked ? (
+          <Target size={24} strokeWidth={2} />
+        ) : (
+          <LockKeyhole size={22} strokeWidth={2} />
+        )}
+      </span>
+      <div>
+        <small>CHẶNG TIẾP THEO</small>
+        <strong>Mission: Chuẩn bị liên hoan lớp</strong>
+        <p>
+          {missionUnlocked
+            ? 'Tất cả gian đã mở. Bài vận dụng tổng hợp đã sẵn sàng.'
+            : `Mở thêm ${5 - unlockedCount} gian để bắt đầu bài vận dụng đầu tiên.`}
+        </p>
+      </div>
+      <button type="button" disabled={!missionUnlocked} onClick={onStartMission}>
+        {missionUnlocked ? 'Bắt đầu Mission →' : 'Đang khóa'}
+      </button>
+    </div>
+  )
+}
+
+export function SmartMartScreen({
+  onBack,
+  onStartMission,
+}: {
+  onBack: () => void
+  onStartMission: () => void
+}) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const unlockStall = useProgressionStore((state) => state.unlockStall)
   const resetProgression = useProgressionStore((state) => state.resetProgression)
-  const [activeStallId, setActiveStallId] = useState<string | null>(null)
+  const [activeStallId, setActiveStallId] = useState<StallId | null>(null)
+  const [nearStallId, setNearStallId] = useState<StallId | null>(null)
+  const [viewMode, setViewMode] = useState<'overview' | 'game'>('game')
 
   const unlockedSet = useMemo(() => new Set(unlockedStalls), [unlockedStalls])
   const nextLockedStall = stalls.find((stall) => !unlockedSet.has(stall.id))
@@ -275,6 +320,19 @@ export function SmartMartScreen({ onBack, onStartMission }: { onBack: () => void
       )
     : null
 
+  const nearStall = nearStallId
+    ? stalls.find((stall) => stall.id === nearStallId) ?? null
+    : null
+
+  const interactWithStall = (stallId: StallId) => {
+    const isOpen = unlockedSet.has(stallId)
+    const isAvailable = nextLockedStall?.id === stallId
+
+    if (isOpen || isAvailable) {
+      setActiveStallId(stallId)
+    }
+  }
+
   return (
     <section className="smartmart-screen">
       <div className="smartmart-toolbar">
@@ -282,6 +340,25 @@ export function SmartMartScreen({ onBack, onStartMission }: { onBack: () => void
           <ArrowLeft size={15} aria-hidden="true" />
           Quay lại bản đồ
         </button>
+
+        <div className="smartmart-view-switch" aria-label="Chọn góc nhìn SmartMart">
+          <button
+            type="button"
+            className={viewMode === 'game' ? 'is-active' : ''}
+            onClick={() => setViewMode('game')}
+          >
+            <Gamepad2 size={15} aria-hidden="true" />
+            Đi trong siêu thị
+          </button>
+          <button
+            type="button"
+            className={viewMode === 'overview' ? 'is-active' : ''}
+            onClick={() => setViewMode('overview')}
+          >
+            <Grid2X2 size={15} aria-hidden="true" />
+            Tổng quan
+          </button>
+        </div>
 
         <div className="smartmart-progress">
           <span>{unlockedCount}/5 gian đã mở</span>
@@ -300,8 +377,8 @@ export function SmartMartScreen({ onBack, onStartMission }: { onBack: () => void
             SmartMart – Siêu thị
           </h1>
           <p>
-            Mỗi gian hàng đại diện cho một nhóm Toán khác nhau. Làm thử thách để mở
-            gian, sau đó em có thể quay lại bất cứ lúc nào.
+            Mỗi gian hàng đại diện cho một nhóm Toán khác nhau. Em có thể đi tới quầy
+            để tương tác hoặc chuyển sang góc tổng quan.
           </p>
         </div>
 
@@ -316,64 +393,96 @@ export function SmartMartScreen({ onBack, onStartMission }: { onBack: () => void
         </div>
       </header>
 
-      <div className="smartmart-map-stage">
-        <div className="smartmart-store-sign">
-          <span aria-hidden="true">
-            <Star size={20} strokeWidth={2} />
-          </span>
-          <div>
-            <strong>SMARTMART</strong>
-            <small>HỌC TOÁN QUA MUA SẮM</small>
+      {viewMode === 'game' ? (
+        <div className="smartmart-game-shell">
+          <div className="smartmart-game-hud">
+            <div>
+              <Gamepad2 size={18} aria-hidden="true" />
+              <span>
+                <strong>Điều khiển:</strong> WASD / phím mũi tên · E / Space để tương tác
+              </span>
+            </div>
+
+            <div className={`smartmart-near-stall ${nearStall ? 'is-visible' : ''}`}>
+              {nearStall ? (
+                <>
+                  <StallIcon stallId={nearStall.id} size={18} />
+                  <span>
+                    Gần <strong>{nearStall.name}</strong>
+                  </span>
+                </>
+              ) : (
+                <span>Đi tới gần một gian hàng</span>
+              )}
+            </div>
           </div>
+
+          <Suspense
+            fallback={
+              <div className="smartmart-game-loading">
+                <Gamepad2 size={28} />
+                <strong>Đang mở SmartMart...</strong>
+              </div>
+            }
+          >
+            <SmartMartGame
+              unlockedStalls={unlockedStalls}
+              paused={Boolean(activeStallId)}
+              onInteractStall={interactWithStall}
+              onNearStallChange={setNearStallId}
+            />
+          </Suspense>
+
+          <MissionGate
+            missionUnlocked={missionUnlocked}
+            unlockedCount={unlockedCount}
+            onStartMission={onStartMission}
+          />
         </div>
-
-        <div className="smartmart-path" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
-
-        <div className="smartmart-stalls-grid">
-          {stalls.map((stall) => {
-            const state = unlockedSet.has(stall.id)
-              ? 'open'
-              : stall.id === nextLockedStall?.id
-                ? 'available'
-                : 'locked'
-
-            return (
-              <StallCard
-                key={stall.id}
-                stall={stall}
-                state={state}
-                onOpen={() => setActiveStallId(stall.id)}
-              />
-            )
-          })}
-        </div>
-
-        <div className={`smartmart-mission-gate ${missionUnlocked ? 'is-open' : ''}`}>
-          <span className="mission-gate-icon" aria-hidden="true">
-            {missionUnlocked ? (
-              <Target size={24} strokeWidth={2} />
-            ) : (
-              <LockKeyhole size={22} strokeWidth={2} />
-            )}
-          </span>
-          <div>
-            <small>CHẶNG TIẾP THEO</small>
-            <strong>Mission: Chuẩn bị liên hoan lớp</strong>
-            <p>
-              {missionUnlocked
-                ? 'Tất cả gian đã mở. Bài vận dụng tổng hợp đã sẵn sàng.'
-                : `Mở thêm ${5 - unlockedCount} gian để bắt đầu bài vận dụng đầu tiên.`}
-            </p>
+      ) : (
+        <div className="smartmart-map-stage">
+          <div className="smartmart-store-sign">
+            <span aria-hidden="true">
+              <Star size={20} strokeWidth={2} />
+            </span>
+            <div>
+              <strong>SMARTMART</strong>
+              <small>HỌC TOÁN QUA MUA SẮM</small>
+            </div>
           </div>
-          <button type="button" disabled={!missionUnlocked} onClick={onStartMission}>
-            {missionUnlocked ? 'Bắt đầu Mission →' : 'Đang khóa'}
-          </button>
+
+          <div className="smartmart-path" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+
+          <div className="smartmart-stalls-grid">
+            {stalls.map((stall) => {
+              const state = unlockedSet.has(stall.id)
+                ? 'open'
+                : stall.id === nextLockedStall?.id
+                  ? 'available'
+                  : 'locked'
+
+              return (
+                <StallCard
+                  key={stall.id}
+                  stall={stall}
+                  state={state}
+                  onOpen={() => setActiveStallId(stall.id)}
+                />
+              )
+            })}
+          </div>
+
+          <MissionGate
+            missionUnlocked={missionUnlocked}
+            unlockedCount={unlockedCount}
+            onStartMission={onStartMission}
+          />
         </div>
-      </div>
+      )}
 
       <div className="smartmart-info-row">
         <article>
