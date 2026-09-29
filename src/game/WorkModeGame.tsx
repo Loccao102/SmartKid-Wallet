@@ -3,6 +3,7 @@ import Phaser from 'phaser'
 import type {
   WorkCustomerDefinition,
   WorkScenarioChoice,
+  WorkWorldFlag,
 } from '../domain/types'
 import {
   WorkModeScene,
@@ -14,6 +15,7 @@ interface WorkModeGameProps {
   customerIndex: number
   stage: WorkVisualStage
   selectedChoice?: WorkScenarioChoice
+  worldFlags: WorkWorldFlag[]
 }
 
 export default function WorkModeGame({
@@ -21,6 +23,7 @@ export default function WorkModeGame({
   customerIndex,
   stage,
   selectedChoice,
+  worldFlags,
 }: WorkModeGameProps) {
   const hostRef = useRef<HTMLDivElement | null>(null)
   const gameRef = useRef<Phaser.Game | null>(null)
@@ -34,6 +37,7 @@ export default function WorkModeGame({
       customerIndex,
       stage,
       selectedChoice,
+      worldFlags,
     })
 
     sceneRef.current = scene
@@ -68,8 +72,9 @@ export default function WorkModeGame({
       customerIndex,
       stage,
       selectedChoice,
+      worldFlags,
     })
-  }, [customerIndex, stage, selectedChoice?.id])
+  }, [customerIndex, stage, selectedChoice?.id, worldFlags.join('|')])
 
   return (
     <div
