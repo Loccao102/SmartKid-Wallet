@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getWorkScenario, traineeShift } from '../data/workShift'
+import { getWorkScenario, traineeShift, workScenarios } from '../data/workShift'
 import {
   applyMathAttempt,
   applyScenarioChoice,
@@ -55,5 +55,38 @@ describe('work shift engine', () => {
 
     expect(settled.revenue).toBe(95000)
     expect(settled.servedCustomers).toBe(1)
+  })
+
+  it('keeps a valid ten-template scenario bank', () => {
+    expect(workScenarios).toHaveLength(10)
+
+    const ids = workScenarios.map((scenario) => scenario.id)
+    expect(new Set(ids).size).toBe(ids.length)
+
+    for (const scenario of workScenarios) {
+      expect(scenario.version).toBeGreaterThan(0)
+      expect(scenario.choices).toHaveLength(3)
+      expect(scenario.description.length).toBeGreaterThan(20)
+
+      const choiceIds = scenario.choices.map((choice) => choice.id)
+      expect(new Set(choiceIds).size).toBe(choiceIds.length)
+
+      for (const choice of scenario.choices) {
+        expect(choice.label.length).toBeGreaterThan(10)
+        expect(choice.feedback.length).toBeGreaterThan(20)
+        expect(Number.isFinite(choice.billDelta)).toBe(true)
+        expect(Number.isFinite(choice.employeeRatingDelta)).toBe(true)
+        expect(Number.isFinite(choice.storeReputationDelta)).toBe(true)
+        expect(Number.isFinite(choice.customerSatisfactionDelta)).toBe(true)
+      }
+    }
+  })
+
+  it('uses only registered scenarios inside the trainee shift', () => {
+    for (const customer of traineeShift.customers) {
+      if (!customer.scenarioId) continue
+
+      expect(() => getWorkScenario(customer.scenarioId!)).not.toThrow()
+    }
   })
 })
