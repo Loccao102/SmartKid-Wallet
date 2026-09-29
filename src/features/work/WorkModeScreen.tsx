@@ -15,20 +15,19 @@ import {
   WalletCards,
   Gamepad2,
 } from 'lucide-react'
-import {
-  getWorkScenario,
-  traineeShift,
-} from '../../data/workShift'
+import { getWorkScenario } from '../../data/workShift'
 import {
   applyMathAttempt,
   applyScenarioChoice,
   calculateBasketTotal,
   calculateChange,
   calculateEffectiveTotal,
+  createInitialWorkShiftProgress,
   settleCustomer,
 } from '../../domain/workShiftEngine'
 import type {
   WorkScenarioChoice,
+  WorkShiftDefinition,
   WorkShiftProgress,
 } from '../../domain/types'
 import { useWorkShiftStore } from '../../store/workShift'
@@ -83,15 +82,26 @@ function updateCustomerProgress(
   }
 }
 
-export function WorkModeScreen({ onBack }: { onBack: () => void }) {
-  const progress = useWorkShiftStore((state) => state.progress)
+export function WorkModeScreen({
+  shift,
+  onBack,
+}: {
+  shift: WorkShiftDefinition
+  onBack: () => void
+}) {
+  const storedProgress = useWorkShiftStore(
+    (state) => state.progressByShiftId[shift.id],
+  )
   const setProgress = useWorkShiftStore((state) => state.setProgress)
   const resetShift = useWorkShiftStore((state) => state.resetShift)
+  const progress = storedProgress ?? createInitialWorkShiftProgress(shift)
+  const shiftSeed =
+    'seed' in shift && typeof shift.seed === 'number' ? shift.seed : null
 
   const [answer, setAnswer] = useState('')
   const [feedback, setFeedback] = useState<'idle' | 'wrong' | 'correct'>('idle')
 
-  const customer = traineeShift.customers[progress.customerIndex] ?? null
+  const customer = shift.customers[progress.customerIndex] ?? null
   const customerProgress = customer
     ? progress.customerProgress[customer.id]
     : null
@@ -123,7 +133,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
             <BadgeCheck size={42} strokeWidth={1.8} />
           </div>
           <p className="page-kicker">CA LÀM VIỆC HOÀN THÀNH</p>
-          <h1>Ca đầu tiên của em đã kết thúc</h1>
+          <h1>{shift.title} đã kết thúc</h1>
           <p>
             Kết quả phản ánh cả độ chính xác khi tính toán và cách em xử lý tình
             huống trong cửa hàng.
@@ -156,7 +166,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
           <div className="work-complete-summary">
             <div>
               <span>Khách đã phục vụ</span>
-              <strong>{progress.metrics.servedCustomers}/3</strong>
+              <strong>{progress.metrics.servedCustomers}/{shift.customers.length}</strong>
             </div>
             <div>
               <span>Sai số tính toán</span>
@@ -164,7 +174,11 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
             </div>
           </div>
 
-          <button type="button" className="primary-button" onClick={resetShift}>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => resetShift(shift.id)}
+          >
             <RefreshCcw size={15} aria-hidden="true" />
             Chơi lại ca làm việc
           </button>
@@ -204,7 +218,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
         attemptPatch,
       )
 
-      setProgress({
+      setProgress(shift.id, {
         ...next,
         metrics: applyMathAttempt(progress.metrics, false),
       })
@@ -223,7 +237,10 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
             changeAttempts: customerProgress.changeAttempts + 1,
           }
 
-    setProgress(updateCustomerProgress(progress, customer.id, patch))
+    setProgress(
+      shift.id,
+      updateCustomerProgress(progress, customer.id, patch),
+    )
     setAnswer('')
     setFeedback('correct')
   }
@@ -233,7 +250,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
       scenarioChoiceId: choice.id,
     })
 
-    setProgress({
+    setProgress(shift.id, {
       ...next,
       metrics: applyScenarioChoice(progress.metrics, choice),
     })
@@ -246,9 +263,9 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
       customer.basket,
       selectedChoice,
     )
-    const isLast = progress.customerIndex >= traineeShift.customers.length - 1
+    const isLast = progress.customerIndex >= shift.customers.length - 1
 
-    setProgress({
+    setProgress(shift.id, {
       ...progress,
       metrics: settledMetrics,
       customerIndex: isLast
@@ -271,7 +288,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
 
         <div className="work-shift-progress">
           <span>
-            Khách {progress.customerIndex + 1}/{traineeShift.customers.length}
+            Khách {progress.customerIndex + 1}/{shift.customers.length}
           </span>
           <div>
             <i
@@ -279,7 +296,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
                 width:
                   ((progress.customerIndex +
                     (stage === 'done' ? 1 : 0)) /
-                    traineeShift.customers.length) *
+                    shift.customers.length) *
                     100 +
                   '%',
               }}
@@ -290,9 +307,12 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
 
       <header className="work-mode-hero">
         <div>
-          <p className="page-kicker">WORK MODE · {traineeShift.roleTitle.toUpperCase()}</p>
-          <h1>{traineeShift.title}</h1>
-          <p>{traineeShift.subtitle}</p>
+          <p className="page-kicker">WORK MODE · {shift.roleTitle.toUpperCase()}</p>
+          <h1>{shift.title}</h1>
+          <p>{shift.subtitle}</p>
+          {shiftSeed !== null ? (
+            <span className="work-seed-chip">Seed #{shiftSeed}</span>
+          ) : null}
         </div>
 
         <div className="work-live-metrics">
@@ -339,7 +359,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
           }
         >
           <WorkModeGame
-            customers={traineeShift.customers}
+            customers={shift.customers}
             customerIndex={progress.customerIndex}
             stage={stage}
             selectedChoice={selectedChoice}
@@ -356,7 +376,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
       <div className="work-mode-layout">
         <aside className="work-customer-queue">
           <p className="page-kicker">HÀNG CHỜ</p>
-          {traineeShift.customers.map((item, index) => {
+          {shift.customers.map((item, index) => {
             const itemProgress = progress.customerProgress[item.id]
             const completed =
               index < progress.customerIndex ||
@@ -606,7 +626,7 @@ export function WorkModeScreen({ onBack }: { onBack: () => void }) {
                 </p>
               </div>
               <button type="button" onClick={continueCustomer}>
-                {progress.customerIndex === traineeShift.customers.length - 1
+                {progress.customerIndex === shift.customers.length - 1
                   ? 'Kết thúc ca'
                   : 'Khách tiếp theo →'}
               </button>
