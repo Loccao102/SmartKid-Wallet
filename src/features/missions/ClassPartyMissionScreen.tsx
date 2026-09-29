@@ -20,7 +20,7 @@ import {
 import { firstMission } from '../../data/missions'
 import { getProductsByStall, products } from '../../data/products'
 import { evaluateMission } from '../../domain/missionEngine'
-import type { ProductDefinition, ProductStallId } from '../../domain/types'
+import type { CartLine, ProductDefinition, ProductStallId } from '../../domain/types'
 import { useMissionCartStore } from '../../store/missionCart'
 import { useProgressionStore } from '../../store/progression'
 
@@ -51,6 +51,7 @@ const stallMeta: Record<
 }
 
 const money = new Intl.NumberFormat('vi-VN')
+const EMPTY_CART: CartLine[] = []
 
 function ProductCard({
   product,
@@ -97,7 +98,8 @@ export function ClassPartyMissionScreen({ onBack }: { onBack: () => void }) {
   const [activeStall, setActiveStall] = useState<ProductStallId>('produce')
   const [checkoutAttempted, setCheckoutAttempted] = useState(false)
 
-  const cart = useMissionCartStore((state) => state.carts[mission.id] ?? [])
+  const carts = useMissionCartStore((state) => state.carts)
+  const cart = carts[mission.id] ?? EMPTY_CART
   const addItem = useMissionCartStore((state) => state.addItem)
   const removeItem = useMissionCartStore((state) => state.removeItem)
   const clearCart = useMissionCartStore((state) => state.clearCart)
