@@ -1,47 +1,169 @@
-# UI Design — SmartKid Wallet
+# UI/UX Design — SmartKid Wallet Production
 
-## 1. Visual direction
-Phong cách: **modern educational simulation + colorful 2.5D/isometric world**.
+## 1. Trạng thái
 
-Teal/xanh lá làm màu thương hiệu, kem/trắng làm nền, vàng ấm cho reward/action. Map art nhiều màu nhưng không neon; thân thiện lớp 4–5 nhưng không quá babyish.
+UI demo hiện tại được chấp nhận để chứng minh flow, nhưng **không phải production visual target**.
 
-Ưu tiên tablet, desktop tốt cho demo/NCKH, mobile phải dùng được.
+Production cần giảm cảm giác dashboard SaaS và tăng cảm giác game/learning world.
 
-## 2. Student navigation
-Các màn chính:
-1. Trang chủ
-2. Bản đồ
-3. Nhiệm vụ
-4. Bảng xếp hạng
-5. Hồ sơ
+## 2. Hai visual mode
 
-Desktop dùng sidebar; mobile dùng bottom nav.
+### Learning / Customer Mode
 
-## 3. World Map screen
-Hiển thị luôn 4 map.
+Cảm giác:
+- sáng;
+- khám phá;
+- đơn giản;
+- reward rõ;
+- ít metric.
 
-SmartMart full color, có progress và CTA Tiếp tục/Bắt đầu.
+Ưu tiên:
+- world/stall là focal point;
+- unlock progress dễ hiểu;
+- exercise modal gọn;
+- animation mở gian;
+- CTA lớn;
+- không hiển thị data kỹ thuật.
 
-Ba map locked phải desaturated/grayscale, có lock overlay, vẫn hiển thị tên + mô tả ngắn và không giả vờ có gameplay chưa xây.
+### Employee / Work Mode
 
-## 4. SmartMart screen
-SmartMart phải giống không gian siêu thị chứ không phải 5 card LMS. Có 5 stall, trạng thái locked/open/completed, Mission HUD, budget/cart và character/route khi gameplay được dựng.
+Cảm giác:
+- đang vào ca làm việc;
+- quầy/NPC/task là focal point;
+- thông tin vận hành vừa đủ;
+- world state xuất hiện theo ngữ cảnh.
 
-Gian đã mở có thể quay lại tự do.
+Employee Mode có thể trưởng thành hơn Learning Mode nhưng vẫn phù hợp học sinh lớp 4–5.
 
-## 5. Unlock Exercise UI
-Panel ngắn gồm stall, skill, câu hỏi, answer input và feedback. Không hiển thị Teacher Assignment trong core flow.
+## 3. Student UI không phải research console
 
-## 6. Profile
-Hiển thị avatar, level/XP/streak, SmartMart progress, skill strengths, badges và 4-map journey progress.
+Production student UI **không hiển thị**:
+- schema version;
+- session ID;
+- Export JSON/CSV;
+- raw research event count;
+- technical sync detail.
 
-## 7. Leaderboard
-Không ưu tiên doanh thu. Có thể dùng sao challenge chuẩn hóa, Mission hoàn thành, độ chính xác, streak và progress/improvement.
+Các control này chuyển sang Researcher/Admin workspace.
 
-Nếu so sánh trực tiếp về bài học, cần cùng challenge/seed hoặc metric đã chuẩn hóa.
+Student chỉ cần trạng thái thân thiện như:
+- “Đã lưu tiến trình”;
+- “Đang lưu…”;
+- “Chưa có mạng — sẽ đồng bộ sau”.
 
-## 8. Gameplay camera
-MVP hướng tới góc nhìn **2.5D/isometric top-down**: nhìn thấy nhiều khu vực siêu thị, nhân vật nhỏ nhưng biểu cảm, stall/sign dễ nhận ra, HUD nằm ngoài game canvas hoặc React overlay.
+## 4. Typography
 
-## 9. Accessibility
-Touch target khoảng 44px trở lên, focus-visible, không dùng màu làm tín hiệu duy nhất, contrast đủ và hỗ trợ reduced motion ở phase polish.
+Không dùng body text quá nhỏ.
+
+Target:
+- body student: tối thiểu khoảng 14–16px;
+- secondary: ≥12px;
+- button/touch label: dễ đọc;
+- tiny technical text chỉ dành admin/research.
+
+Không dùng hàng loạt `.5rem`–`.6rem` cho nội dung học sinh.
+
+## 5. Responsive
+
+### Desktop/tablet
+- game/world có không gian lớn;
+- panel phụ không cạnh tranh focal point.
+
+### Mobile
+- không ép desktop dashboard xuống chiều rộng nhỏ;
+- bottom navigation;
+- one-column task flow;
+- fixed/compact HUD;
+- modal full-screen hoặc near-full-screen;
+- touch target ≥44px;
+- canvas/game không bị chữ/panel bóp nhỏ.
+
+## 6. SmartMart
+
+Learning SmartMart phải thể hiện:
+- nhân vật;
+- 5 stall;
+- trạng thái open/locked/completed;
+- unlock celebration;
+- route/spatial feel.
+
+Không biến 5 stall thành 5 card LMS khi production art đã sẵn sàng.
+
+## 7. Exercise UX
+
+Logic giữ nguyên: Toán → mở gian.
+
+Presentation production:
+- bối cảnh stall rõ;
+- progress 1/3, 2/3, 3/3;
+- feedback ngắn;
+- success animation;
+- sau 3/3 mở gian ngay.
+
+Không thêm decision/world-state vào Unlock Exercise.
+
+## 8. Mission UX
+
+Mission nên giống shopping/planning flow:
+- objective rõ;
+- budget/reserve rõ;
+- cart dễ sửa;
+- stall navigation nhanh;
+- checkout feedback giải thích thiếu gì.
+
+## 9. Work Mode UX
+
+Production nên giảm số panel đồng thời.
+
+Focal hierarchy:
+1. khách/task hiện tại;
+2. quầy/POS;
+3. action/decision;
+4. world warning nếu có;
+5. queue/secondary metrics.
+
+World-state chỉ hiện khi có ý nghĩa với task.
+
+## 10. Result screen
+
+Tách hai khối:
+
+### Kết quả học tập/làm việc
+Ví dụ:
+- 6/6 phép tính chính xác;
+- 2/2 tình huống đã xử lý;
+- 0 hậu quả tiêu cực;
+- badge/XP.
+
+### Trạng thái mô phỏng
+Ví dụ:
+- employee rating;
+- store reputation;
+- customer satisfaction;
+- revenue.
+
+Không để 4.3/5 bị hiểu là “điểm học tập 4.3”.
+
+## 11. Accessibility
+
+Production gate:
+- keyboard navigation;
+- visible focus;
+- contrast;
+- touch ≥44px;
+- reduced motion;
+- screen-reader labels;
+- không chỉ dùng màu làm trạng thái;
+- font-size phù hợp trẻ em.
+
+## 12. Art direction
+
+Modern educational simulation + colorful 2.5D/isometric.
+
+Palette:
+- teal/emerald: brand/system;
+- warm cream: background;
+- yellow/gold: reward/action;
+- map/stall có màu riêng.
+
+Asset thật phải thay vector placeholder trước pilot-facing demo.
