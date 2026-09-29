@@ -62,7 +62,7 @@
 - [x] deferred consequences
 
 ## Phase 5 — Data + analytics
-- [ ] Supabase schema + RLS
+- [ ] Supabase schema + RLS deployment\n  - [x] research_events schema + explicit grants + RLS prepared\n  - [x] browser sync + offline queue prepared\n  - [ ] apply to dedicated SmartKid Supabase project + run advisors
 - [x] Work Mode attempts/events logging — local append-only MVP
 - [ ] teacher class dashboard
 - [ ] skill profile
