@@ -204,12 +204,108 @@ Mỗi scenario có customer blueprint tương thích để bảo đảm:
 
 Generator random scenario + thứ tự + tên khách, nhưng dùng blueprint đã được kiểm chứng cho scenario đó.
 
-## 11. Next expansion
+## 11. World state giữa các khách
 
-Sau Seeded Shift 02:
-- deferred consequences;
-- world state giữa các khách;
+Work Mode hiện duy trì world state riêng cho từng ca.
+
+Các flag MVP:
+- complaint-risk;
+- pricing-mismatch;
+- inventory-pressure;
+- cash-discrepancy;
+- billing-dispute;
+- stale-promo-sign.
+
+Flag không phải điểm số. Nó mô tả vấn đề đang tồn tại trong cửa hàng và được mang sang khách tiếp theo.
+
+Ví dụ:
+- bán hàng móp mà không xử lý → complaint-risk;
+- không xử lý sai lệch giá → pricing-mismatch;
+- tồn kho thiếu → inventory-pressure;
+- giữ tiền khách đưa dư → cash-discrepancy.
+
+World state được persist cùng progress của shift.
+
+## 12. Deferred consequences
+
+Một scenario choice có thể tạo:
+- setFlags;
+- clearFlags;
+- deferredConsequences.
+
+Deferred consequence có hai trigger:
+1. after-customers;
+2. shift-end.
+
+### after-customers
+
+Consequence được schedule khi học sinh ra quyết định và xuất hiện khi chuyển tới một khách sau.
+
+Ví dụ:
+
+```text
+Khách 2
+→ bán hộp bị móp như bình thường
+→ complaint-risk
+→ giao dịch hoàn tất
+
+Khách 3 xuất hiện
+→ khách trước quay lại khiếu nại
+→ Store Reputation giảm thêm
+→ Customer Satisfaction giảm
+→ complaint-risk được clear
+```
+
+Như vậy hậu quả không còn dừng ở một đoạn feedback ngay sau lựa chọn.
+
+### shift-end
+
+Dùng cho các việc chỉ phát hiện khi đối soát.
+
+Ví dụ:
+
+```text
+Khách đưa dư tiền
+→ nhân viên giữ phần dư
+→ cash-discrepancy
+
+... tiếp tục ca ...
+
+Kết thúc ca
+→ kiểm kê ngăn kéo
+→ phát hiện chênh lệch
+→ employee/store metrics bị tác động
+```
+
+### Resolution
+
+Khi consequence resolve:
+- metric delta được áp dụng;
+- pending consequence chuyển sang resolvedConsequences;
+- các world flag được chỉ định có thể được clear;
+- UI hiển thị consequence history;
+- Phaser scene hiển thị cảnh báo khi flag còn active.
+
+## 13. Current deferred examples
+
+Đã có deferred effects cho:
+- damaged item complaint;
+- near-expiry return;
+- repeated shelf/POS price dispute;
+- duplicate scan refund/dispute;
+- low-stock follow-up;
+- incorrect substitute pricing;
+- cash drawer audit;
+- customer returning for extra cash;
+- stale promotion sign affecting a later customer.
+
+Các effect nằm trong `src/data/workWorldEffects.ts`, không hard-code trong React component.
+
+## 14. Next expansion
+
+Sau world state MVP:
 - event log cho research;
 - nhiều shift template/difficulty;
+- consequence chain nhiều bước;
 - Supabase persistence;
 - asset/sprite thật cho cashier scene.
