@@ -9,6 +9,12 @@ Giữ visual asset nhất quán, tái sử dụng được và không gắn ch�
 - hình khối rõ, ít chi tiết nhiễu;
 - cùng hệ tỷ lệ/perspective giữa map, stall, character và props.
 
+## UI icon system
+- Dùng `lucide-react` làm icon library mặc định cho navigation, trạng thái, action, badge/system icon.
+- Import trực tiếp từng icon để giữ tree-shaking; không import toàn bộ icon registry.
+- Không dùng emoji làm icon UI chính thức.
+- Product, character, stall booth, map art và scenario prop vẫn là game asset riêng, không thay bằng Lucide nếu cần hình minh họa 2.5D.
+
 ## Runtime groups
 public/assets/
 - brand/
@@ -37,7 +43,7 @@ Ba map locked chưa cần full environment asset.
 
 ## SmartMart asset checklist
 ### Brand/UI
-Logo, mascot/star guide, nav icon, lock/check, coin/wallet/XP/streak, badge frame và feedback effect.
+Logo, mascot/star guide, badge frame và feedback effect. Nav/system icon dùng Lucide; chỉ tạo asset riêng khi cần illustration hoặc branded icon.
 
 ### Map/environment
 SmartMart exterior thumbnail, interior/background, floor/path, entrance, checkout, plants/signs/carts/baskets và decorations.
