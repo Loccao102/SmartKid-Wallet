@@ -1,39 +1,47 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { StallId } from '../domain/types'
+import type { MapId, StallId } from '../domain/types'
 
 interface ProgressionState {
-  completedByAssignment: Record<string, StallId[]>
-  completeStall: (assignmentId: string, stallId: StallId) => void
-  resetAssignment: (assignmentId: string) => void
+  unlockedMaps: MapId[]
+  unlockedStalls: StallId[]
+  completedMissionIds: string[]
+  unlockMap: (mapId: MapId) => void
+  unlockStall: (stallId: StallId) => void
+  completeMission: (missionId: string) => void
+  resetProgression: () => void
+}
+
+const initialProgression = {
+  unlockedMaps: ['smartmart'] as MapId[],
+  unlockedStalls: [] as StallId[],
+  completedMissionIds: [] as string[],
 }
 
 export const useProgressionStore = create<ProgressionState>()(
   persist(
     (set) => ({
-      completedByAssignment: {},
-      completeStall: (assignmentId, stallId) =>
-        set((state) => {
-          const current = state.completedByAssignment[assignmentId] ?? []
-
-          if (current.includes(stallId)) {
-            return state
-          }
-
-          return {
-            completedByAssignment: {
-              ...state.completedByAssignment,
-              [assignmentId]: [...current, stallId],
-            },
-          }
-        }),
-      resetAssignment: (assignmentId) =>
-        set((state) => {
-          const next = { ...state.completedByAssignment }
-          delete next[assignmentId]
-          return { completedByAssignment: next }
-        }),
+      ...initialProgression,
+      unlockMap: (mapId) =>
+        set((state) =>
+          state.unlockedMaps.includes(mapId)
+            ? state
+            : { unlockedMaps: [...state.unlockedMaps, mapId] },
+        ),
+      unlockStall: (stallId) =>
+        set((state) =>
+          state.unlockedStalls.includes(stallId)
+            ? state
+            : { unlockedStalls: [...state.unlockedStalls, stallId] },
+        ),
+      completeMission: (missionId) =>
+        set((state) =>
+          state.completedMissionIds.includes(missionId)
+            ? state
+            : { completedMissionIds: [...state.completedMissionIds, missionId] },
+        ),
+      resetProgression: () => set(initialProgression),
     }),
-    { name: 'smartkid-wallet-progression-v2' },
+    { name: 'smartkid-wallet-progression-v3' },
   ),
 )
