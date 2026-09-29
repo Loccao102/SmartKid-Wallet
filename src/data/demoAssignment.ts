@@ -13,6 +13,7 @@ export const demoAssignment: TeacherAssignment = {
   },
   status: 'published',
   assignedAt: '2026-09-29T08:00:00+07:00',
+  dueAt: '2026-10-03T20:00:00+07:00',
   stalls: [
     {
       stallId: 'produce',
