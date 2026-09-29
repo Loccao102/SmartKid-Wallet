@@ -57,6 +57,7 @@ export class SmartMartScene extends Phaser.Scene {
   private readonly onInteractStall: (stallId: StallId) => void
   private readonly onNearStallChange?: (stallId: StallId | null) => void
   private helpText!: Phaser.GameObjects.Text
+  private virtualMove = { x: 0, y: 0 }
 
   constructor(options: SmartMartSceneOptions) {
     super({ key: 'SmartMartScene' })
@@ -103,21 +104,31 @@ export class SmartMartScene extends Phaser.Scene {
     if (!this.keys || !this.player) return
 
     const speed = 190 * (delta / 1000)
-    let dx = 0
-    let dy = 0
+    let directionX = this.virtualMove.x
+    let directionY = this.virtualMove.y
 
-    if (this.keys.cursors.left.isDown || this.keys.a.isDown) dx -= speed
-    if (this.keys.cursors.right.isDown || this.keys.d.isDown) dx += speed
-    if (this.keys.cursors.up.isDown || this.keys.w.isDown) dy -= speed
-    if (this.keys.cursors.down.isDown || this.keys.s.isDown) dy += speed
+    if (this.keys.cursors.left.isDown || this.keys.a.isDown) directionX -= 1
+    if (this.keys.cursors.right.isDown || this.keys.d.isDown) directionX += 1
+    if (this.keys.cursors.up.isDown || this.keys.w.isDown) directionY -= 1
+    if (this.keys.cursors.down.isDown || this.keys.s.isDown) directionY += 1
 
-    if (dx !== 0 && dy !== 0) {
-      dx *= 0.7071
-      dy *= 0.7071
+    directionX = Phaser.Math.Clamp(directionX, -1, 1)
+    directionY = Phaser.Math.Clamp(directionY, -1, 1)
+
+    if (directionX !== 0 && directionY !== 0) {
+      directionX *= 0.7071
+      directionY *= 0.7071
     }
 
-    this.player.x = Phaser.Math.Clamp(this.player.x + dx, 45, 755)
-    this.player.y = Phaser.Math.Clamp(this.player.y + dy, 88, 665)
+    const nextX = Phaser.Math.Clamp(this.player.x + directionX * speed, 45, 755)
+    const nextY = Phaser.Math.Clamp(this.player.y + directionY * speed, 88, 665)
+
+    if (this.canMoveTo(nextX, this.player.y)) this.player.x = nextX
+    if (this.canMoveTo(this.player.x, nextY)) this.player.y = nextY
+
+    const isMoving = directionX !== 0 || directionY !== 0
+    const pulse = isMoving ? 1 + Math.sin(this.time.now * 0.018) * 0.025 : 1
+    this.player.setScale(pulse)
 
     this.updateNearbyStall()
 
@@ -126,13 +137,24 @@ export class SmartMartScene extends Phaser.Scene {
       (Phaser.Input.Keyboard.JustDown(this.keys.e) ||
         Phaser.Input.Keyboard.JustDown(this.keys.space))
     ) {
-      this.onInteractStall(this.nearStall)
+      this.triggerInteraction()
     }
   }
 
   setUnlockedStalls(stallIds: StallId[]) {
     this.unlockedStalls = new Set(stallIds)
     this.refreshStalls()
+  }
+
+  setVirtualMove(x: number, y: number) {
+    this.virtualMove.x = Phaser.Math.Clamp(x, -1, 1)
+    this.virtualMove.y = Phaser.Math.Clamp(y, -1, 1)
+  }
+
+  triggerInteraction() {
+    if (this.nearStall) {
+      this.onInteractStall(this.nearStall)
+    }
   }
 
   private drawFloor() {
@@ -275,6 +297,7 @@ export class SmartMartScene extends Phaser.Scene {
         state === 'locked' ? 0xb7bfbb : baseColor,
         state === 'locked' ? 0.5 : 1,
       )
+      stall.booth.setStrokeStyle(5, 0xffffff, state === 'locked' ? 0.55 : 0.9)
       stall.label.setAlpha(state === 'locked' ? 0.55 : 1)
       stall.status.setAlpha(state === 'locked' ? 0.65 : 1)
 
@@ -289,6 +312,8 @@ export class SmartMartScene extends Phaser.Scene {
         stall.status.setBackgroundColor('#65736edd')
       }
     }
+
+    this.applyNearHighlight()
   }
 
   private updateNearbyStall() {
@@ -314,6 +339,7 @@ export class SmartMartScene extends Phaser.Scene {
     if (nextNearId !== this.nearStall) {
       this.nearStall = nextNearId
       this.onNearStallChange?.(nextNearId)
+      this.applyNearHighlight()
     }
 
     if (nearest) {
@@ -326,6 +352,34 @@ export class SmartMartScene extends Phaser.Scene {
     } else {
       this.helpText.setText('WASD / phím mũi tên để di chuyển')
     }
+  }
+
+  private applyNearHighlight() {
+    for (const stall of this.stalls) {
+      const state = this.getStallState(stall.id)
+      const isNear = stall.id === this.nearStall
+      const strokeColor = isNear ? 0xf4c84c : 0xffffff
+      const strokeWidth = isNear ? 8 : 5
+      const alpha = state === 'locked' ? 0.55 : 0.9
+
+      stall.booth.setStrokeStyle(strokeWidth, strokeColor, isNear ? 1 : alpha)
+    }
+  }
+
+  private canMoveTo(x: number, y: number) {
+    const playerRadius = 20
+
+    return !this.stalls.some((stall) => {
+      const halfWidth = stall.width / 2 + playerRadius
+      const halfHeight = stall.height / 2 + playerRadius
+
+      return (
+        x > stall.x - halfWidth &&
+        x < stall.x + halfWidth &&
+        y > stall.y - halfHeight &&
+        y < stall.y + halfHeight
+      )
+    })
   }
 
   private fitCamera() {
