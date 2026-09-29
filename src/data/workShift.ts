@@ -354,7 +354,7 @@ export const workScenarios: WorkScenarioDefinition[] = [
       {
         id: 'keep-extra-cash',
         label: 'Cho số tiền dư vào ngăn kéo vì khách đã rời mắt khỏi quầy.',
-        billDelta: 50000,
+        billDelta: 0,
         employeeRatingDelta: -0.5,
         storeReputationDelta: -0.45,
         customerSatisfactionDelta: -0.5,
