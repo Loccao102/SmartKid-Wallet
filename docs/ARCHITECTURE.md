@@ -31,6 +31,9 @@ Phaser chịu trách nhiệm scene, character movement, spatial interaction, NPC
 ### Mission/scenario
 **Mission → World State → Scenario Template → Scenario Instance → Decision → Effects → Event Log**
 
+### Research telemetry
+**Interaction → immutable ResearchEvent v1 → local append-only store → JSON/CSV export → future Supabase research_events**
+
 Hai flow tách biệt.
 
 ## World model
@@ -48,7 +51,7 @@ Math: exercise_families, exercise_family_versions, exercise_instances, exercise_
 
 Mission: missions, mission_versions, student_missions.
 
-Scenario/work: scenario_templates, scenario_versions, scenario_instances, decisions, shifts, shift_events.
+Scenario/work: scenario_templates, scenario_versions, scenario_instances, decisions, shifts, shift_events.\n\nResearch: research_events (append-only, schema-versioned, JSONB before/after/metadata).
 
 Gamification: achievements, student_achievements, leaderboard_snapshots.
 
