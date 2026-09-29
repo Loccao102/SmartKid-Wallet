@@ -36,7 +36,7 @@ describe('research remote mapping', () => {
     expect(row.schema_version).toBe(1)
     expect(row.student_key).toBe('student-pseudo-001')
     expect(row.correct).toBe(true)
-    expect(row.before_state?.metrics.employeeRating).toBe(4)
+    expect(row.before_state).toMatchObject({ metrics: { employeeRating: 4 } })
     expect(row.metadata).toEqual({ source: 'work-mode' })
 
     expect(Object.keys(row)).not.toContain('name')
