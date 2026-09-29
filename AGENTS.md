@@ -144,6 +144,7 @@ Không gán skill không liên quan vào stall.
 ## 14. Source of truth
 
 - Production direction: docs/PRODUCTION_PLAN.md
+- Deployment: docs/DEPLOYMENT.md
 - Product: docs/PRODUCT_SPEC.md
 - Gameplay: docs/GAME_DESIGN.md
 - UI/UX: docs/UI_DESIGN.md
