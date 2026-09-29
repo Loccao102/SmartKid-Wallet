@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import type {
   WorkCustomerDefinition,
   WorkScenarioChoice,
+  WorkWorldFlag,
 } from '../domain/types'
 
 export type WorkVisualStage = 'total' | 'scenario' | 'change' | 'done'
@@ -11,12 +12,14 @@ interface WorkModeSceneOptions {
   customerIndex: number
   stage: WorkVisualStage
   selectedChoice?: WorkScenarioChoice
+  worldFlags: WorkWorldFlag[]
 }
 
 interface DynamicView {
   customerIndex: number
   stage: WorkVisualStage
   selectedChoice?: WorkScenarioChoice
+  worldFlags: WorkWorldFlag[]
 }
 
 const customerColors = [0xe9936f, 0x6da9cb, 0x9a82c5]
@@ -35,6 +38,7 @@ export class WorkModeScene extends Phaser.Scene {
       customerIndex: options.customerIndex,
       stage: options.stage,
       selectedChoice: options.selectedChoice,
+      worldFlags: options.worldFlags,
     }
   }
 
@@ -150,6 +154,7 @@ export class WorkModeScene extends Phaser.Scene {
     this.renderCurrentCustomer(current, animateCustomer)
     this.renderProducts(current)
     this.renderStageEffects()
+    this.renderWorldWarnings()
   }
 
   private renderQueue() {
@@ -372,6 +377,37 @@ export class WorkModeScene extends Phaser.Scene {
 
       this.dynamicLayer.add(adjustment)
     }
+  }
+
+
+  private renderWorldWarnings() {
+    if (this.view.worldFlags.length === 0) return
+
+    const flagLabels: Record<WorkWorldFlag, string> = {
+      'complaint-risk': 'KHIẾU NẠI',
+      'pricing-mismatch': 'SAI GIÁ',
+      'inventory-pressure': 'THIẾU HÀNG',
+      'cash-discrepancy': 'LỆCH TIỀN',
+      'billing-dispute': 'HÓA ĐƠN',
+      'stale-promo-sign': 'BIỂN KM',
+    }
+
+    this.view.worldFlags.slice(0, 3).forEach((flag, index) => {
+      const x = 205
+      const y = 94 + index * 34
+      const badge = this.add
+        .text(x, y, '! ' + flagLabels[flag], {
+          fontFamily: 'system-ui, sans-serif',
+          fontSize: '9px',
+          fontStyle: 'bold',
+          color: '#8b5b16',
+          backgroundColor: '#fff0bd',
+          padding: { x: 8, y: 5 },
+        })
+        .setOrigin(0.5)
+
+      this.dynamicLayer.add(badge)
+    })
   }
 
   private createNpc(
