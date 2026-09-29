@@ -5604,3 +5604,28 @@ input:focus-visible {
     min-height: 330px;
   }
 }
+
+
+.work-seed-chip {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 10px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #e8f4ec;
+  color: #2f6857;
+  font-size: .56rem;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+
+.seeded-shift-card {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(92, 156, 132, .13), transparent 16rem),
+    radial-gradient(circle at 8% 92%, rgba(244, 197, 69, .1), transparent 14rem),
+    rgba(255,255,255,.92);
+}
+
+.seeded-shift-card.is-unlocked {
+  border-color: #bfdcc9;
+}
