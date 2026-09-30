@@ -45,6 +45,39 @@ export const useWorkShiftStore = create<WorkShiftStore>()(
     }),
     {
       name: 'smartkid-wallet-work-shifts-v3',
+      version: 1,
+      migrate: (persistedState) => {
+        const persisted = persistedState as Partial<WorkShiftStore>
+        const progressByShiftId = Object.fromEntries(
+          Object.entries(persisted.progressByShiftId ?? {}).map(
+            ([shiftId, progress]) => [
+              shiftId,
+              {
+                ...progress,
+                activeFollowUpInstanceId:
+                  progress.activeFollowUpInstanceId ?? undefined,
+                worldState: {
+                  ...progress.worldState,
+                  pendingConsequences:
+                    progress.worldState?.pendingConsequences ?? [],
+                  resolvedConsequences:
+                    progress.worldState?.resolvedConsequences ?? [],
+                  pendingFollowUps:
+                    progress.worldState?.pendingFollowUps ?? [],
+                  resolvedFollowUps:
+                    progress.worldState?.resolvedFollowUps ?? [],
+                  flags: progress.worldState?.flags ?? [],
+                },
+              },
+            ],
+          ),
+        )
+
+        return {
+          ...persisted,
+          progressByShiftId,
+        } as WorkShiftStore
+      },
     },
   ),
 )
