@@ -24,6 +24,22 @@ export const advancedShiftTemplate: WorkShiftTemplateDefinition = {
   startingCustomerSatisfaction: 4,
 }
 
+export const expertShiftTemplate: WorkShiftTemplateDefinition = {
+  id: 'work-shift-weekend-peak-03',
+  version: 1,
+  title: 'Ca làm việc 03 · Cuối tuần cao điểm',
+  subtitle:
+    '8 khách, 5 tình huống và cả các sự cố khó hơn của một ca SmartMart đông người.',
+  roleTitle: 'Thu ngân SmartMart',
+  customerCount: 8,
+  scenarioCount: 5,
+  minScenarioDifficulty: 1,
+  maxScenarioDifficulty: 3,
+  startingEmployeeRating: 4,
+  startingStoreReputation: 4,
+  startingCustomerSatisfaction: 4,
+}
+
 export const workCustomerNames = [
   'Cô Hương',
   'Chú Nam',
@@ -173,4 +189,53 @@ export const scenarioCustomerBlueprints: Record<string, WorkCustomerBlueprint> =
     ],
     cashGiven: 200000,
   },
+  SCENARIO_RETURN_NO_RECEIPT: {
+    key: 'return-no-receipt',
+    basket: [
+      { name: 'túi cam', quantity: 1, unitPrice: 36000 },
+      { name: 'gói khăn giấy', quantity: 1, unitPrice: 15000 },
+    ],
+    cashGiven: 100000,
+  },
+  SCENARIO_DAMAGED_EGGS: {
+    key: 'damaged-eggs',
+    basket: [
+      { name: 'hộp trứng', quantity: 1, unitPrice: 42000 },
+      { name: 'giỏ bánh mì mini', quantity: 1, unitPrice: 36000 },
+    ],
+    cashGiven: 100000,
+  },
+  SCENARIO_QUEUE_PRIORITY: {
+    key: 'queue-priority',
+    basket: [
+      { name: 'lốc nước suối', quantity: 1, unitPrice: 30000 },
+      { name: 'gói khăn giấy', quantity: 1, unitPrice: 15000 },
+    ],
+    cashGiven: 100000,
+  },
+  SCENARIO_UNIT_PRICE_COMPARISON: {
+    key: 'unit-price-comparison',
+    basket: [
+      { name: 'gói ngũ cốc lớn', quantity: 1, unitPrice: 78000 },
+      { name: 'lốc sữa', quantity: 1, unitPrice: 36000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_FROZEN_ITEM_LEFT_OUT: {
+    key: 'frozen-item-left-out',
+    basket: [
+      { name: 'gói thực phẩm đông lạnh', quantity: 1, unitPrice: 68000 },
+      { name: 'lốc nước ép', quantity: 1, unitPrice: 42000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_COUPON_STACKING: {
+    key: 'coupon-stacking',
+    basket: [
+      { name: 'balo', quantity: 1, unitPrice: 100000 },
+      { name: 'hộp sandwich', quantity: 1, unitPrice: 45000 },
+    ],
+    cashGiven: 200000,
+  },
+
 }
