@@ -1,172 +1,25 @@
-import {
-  BadgeCheck,
-  Flame,
-  LockKeyhole,
-  Map,
-  ShoppingBag,
-  Star,
-  Trophy,
-  User,
-} from 'lucide-react'
-import { demoStudentProfile } from '../../data/studentDemo'
+import { useState } from 'react'
+import { ArrowRight, BadgeCheck, BookOpen, Flame, LockKeyhole, ShoppingBasket, Star, Trophy } from 'lucide-react'
+import { gameAssets } from '../../assets/registry'
+import { demoStudentProfile as student } from '../../data/studentDemo'
 import { worldMaps } from '../../data/worldMaps'
+import { stalls } from '../../data/stalls'
+import { firstMission } from '../../data/missions'
 import { useProgressionStore } from '../../store/progression'
+import { Modal } from '../system/Modal'
 
-export function ProfileScreen() {
-  const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
-  const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
-
-  const smartMartProgress = Math.round((unlockedStalls.length / 5) * 100)
-  const completedFirstMission = completedMissionIds.includes('mission-class-party-01')
-  const xpProgress = Math.round(
-    (demoStudentProfile.xp / demoStudentProfile.nextLevelXp) * 100,
-  )
-
-  return (
-    <section className="profile-screen">
-      <header className="profile-hero">
-        <div className="profile-avatar-large" aria-hidden="true">
-          <User size={42} strokeWidth={1.7} />
-        </div>
-
-        <div className="profile-hero-copy">
-          <p className="page-kicker">HỒ SƠ HỌC SINH</p>
-          <h1>{demoStudentProfile.name}</h1>
-          <p>
-            Lớp {demoStudentProfile.className} · {demoStudentProfile.title}
-          </p>
-
-          <div className="profile-xp-row">
-            <span>Lv. {demoStudentProfile.level}</span>
-            <div aria-label={'Tiến độ cấp độ ' + xpProgress + '%'}>
-              <i style={{ width: xpProgress + '%' }} />
-            </div>
-            <strong>
-              {demoStudentProfile.xp}/{demoStudentProfile.nextLevelXp} XP
-            </strong>
-          </div>
-        </div>
-
-        <div className="profile-stat-pills">
-          <div>
-            <Flame size={19} aria-hidden="true" />
-            <span>Chuỗi học</span>
-            <strong>{demoStudentProfile.streakDays} ngày</strong>
-          </div>
-          <div>
-            <ShoppingBag size={19} aria-hidden="true" />
-            <span>Gian đã mở</span>
-            <strong>{unlockedStalls.length}/5</strong>
-          </div>
-          <div>
-            <Trophy size={19} aria-hidden="true" />
-            <span>Mission</span>
-            <strong>{completedMissionIds.length}</strong>
-          </div>
-        </div>
-      </header>
-
-      <div className="profile-grid">
-        <article className="profile-card skill-profile-card">
-          <div className="profile-card-heading">
-            <div>
-              <p className="page-kicker">NĂNG LỰC</p>
-              <h2>Kỹ năng của em</h2>
-            </div>
-            <Star size={21} aria-hidden="true" />
-          </div>
-
-          <div className="profile-skill-list">
-            {demoStudentProfile.skills.map((skill) => (
-              <div key={skill.id}>
-                <div>
-                  <span>{skill.label}</span>
-                  <strong>{skill.score}%</strong>
-                </div>
-                <div className="profile-skill-track">
-                  <i style={{ width: skill.score + '%' }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="profile-card-note">
-            Điểm kỹ năng sẽ được tính từ các lần làm bài, Mission và Work Mode khi
-            hệ thống dữ liệu được nối hoàn chỉnh.
-          </p>
-        </article>
-
-        <article className="profile-card">
-          <div className="profile-card-heading">
-            <div>
-              <p className="page-kicker">THÀNH TÍCH</p>
-              <h2>Huy hiệu</h2>
-            </div>
-            <BadgeCheck size={21} aria-hidden="true" />
-          </div>
-
-          <div className="profile-badge-list">
-            {demoStudentProfile.badges.map((badge) => {
-              const unlocked =
-                badge.id === 'first-stall'
-                  ? unlockedStalls.length > 0
-                  : badge.id === 'smart-shopper'
-                    ? completedFirstMission
-                    : true
-
-              return (
-                <div key={badge.id} className={unlocked ? 'is-unlocked' : 'is-locked'}>
-                  <span aria-hidden="true">
-                    {unlocked ? <BadgeCheck size={20} /> : <LockKeyhole size={19} />}
-                  </span>
-                  <div>
-                    <strong>{badge.name}</strong>
-                    <p>{badge.description}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </article>
-      </div>
-
-      <article className="profile-card world-progress-card">
-        <div className="profile-card-heading">
-          <div>
-            <p className="page-kicker">HÀNH TRÌNH</p>
-            <h2>Tiến độ các bản đồ</h2>
-          </div>
-          <Map size={21} aria-hidden="true" />
-        </div>
-
-        <div className="profile-world-list">
-          {worldMaps.map((map) => {
-            const isSmartMart = map.id === 'smartmart'
-            const progress = isSmartMart ? smartMartProgress : 0
-
-            return (
-              <div key={map.id} className={isSmartMart ? 'is-active' : 'is-locked'}>
-                <div className="profile-world-index">{map.order}</div>
-                <div>
-                  <strong>{map.name}</strong>
-                  <span>
-                    {isSmartMart
-                      ? unlockedStalls.length + '/5 gian đã mở'
-                      : 'Chưa mở'}
-                  </span>
-                </div>
-                <div
-                  className="profile-world-track"
-                  aria-label={'Tiến độ ' + map.name + ' ' + progress + '%'}
-                >
-                  <i style={{ width: progress + '%' }} />
-                </div>
-                <strong>{progress}%</strong>
-              </div>
-            )
-          })}
-        </div>
-      </article>
-    </section>
-  )
+export function ProfileScreen({ onMap, onLeaderboard }: { onMap: () => void; onLeaderboard: () => void }) {
+  const unlockedStalls = useProgressionStore(state => state.unlockedStalls)
+  const completedMissionIds = useProgressionStore(state => state.completedMissionIds)
+  const [selectedBadge, setSelectedBadge] = useState<string | null>(null)
+  const count = stalls.filter(stall => unlockedStalls.includes(stall.id)).length
+  const badgeUnlocked = (id: string) => id === 'first-stall' ? count > 0 : id === 'smart-shopper' ? completedMissionIds.includes(firstMission.id) : true
+  const badge = student.badges.find(item => item.id === selectedBadge)
+  return <section className="student-passport"><header className="adventure-heading"><div><p className="eyebrow">MỖI NGÀY THÊM MỘT BƯỚC TIẾN</p><h1>Hành trình của em</h1><p>Học giỏi, chi tiêu thông minh và giúp đỡ bạn bè.</p></div><button type="button" className="outline-button" onClick={onLeaderboard}><Trophy size={19} />Bảng xếp hạng</button></header>
+    <div className="passport-layout"><section className="passport-identity"><div className="passport-portrait"><img src={gameAssets.production.student} alt="" /><Star size={28} /></div><h2>{student.name}</h2><p>Lớp {student.className} · {student.title}</p><div className="passport-level"><span>Cấp {student.level}</span><strong>{student.xp}/{student.nextLevelXp} XP</strong></div><progress value={student.xp} max={student.nextLevelXp} aria-label="Tiến độ cấp độ" /><div className="passport-facts"><div><Flame size={22} /><strong>{student.streakDays} ngày</strong><span>Chuỗi học</span></div><div><ShoppingBasket size={22} /><strong>{count}/{stalls.length}</strong><span>Gian đã mở</span></div><div><BadgeCheck size={22} /><strong>{completedMissionIds.length}</strong><span>Nhiệm vụ</span></div></div><p className="sample-note">Hồ sơ trải nghiệm: cấp độ, XP và chuỗi học là dữ liệu minh họa. Gian hàng và nhiệm vụ phản ánh tiến trình trên thiết bị này.</p></section>
+    <section className="passport-badges"><p className="eyebrow">BỘ SƯU TẬP CỦA EM</p><h2>Những điều em làm được</h2><div className="badge-collection">{student.badges.map((item,index) => <button key={item.id} type="button" className={`passport-badge badge-${index} ${badgeUnlocked(item.id) ? 'earned' : 'not-earned'}`} onClick={() => setSelectedBadge(item.id)}><span>{badgeUnlocked(item.id) ? index === 0 ? <BookOpen size={34} /> : index === 1 ? <Flame size={34} /> : <ShoppingBasket size={34} /> : <LockKeyhole size={32} />}</span><strong>{item.name}</strong><small>{badgeUnlocked(item.id) ? 'Đã nhận · Xem chi tiết' : 'Chưa mở · Xem mục tiêu'}</small></button>)}</div><div className="passport-encouragement"><Star size={23} /><p>Mỗi bài Toán em hoàn thành đều giúp em tự tin hơn cho lần mua sắm tiếp theo.</p></div></section></div>
+    <section className="passport-worlds"><header><div><p className="eyebrow">TIẾN TRÌNH KHÁM PHÁ</p><h2>Thế giới đang chờ em</h2></div><button className="quiet-button" type="button" onClick={onMap}>Về SmartMart<ArrowRight size={18} /></button></header><div>{worldMaps.map(map => <article key={map.id}><img src={gameAssets.production.maps[map.id]} alt="" /><h3>{map.shortName}</h3>{map.id === 'smartmart' ? <><progress value={count} max={stalls.length} aria-label="Số gian SmartMart đã mở" /><span>{count}/{stalls.length} gian đã mở</span></> : <span><LockKeyhole size={15} />Sắp ra mắt</span>}</article>)}</div></section>
+    <details className="passport-skills"><summary>Kỹ năng đang luyện · dữ liệu minh họa</summary><div>{student.skills.map(skill => <div key={skill.id}><span>{skill.label}</span><strong>{skill.score}%</strong><progress value={skill.score} max={100} aria-label={skill.label} /></div>)}</div><p>Các tỷ lệ minh họa này chưa phải kết quả đánh giá cá nhân.</p></details>
+    {badge ? <Modal title={badge.name} onClose={() => setSelectedBadge(null)}><div className="badge-detail"><BadgeCheck size={48} /><p>{badge.description}</p><strong>{badgeUnlocked(badge.id) ? 'Huy hiệu đã mở' : 'Tiếp tục khám phá để nhận huy hiệu này nhé.'}</strong></div><button className="adventure-button" type="button" onClick={() => { setSelectedBadge(null); onMap() }}>Tiếp tục tại SmartMart<ArrowRight size={19} /></button></Modal> : null}
+  </section>
 }

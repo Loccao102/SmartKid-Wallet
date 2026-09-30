@@ -1,155 +1,122 @@
 import {
   ArrowRight,
-  Landmark,
+  Compass,
   LockKeyhole,
-  Map,
   ShoppingCart,
   Sparkles,
-  Store,
-  UtensilsCrossed,
-  type LucideIcon,
 } from 'lucide-react'
+import { gameAssets } from '../../assets/registry'
 import { worldMaps } from '../../data/worldMaps'
-import type { MapId, WorldMapDefinition } from '../../domain/types'
+import { stalls } from '../../data/stalls'
 import { useProgressionStore } from '../../store/progression'
 
-const mapIcons: Record<MapId, LucideIcon> = {
-  smartmart: ShoppingCart,
-  'tiny-bank': Landmark,
-  'happy-restaurant': UtensilsCrossed,
-  'weekend-market': Store,
-}
-
-function MapArtwork({ map }: { map: WorldMapDefinition }) {
-  const Icon = mapIcons[map.id]
-
-  return (
-    <div className={`world-map-art world-map-art--${map.theme}`} aria-hidden="true">
-      <div className="world-map-landmark">
-        <span className="world-map-landmark-icon">
-          <Icon size={44} strokeWidth={1.8} />
-        </span>
-        <strong>{map.shortName}</strong>
-      </div>
-      {map.status === 'locked' ? (
-        <div className="world-map-lock">
-          <span>
-            <LockKeyhole size={25} strokeWidth={2} />
-          </span>
-          <strong>Chưa mở</strong>
-        </div>
-      ) : null}
-    </div>
-  )
-}
-
-function WorldMapCard({
-  map,
-  featured,
-  progress,
-  onOpen,
+export function WorldMapScreen({
+  onOpenSmartMart,
 }: {
-  map: WorldMapDefinition
-  featured?: boolean
-  progress?: number
-  onOpen?: () => void
+  onOpenSmartMart: () => void
 }) {
-  const locked = map.status === 'locked'
-  const progressValue = progress ?? 0
-
-  return (
-    <article
-      className={`world-map-card ${featured ? 'is-featured' : ''} ${locked ? 'is-locked' : ''}`}
-    >
-      <div className="world-map-number" aria-hidden="true">{map.order}</div>
-      <MapArtwork map={map} />
-
-      <div className="world-map-card-content">
-        <div className="world-map-title-row">
-          <div>
-            <h2>{map.name}</h2>
-            <p>{map.description}</p>
-          </div>
-
-          {locked ? (
-            <span className="world-map-status locked">
-              <LockKeyhole size={12} aria-hidden="true" />
-              Đang khóa
-            </span>
-          ) : (
-            <span className="world-map-status available">Đang khám phá</span>
-          )}
-        </div>
-
-        {map.id === 'smartmart' ? (
-          <div className="world-map-progress-area">
-            <div className="world-map-progress-copy">
-              <span>Tiến độ SmartMart</span>
-              <strong>{progressValue}%</strong>
-            </div>
-            <div className="world-map-progress-track" aria-label={`Tiến độ SmartMart ${progressValue}%`}>
-              <span style={{ width: `${progressValue}%` }} />
-            </div>
-            <button type="button" className="world-map-primary-action" onClick={onOpen}>
-              {progressValue > 0 ? 'Tiếp tục hành trình' : 'Bắt đầu SmartMart'}
-              <ArrowRight size={16} aria-hidden="true" />
-            </button>
-          </div>
-        ) : (
-          <p className="world-map-unlock-hint">{map.unlockHint}</p>
-        )}
-      </div>
-    </article>
-  )
-}
-
-export function WorldMapScreen({ onOpenSmartMart }: { onOpenSmartMart: () => void }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
-  const smartmart = worldMaps[0]
-  const lockedMaps = worldMaps.slice(1)
-  const smartMartProgress = Math.round((unlockedStalls.length / 5) * 100)
-
+  const count = stalls.filter((stall) =>
+    unlockedStalls.includes(stall.id),
+  ).length
   return (
-    <section className="world-screen">
-      <div className="world-heading">
-        <div className="world-heading-icon" aria-hidden="true">
-          <Map size={28} strokeWidth={1.9} />
-        </div>
+    <section className="adventure-world" aria-labelledby="world-title">
+      <header className="adventure-heading">
         <div>
-          <p className="page-kicker">HÀNH TRÌNH SMARTKID</p>
-          <h1>Chọn bản đồ để tiếp tục hành trình</h1>
-          <p>
-            Hiện tại SmartMart đang mở. Hoàn thành từng chặng để khám phá thêm những
-            thế giới tài chính mới.
+          <p className="eyebrow">
+            <Compass size={16} aria-hidden="true" /> THẾ GIỚI CỦA EM
           </p>
+          <h1 id="world-title">Đi một chút. Học thật nhiều.</h1>
+          <p>Những điều hay bắt đầu từ một chuyến đi mua sắm.</p>
         </div>
-      </div>
-
-      <WorldMapCard
-        map={smartmart}
-        featured
-        progress={smartMartProgress}
-        onOpen={onOpenSmartMart}
-      />
-
-      <div className="locked-world-grid" aria-label="Các bản đồ chưa mở">
-        {lockedMaps.map((map) => (
-          <WorldMapCard key={map.id} map={map} />
-        ))}
-      </div>
-
-      <aside className="world-coming-soon">
-        <span aria-hidden="true">
-          <Sparkles size={20} strokeWidth={2} />
+        <span className="mode-label">
+          <span /> Chế độ khám phá
         </span>
-        <div>
-          <strong>Một hành trình, nhiều thế giới</strong>
+      </header>
+      <div className="island-world">
+        <img
+          className="island-landscape"
+          src={gameAssets.production.landscape}
+          alt=""
+        />
+        <div className="map-caption">
+          <Compass size={19} aria-hidden="true" />
+          <span>Bản đồ hành trình</span>
+        </div>
+        <div className="island-destinations">
+          {worldMaps.map((map) => (
+            <article
+              key={map.id}
+              className={`island-destination destination-${map.id}`}
+            >
+              <img
+                src={gameAssets.production.maps[map.id]}
+                alt=""
+                className="destination-art"
+              />
+              {map.id === 'smartmart' ? (
+                <>
+                  <button
+                    type="button"
+                    className="destination-sign is-available"
+                    onClick={onOpenSmartMart}
+                  >
+                    <ShoppingCart size={21} aria-hidden="true" />
+                    <span>Siêu thị SmartMart</span>
+                    <ArrowRight size={20} aria-hidden="true" />
+                  </button>
+                  <span className="destination-note">
+                    {count === 0
+                      ? 'Hành trình đầu tiên của em'
+                      : `${count}/${stalls.length} gian hàng đã mở`}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <h2 className="destination-sign">
+                    <LockKeyhole size={18} aria-hidden="true" />
+                    {map.name}
+                  </h2>
+                  <span className="destination-note">Sắp ra mắt</span>
+                </>
+              )}
+            </article>
+          ))}
+        </div>
+        <div className="world-guide">
+          <img src={gameAssets.production.student} alt="" />
           <p>
-            Ba bản đồ khóa mới chỉ là preview. MVP sẽ tập trung làm SmartMart thật sâu
-            trước khi mở rộng gameplay.
+            <strong>Cùng ghé SmartMart nhé!</strong>
+            <span>Giải Toán, mở gian hàng và mua sắm thông minh.</span>
           </p>
         </div>
-      </aside>
+      </div>
+      <footer className="journey-footer">
+        <div className="journey-progress">
+          <span className="journey-emblem">
+            <Sparkles size={24} aria-hidden="true" />
+          </span>
+          <div>
+            <strong>Hành trình SmartMart</strong>
+            <span>
+              {count}/{stalls.length} gian đã mở · Mỗi bài Toán, một bước tiến
+            </span>
+          </div>
+          <progress
+            value={count}
+            max={stalls.length}
+            aria-label={`${count} trên ${stalls.length} gian đã mở`}
+          />
+        </div>
+        <button
+          type="button"
+          className="adventure-button"
+          onClick={onOpenSmartMart}
+        >
+          {count ? 'Tiếp tục khám phá' : 'Khám phá SmartMart'}
+          <ArrowRight size={20} aria-hidden="true" />
+        </button>
+      </footer>
     </section>
   )
 }

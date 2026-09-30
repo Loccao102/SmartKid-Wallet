@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { gameAssets } from '../assets/registry'
 import type { StallId } from '../domain/types'
 
 type StallState = 'open' | 'available' | 'locked'
@@ -11,6 +12,7 @@ interface StallZone {
   width: number
   height: number
   booth: Phaser.GameObjects.Rectangle
+  artwork: Phaser.GameObjects.Image
   label: Phaser.GameObjects.Text
   status: Phaser.GameObjects.Text
 }
@@ -22,14 +24,36 @@ interface SmartMartSceneOptions {
   onReady?: () => void
 }
 
-const stallOrder: StallId[] = ['produce', 'food', 'drinks', 'supplies', 'promotion']
+const stallOrder: StallId[] = [
+  'produce',
+  'food',
+  'drinks',
+  'supplies',
+  'promotion',
+]
 
-const stallDefinitions: Array<Pick<StallZone, 'id' | 'name' | 'x' | 'y' | 'width' | 'height'>> = [
-  { id: 'produce', name: 'RAU CỦ & HOA QUẢ', x: 190, y: 150, width: 240, height: 110 },
+const stallDefinitions: Array<
+  Pick<StallZone, 'id' | 'name' | 'x' | 'y' | 'width' | 'height'>
+> = [
+  {
+    id: 'produce',
+    name: 'RAU CỦ & HOA QUẢ',
+    x: 190,
+    y: 150,
+    width: 240,
+    height: 110,
+  },
   { id: 'food', name: 'THỰC PHẨM', x: 610, y: 150, width: 240, height: 110 },
   { id: 'drinks', name: 'ĐỒ UỐNG', x: 190, y: 395, width: 240, height: 110 },
   { id: 'supplies', name: 'ĐỒ DÙNG', x: 610, y: 395, width: 240, height: 110 },
-  { id: 'promotion', name: 'KHUYẾN MÃI', x: 400, y: 555, width: 270, height: 96 },
+  {
+    id: 'promotion',
+    name: 'KHUYẾN MÃI',
+    x: 400,
+    y: 555,
+    width: 270,
+    height: 96,
+  },
 ]
 
 const boothColors: Record<StallId, number> = {
@@ -60,6 +84,9 @@ export class SmartMartScene extends Phaser.Scene {
   private readonly onReady?: () => void
   private helpText!: Phaser.GameObjects.Text
   private virtualMove = { x: 0, y: 0 }
+  private readonly reducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  )
 
   constructor(options: SmartMartSceneOptions) {
     super({ key: 'SmartMartScene' })
@@ -67,6 +94,20 @@ export class SmartMartScene extends Phaser.Scene {
     this.onInteractStall = options.onInteractStall
     this.onNearStallChange = options.onNearStallChange
     this.onReady = options.onReady
+  }
+
+  preload() {
+    this.load.svg('student-production', gameAssets.production.student, {
+      width: 160,
+      height: 190,
+    })
+    for (const id of stallOrder) {
+      this.load.svg(
+        `stall-production-${id}`,
+        gameAssets.production.stalls[id],
+        { width: 320, height: 250 },
+      )
+    }
   }
 
   create() {
@@ -131,7 +172,10 @@ export class SmartMartScene extends Phaser.Scene {
     if (this.canMoveTo(this.player.x, nextY)) this.player.y = nextY
 
     const isMoving = directionX !== 0 || directionY !== 0
-    const pulse = isMoving ? 1 + Math.sin(this.time.now * 0.018) * 0.025 : 1
+    const pulse =
+      isMoving && !this.reducedMotion.matches
+        ? 1 + Math.sin(this.time.now * 0.018) * 0.025
+        : 1
     this.player.setScale(pulse)
 
     this.updateNearbyStall()
@@ -222,38 +266,47 @@ export class SmartMartScene extends Phaser.Scene {
         )
         .setStrokeStyle(5, 0xffffff, 0.9)
 
-      this.add.rectangle(
-        definition.x,
-        definition.y - definition.height / 2 + 16,
-        definition.width - 12,
-        26,
-        0xffffff,
-        0.92,
-      )
+      const artwork = this.add
+        .image(
+          definition.x,
+          definition.y - 14,
+          `stall-production-${definition.id}`,
+        )
+        .setDisplaySize(230, 180)
 
       const label = this.add
-        .text(definition.x, definition.y - 25, definition.name, {
-          fontFamily: 'system-ui, sans-serif',
-          fontSize: '14px',
-          fontStyle: 'bold',
-          color: '#244a40',
-          align: 'center',
-        })
+        .text(
+          definition.x,
+          definition.y + (definition.id === 'promotion' ? 47 : 62),
+          definition.name,
+          {
+            fontFamily: 'system-ui, sans-serif',
+            fontSize: '14px',
+            fontStyle: 'bold',
+            color: '#244a40',
+            align: 'center',
+          },
+        )
         .setOrigin(0.5)
 
       const status = this.add
-        .text(definition.x, definition.y + 24, '', {
-          fontFamily: 'system-ui, sans-serif',
-          fontSize: '11px',
-          fontStyle: 'bold',
-          color: '#ffffff',
-          align: 'center',
-          backgroundColor: '#244a40cc',
-          padding: { x: 9, y: 5 },
-        })
+        .text(
+          definition.x,
+          definition.y + (definition.id === 'promotion' ? 69 : 86),
+          '',
+          {
+            fontFamily: 'system-ui, sans-serif',
+            fontSize: '14px',
+            fontStyle: 'bold',
+            color: '#ffffff',
+            align: 'center',
+            backgroundColor: '#244a40cc',
+            padding: { x: 9, y: 5 },
+          },
+        )
         .setOrigin(0.5)
 
-      return { ...definition, booth, label, status }
+      return { ...definition, booth, artwork, label, status }
     })
 
     this.refreshStalls()
@@ -261,11 +314,11 @@ export class SmartMartScene extends Phaser.Scene {
 
   private createCheckoutArea() {
     this.add
-      .rectangle(400, 642, 280, 48, 0x315e52, 1)
+      .rectangle(400, 662, 280, 48, 0x315e52, 1)
       .setStrokeStyle(4, 0xffffff, 0.9)
 
     this.add
-      .text(400, 642, 'QUẦY THANH TOÁN · MISSION', {
+      .text(400, 662, 'QUẦY THANH TOÁN · MISSION', {
         fontFamily: 'system-ui, sans-serif',
         fontSize: '12px',
         fontStyle: 'bold',
@@ -276,12 +329,10 @@ export class SmartMartScene extends Phaser.Scene {
 
   private createPlayer() {
     const shadow = this.add.ellipse(0, 13, 30, 12, 0x24483e, 0.18)
-    const body = this.add.circle(0, 0, 15, 0xf4c84c, 1).setStrokeStyle(3, 0xffffff, 1)
-    const face = this.add.circle(0, -2, 6, 0xfff1c8, 1)
-    const leftEye = this.add.circle(-2, -3, 1, 0x2c4d43, 1)
-    const rightEye = this.add.circle(2, -3, 1, 0x2c4d43, 1)
-
-    this.player = this.add.container(400, 250, [shadow, body, face, leftEye, rightEye])
+    const character = this.add
+      .image(0, -10, 'student-production')
+      .setDisplaySize(48, 57)
+    this.player = this.add.container(400, 250, [shadow, character])
     this.player.setDepth(20)
   }
 
@@ -297,10 +348,8 @@ export class SmartMartScene extends Phaser.Scene {
       const state = this.getStallState(stall.id)
       const baseColor = boothColors[stall.id]
 
-      stall.booth.setFillStyle(
-        state === 'locked' ? 0xb7bfbb : baseColor,
-        state === 'locked' ? 0.5 : 1,
-      )
+      stall.booth.setFillStyle(state === 'locked' ? 0xb7bfbb : baseColor, 0.12)
+      stall.artwork.setAlpha(state === 'locked' ? 0.55 : 1)
       stall.booth.setStrokeStyle(5, 0xffffff, state === 'locked' ? 0.55 : 0.9)
       stall.label.setAlpha(state === 'locked' ? 0.55 : 1)
       stall.status.setAlpha(state === 'locked' ? 0.65 : 1)

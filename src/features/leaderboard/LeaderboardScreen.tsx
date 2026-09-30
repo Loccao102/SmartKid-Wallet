@@ -1,129 +1,16 @@
-import {
-  Medal,
-  ShieldCheck,
-  Target,
-  Trophy,
-  Users,
-} from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Medal, ShieldCheck, Star, Target, Trophy } from 'lucide-react'
+import { gameAssets } from '../../assets/registry'
 import { demoStudentProfile, weeklyChallenge } from '../../data/studentDemo'
 
-function RankBadge({ rank }: { rank: number }) {
-  if (rank <= 3) {
-    return (
-      <span
-        className={'leaderboard-rank-medal rank-' + rank}
-        aria-label={'Hạng ' + rank}
-      >
-        <Medal size={18} strokeWidth={2} />
-        <strong>{rank}</strong>
-      </span>
-    )
-  }
-
-  return <span className="leaderboard-rank-number">#{rank}</span>
-}
-
 export function LeaderboardScreen() {
-  const podium = weeklyChallenge.rows.slice(0, 3)
-  const currentStudent = weeklyChallenge.rows.find(
-    (row) => row.studentId === demoStudentProfile.id,
-  )
-
-  return (
-    <section className="leaderboard-screen">
-      <header className="leaderboard-heading">
-        <div className="world-heading-icon" aria-hidden="true">
-          <Trophy size={28} strokeWidth={1.9} />
-        </div>
-        <div>
-          <p className="page-kicker">THỬ THÁCH TUẦN</p>
-          <h1>{weeklyChallenge.title}</h1>
-          <p>{weeklyChallenge.subtitle}</p>
-        </div>
-        <span className="leaderboard-countdown">{weeklyChallenge.endsIn}</span>
-      </header>
-
-      <aside className="leaderboard-fairness-note">
-        <ShieldCheck size={21} aria-hidden="true" />
-        <div>
-          <strong>Xếp hạng công bằng</strong>
-          <p>
-            Cả lớp làm cùng challenge và cùng seed. Điểm ưu tiên độ chính xác,
-            hoàn thành mục tiêu và số lần thử — không xếp theo doanh thu.
-          </p>
-        </div>
-      </aside>
-
-      <div className="leaderboard-podium">
-        {podium.map((row) => (
-          <article key={row.studentId} className={'podium-card rank-' + row.rank}>
-            <RankBadge rank={row.rank} />
-            <div className="podium-avatar">{row.name.charAt(0)}</div>
-            <strong>{row.name}</strong>
-            <span>{row.points} điểm</span>
-            <small>{row.accuracy}% chính xác</small>
-          </article>
-        ))}
-      </div>
-
-      <article className="leaderboard-table-card">
-        <div className="leaderboard-table-heading">
-          <div>
-            <p className="page-kicker">LỚP 5A</p>
-            <h2>Bảng xếp hạng</h2>
-          </div>
-          <div className="leaderboard-table-meta">
-            <Users size={16} aria-hidden="true" />
-            <span>{weeklyChallenge.rows.length} học sinh demo</span>
-          </div>
-        </div>
-
-        <div className="leaderboard-table">
-          <div className="leaderboard-table-row is-header">
-            <span>Hạng</span>
-            <span>Học sinh</span>
-            <span>Độ chính xác</span>
-            <span>Mission</span>
-            <span>Điểm</span>
-          </div>
-
-          {weeklyChallenge.rows.map((row) => {
-            const isCurrent = row.studentId === demoStudentProfile.id
-
-            return (
-              <div
-                key={row.studentId}
-                className={'leaderboard-table-row ' + (isCurrent ? 'is-current' : '')}
-              >
-                <RankBadge rank={row.rank} />
-                <div className="leaderboard-student-cell">
-                  <span>{row.name.charAt(0)}</span>
-                  <strong>
-                    {row.name}
-                    {isCurrent ? <em>Bạn</em> : null}
-                  </strong>
-                </div>
-                <span>{row.accuracy}%</span>
-                <span>{row.missions}</span>
-                <strong>{row.points}</strong>
-              </div>
-            )
-          })}
-        </div>
-      </article>
-
-      {currentStudent ? (
-        <aside className="leaderboard-current-summary">
-          <Target size={20} aria-hidden="true" />
-          <div>
-            <strong>Em đang ở hạng #{currentStudent.rank}</strong>
-            <p>
-              Tập trung tăng độ chính xác thay vì làm thật nhanh. Challenge này
-              {' còn ' + weeklyChallenge.endsIn.toLowerCase()}.
-            </p>
-          </div>
-        </aside>
-      ) : null}
-    </section>
-  )
+  const currentRef = useRef<HTMLLIElement>(null)
+  const [showDetails, setShowDetails] = useState(false)
+  const podium = [weeklyChallenge.rows[1], weeklyChallenge.rows[0], weeklyChallenge.rows[2]]
+  return <section className="class-leaderboard"><header className="adventure-heading"><div><p className="eyebrow">CÙNG NHAU TIẾN BỘ</p><h1>Bảng xếp hạng lớp</h1><p>{weeklyChallenge.title} · Lớp {demoStudentProfile.className}</p></div><span className="sample-label">Dữ liệu minh họa</span></header>
+    <div className="class-podium">{podium.map(row => <article key={row.studentId} className={`class-podium-place place-${row.rank}`}><div className="podium-person"><img src={gameAssets.production.customers[(row.rank+1) % 6]} alt="" />{row.rank === 1 ? <Trophy size={30} /> : <Medal size={25} />}</div><h2>{row.name}</h2><p><Star size={18} />{row.points} điểm</p><div className="podium-step"><strong>{row.rank}</strong></div></article>)}</div>
+    <div className="leaderboard-tools"><button type="button" className="outline-button" onClick={() => { currentRef.current?.scrollIntoView({block:'center',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}); currentRef.current?.focus() }}><Target size={19} />Vị trí của em</button><button type="button" className="quiet-button" aria-pressed={showDetails} onClick={() => setShowDetails(!showDetails)}>{showDetails ? 'Thu gọn chi tiết' : 'Xem độ chính xác'}</button></div>
+    <ol className="class-ranking" aria-label="Xếp hạng học sinh">{weeklyChallenge.rows.map(row => { const current = row.studentId === demoStudentProfile.id; return <li key={row.studentId} ref={current ? currentRef : undefined} tabIndex={current ? -1 : undefined} className={current ? 'current-student' : ''}><span className="ranking-position" aria-label={`Hạng ${row.rank}`}>{row.rank}</span><span className="ranking-avatar">{current ? <img src={gameAssets.production.student} alt="" /> : row.name.split(' ').at(-1)?.charAt(0)}</span><div className="ranking-name"><strong>{row.name}{current ? <em>Em</em> : null}</strong>{showDetails ? <span>{row.accuracy}% chính xác · {row.missions} nhiệm vụ</span> : null}</div><strong className="ranking-points"><Star size={17} />{row.points}<span className="sr-only">điểm</span></strong></li> })}</ol>
+    <aside className="ranking-note"><ShieldCheck size={25} /><div><strong>Học cùng nhau, tiến bộ cùng nhau</strong><p>Điểm thử thách ưu tiên độ chính xác và hoàn thành mục tiêu. Doanh thu, uy tín cửa hàng và mức hài lòng của khách không phải điểm học tập.</p></div></aside>
+  </section>
 }

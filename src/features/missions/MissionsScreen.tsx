@@ -198,14 +198,13 @@ export function MissionsScreen({
 
             <h2>{advancedShift.title} · Quầy đông khách</h2>
             <p>
-              Một ca 6 khách được sinh riêng cho học sinh. Scenario và thứ tự khách
-              thay đổi theo seed nhưng luôn replay được chính xác.
+              Giúp 6 vị khách mua sắm, tính tiền và xử lý những tình huống
+              ở quầy thu ngân.
             </p>
 
             <div className="journey-mission-meta">
               <span>6 khách</span>
-              <span>4 event</span>
-              <span>Seed #{advancedShift.seed}</span>
+              <span>4 tình huống</span>
             </div>
           </div>
 

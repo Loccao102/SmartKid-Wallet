@@ -126,6 +126,7 @@ export default function SmartMartGame({
       <div
         ref={hostRef}
         className="smartmart-phaser-host"
+        tabIndex={0}
         aria-label="Không gian SmartMart tương tác. Dùng WASD hoặc phím mũi tên để di chuyển."
       />
 
