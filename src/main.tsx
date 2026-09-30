@@ -12,6 +12,7 @@ import './avatar-ui.css'
 import './bank-ui.css'
 import './restaurant-ui.css'
 import './market-ui.css'
+import './world-chapter-ui.css'
 
 const queryClient = new QueryClient()
 
