@@ -269,4 +269,16 @@ describe('seeded work shift generator', () => {
     expect(signatures.size).toBeGreaterThan(4)
   })
 
+
+  it('propagates progressive guidance from each shift template', () => {
+    expect(
+      generateWorkShiftInstance(advancedShiftTemplate, 'student-guide', 0)
+        .guidanceLevel,
+    ).toBe('light')
+    expect(
+      generateWorkShiftInstance(expertShiftTemplate, 'student-guide', 0)
+        .guidanceLevel,
+    ).toBe('implicit')
+  })
+
 })
