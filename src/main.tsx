@@ -11,6 +11,7 @@ import './screen-ui.css'
 import './avatar-ui.css'
 import './bank-ui.css'
 import './restaurant-ui.css'
+import './market-ui.css'
 
 const queryClient = new QueryClient()
 
