@@ -132,6 +132,34 @@ Có thể hiển thị:
 
 Không dùng ba simulation metric làm “điểm bài”.
 
+## 6A. Hidden trade-off loop
+
+Decision gameplay không theo `choice → đúng/sai → next`.
+
+Production loop:
+
+```text
+clue/context
+→ lựa chọn
+→ game tiếp tục
+→ world state/consequence
+→ thích nghi
+→ kết thúc run
+→ reveal 1–5★ + reflection
+```
+
+Các choice tốt có thể tối ưu những thứ khác nhau: tốc độ, an toàn, doanh thu, minh bạch, trải nghiệm khách. Không bắt buộc chỉ có một đường 5★.
+
+Toán vẫn có đáp án xác định, nhưng feedback sai theo tầng hỗ trợ và retry economy. Time ảnh hưởng mastery nhưng không fail run chỉ vì chậm.
+
+## 6B. Modes
+
+- **Adventure** — progression chính.
+- **Practice** — luyện kỹ năng đã mở; retry miễn phí, không farm XP.
+- **Work** — roleplay + trade-off + consequence.
+- **Daily Challenge** — 5 câu seeded theo ngày, reward 1 lần/ngày, replay nâng sao.
+- **Teacher/Class Challenge** — cùng version/seed, có thể yêu cầu 5★; teacher workspace triển khai sau.
+
 ## 7. Progression reward
 
 Hoàn thành Learning nên tạo cảm giác chuyển vai rõ ràng:
