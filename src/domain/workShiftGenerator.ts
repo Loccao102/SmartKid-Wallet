@@ -50,8 +50,19 @@ function selectScenarios(
   const selected: WorkScenarioDefinition[] = []
   const usedCategories = new Set<string>()
 
+  // Ca nâng cao phải thực sự có ít nhất một tình huống khó,
+  // thay vì phụ thuộc hoàn toàn vào thứ tự shuffle.
+  if (template.maxScenarioDifficulty === 3) {
+    const hardest = shuffled.find((scenario) => scenario.difficulty === 3)
+    if (hardest) {
+      selected.push(hardest)
+      usedCategories.add(hardest.category)
+    }
+  }
+
   for (const scenario of shuffled) {
     if (selected.length >= template.scenarioCount) break
+    if (selected.some((item) => item.id === scenario.id)) continue
     if (usedCategories.has(scenario.category)) continue
 
     selected.push(scenario)
