@@ -22,6 +22,8 @@ export interface WorldMapDefinition {
   description: string
   status: 'available' | 'locked'
   unlockHint?: string
+  unlockLevel: number
+  prerequisiteMissionId?: string
   theme: 'supermarket' | 'bank' | 'restaurant' | 'market'
   artworkKey: string
 }
@@ -92,6 +94,7 @@ export interface CartLine {
 
 export interface MissionDefinition {
   id: string
+  version: number
   title: string
   shortDescription: string
   story: string
@@ -100,6 +103,17 @@ export interface MissionDefinition {
   reserveRequired: number
   requiredStalls: ProductStallId[]
   rewardTitle: string
+  unlockLevel: number
+  prerequisiteMissionId?: string
+  targetTimeSeconds?: number
+  xpReward: number
+  coinReward?: number
+  teacherChallenge?: {
+    id: string
+    requiredStars: 5
+    coinReward: number
+    label: string
+  }
 }
 
 export interface MissionEvaluation {
@@ -255,6 +269,8 @@ export interface WorkShiftProgress {
   customerProgress: Record<string, WorkShiftCustomerProgress>
   metrics: WorkShiftMetrics
   worldState: WorkWorldState
+  startedAtEpochMs?: number
+  completedAtEpochMs?: number
   completed: boolean
 }
 
