@@ -71,6 +71,19 @@ Không gán skill không liên quan vào stall.
 - Resolved consequence lưu trong shift progress + research log.
 - Scenario/customer context phải tương thích.
 
+## 6A. Mastery/economy rules
+
+- XP không bị trừ.
+- Level-up thưởng 100 xu theo domain rule.
+- Adventure Math retry dùng escalating fee 5 → 30; Practice retry miễn phí.
+- Không được khóa việc học chỉ vì hết xu; luôn có free recovery path.
+- Stars chỉ reveal sau run; 5★ là mastery, không đồng nghĩa completion.
+- Scenario decision không được hiện đúng/sai hoặc score tức thời.
+- World consequence phải khớp semantic của choice/version.
+- Replay giữ best score/stars và không farm first-completion reward.
+- Map/Mission unlock dùng level + prerequisite.
+- Audio phải có master/music/ambient/SFX controls và không autoplay trước user gesture.
+
 ## 7. Research logging rules
 
 - append-only;
@@ -157,3 +170,7 @@ Không gán skill không liên quan vào stall.
 - Exercise catalog: docs/EXERCISE_CATALOG.md
 - Scenario/rubric: docs/SCENARIO_RUBRIC.md
 - Assets: docs/ASSET_SYSTEM.md
+- Scoring/progression/economy: docs/SCORING_PROGRESSION.md
+- World/modes/missions: docs/WORLD_MODES_MISSIONS.md
+- Audio: docs/AUDIO_SYSTEM.md
+- Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
