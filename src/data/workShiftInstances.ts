@@ -2,6 +2,7 @@ import { traineeShift } from './workShift'
 import {
   advancedShiftTemplate,
   expertShiftTemplate,
+  managerShiftTemplate,
   traineeShiftTemplate,
 } from './workShiftTemplates'
 import { generateWorkShiftInstance } from '../domain/workShiftGenerator'
@@ -21,10 +22,17 @@ export const expertShift = generateWorkShiftInstance(
   0,
 )
 
+export const managerShift = generateWorkShiftInstance(
+  managerShiftTemplate,
+  demoWorkStudentKey,
+  0,
+)
+
 export const workShiftInstances: WorkShiftDefinition[] = [
   traineeShift,
   advancedShift,
   expertShift,
+  managerShift,
 ]
 
 export function getWorkShiftById(
@@ -44,7 +52,9 @@ export function getWorkShiftById(
         ? advancedShiftTemplate
         : id === expertShift.id || id === expertShiftTemplate.id
           ? expertShiftTemplate
-          : undefined
+          : id === managerShift.id || id === managerShiftTemplate.id
+            ? managerShiftTemplate
+            : undefined
 
   if (!template) {
     throw new Error('Unknown work shift: ' + id)
