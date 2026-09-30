@@ -17,9 +17,47 @@ export function evaluateMission(
   mission: MissionDefinition,
   catalog: ProductDefinition[],
   cart: CartLine[],
+  activeEventIds: string[] = [],
 ): MissionEvaluation {
   const productMap = new Map(catalog.map((product) => [product.id, product]))
   const coverageByStall = emptyCoverage()
+  const activeIdSet = new Set(activeEventIds)
+  const activeEvents = (mission.dynamicEvents ?? []).filter((event) =>
+    activeIdSet.has(event.id),
+  )
+  const unavailableProductIds = Array.from(
+    new Set(
+      activeEvents
+        .filter((event) => event.kind === 'product-unavailable')
+        .flatMap((event) => event.productIds ?? []),
+    ),
+  )
+  const unavailableSet = new Set(unavailableProductIds)
+  const effectivePeople = Math.max(
+    1,
+    mission.people +
+      activeEvents.reduce(
+        (sum, event) =>
+          sum +
+          (event.kind === 'people-adjustment'
+            ? (event.peopleDelta ?? 0)
+            : 0),
+        0,
+      ),
+  )
+  const effectiveBudget = Math.max(
+    0,
+    mission.budget +
+      activeEvents.reduce(
+        (sum, event) =>
+          sum +
+          (event.kind === 'budget-adjustment'
+            ? (event.budgetDelta ?? 0)
+            : 0),
+        0,
+      ),
+  )
+
   let spent = 0
 
   for (const line of cart) {
@@ -32,14 +70,14 @@ export function evaluateMission(
     coverageByStall[product.stallId] += product.servesPeople * line.quantity
   }
 
-  const remaining = mission.budget - spent
+  const remaining = effectiveBudget - spent
   const reasons: string[] = []
   const selectedProductIds = new Set(
     cart.filter((line) => line.quantity > 0).map((line) => line.productId),
   )
 
-  if (spent > mission.budget) {
-    reasons.push('Giỏ hàng vượt quá ngân sách.')
+  if (spent > effectiveBudget) {
+    reasons.push('Giỏ hàng vượt quá ngân sách hiện tại.')
   }
 
   if (remaining < mission.reserveRequired) {
@@ -49,11 +87,20 @@ export function evaluateMission(
   }
 
   for (const stallId of mission.requiredStalls) {
-    if (coverageByStall[stallId] < mission.people) {
+    if (coverageByStall[stallId] < effectivePeople) {
       reasons.push(
-        `Gian ${stallId} mới đủ cho ${coverageByStall[stallId]}/${mission.people} bạn.`,
+        `Gian ${stallId} mới đủ cho ${coverageByStall[stallId]}/${effectivePeople} bạn.`,
       )
     }
+  }
+
+  for (const line of cart) {
+    if (line.quantity <= 0 || !unavailableSet.has(line.productId)) continue
+    const product = productMap.get(line.productId)
+    if (!product) continue
+    reasons.push(
+      `${product.name} vừa hết hàng. Em cần chọn phương án khác trước khi thanh toán.`,
+    )
   }
 
   const softGoalResults = (mission.softGoals ?? []).map((goal) => {
@@ -84,5 +131,9 @@ export function evaluateMission(
     coverageByStall,
     reasons,
     softGoalResults,
+    activeEventIds: activeEvents.map((event) => event.id),
+    effectivePeople,
+    effectiveBudget,
+    unavailableProductIds,
   }
 }
