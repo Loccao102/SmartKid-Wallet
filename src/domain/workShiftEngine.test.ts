@@ -40,9 +40,9 @@ describe('work shift engine', () => {
     const initial = createInitialShiftMetrics(traineeShift)
     const afterChoice = applyScenarioChoice(initial, choice)
 
-    expect(afterChoice.employeeRating).toBe(3.6)
-    expect(afterChoice.storeReputation).toBe(3.5)
-    expect(afterChoice.customerSatisfaction).toBe(3.6)
+    expect(afterChoice.employeeRating).toBe(4.12)
+    expect(afterChoice.storeReputation).toBe(4.08)
+    expect(afterChoice.customerSatisfaction).toBe(4.2)
   })
 
   it('records math mistakes without failing the whole shift', () => {
@@ -89,9 +89,9 @@ describe('work shift engine', () => {
     }
   })
 
-  it('schedules and resolves a delayed complaint after a later customer', () => {
-    const scenario = getWorkScenario('SCENARIO_DAMAGED_DRINK')
-    const choice = scenario.choices.find((item) => item.id === 'sell-as-normal')!
+  it('schedules and resolves a delayed complaint for a risky hidden trade-off', () => {
+    const scenario = getWorkScenario('SCENARIO_NEAR_EXPIRY_YOGURT')
+    const choice = scenario.choices.find((item) => item.id === 'hide-expiry')!
     const effect = getWorkWorldEffect(scenario.id, choice.id)!
     const initialWorld = createInitialWorkWorldState()
     const scheduled = applyWorkWorldEffect(initialWorld, effect, 1)
@@ -101,22 +101,12 @@ describe('work shift engine', () => {
     expect(scheduled.pendingConsequences[0].dueAtServedCustomers).toBe(2)
 
     const initialMetrics = createInitialShiftMetrics(traineeShift)
-    const tooEarly = resolveDueConsequences(
-      initialMetrics,
-      scheduled,
-      1,
-      false,
-    )
+    const tooEarly = resolveDueConsequences(initialMetrics, scheduled, 1, false)
 
     expect(tooEarly.newlyResolved).toHaveLength(0)
     expect(tooEarly.metrics.storeReputation).toBe(4)
 
-    const resolved = resolveDueConsequences(
-      initialMetrics,
-      scheduled,
-      2,
-      false,
-    )
+    const resolved = resolveDueConsequences(initialMetrics, scheduled, 2, false)
 
     expect(resolved.newlyResolved).toHaveLength(1)
     expect(resolved.worldState.flags).not.toContain('complaint-risk')
