@@ -1,3 +1,14 @@
+import {
+  createSeededRng,
+  pickSeededInt,
+  seededShuffle,
+} from '../core/worldChapter/random'
+import type {
+  WorldChapterDefinition,
+  WorldChapterLessonDefinition,
+  WorldChapterQuestion,
+} from '../core/worldChapter/types'
+
 export type TinyBankLessonId =
   | 'saving-goal'
   | 'balance-counter'
@@ -86,42 +97,28 @@ export const tinyBankLessons: TinyBankLessonDefinition[] = [
   },
 ]
 
-function createRng(seed: number) {
-  let state = seed >>> 0
-  return () => {
-    state += 0x6d2b79f5
-    let t = state
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function pickInt(rng: () => number, min: number, max: number, step = 1) {
-  const count = Math.floor((max - min) / step) + 1
-  return min + Math.floor(rng() * count) * step
-}
-
-function shuffle<T>(items: T[], rng: () => number) {
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
+export const tinyBankChapter: WorldChapterDefinition<TinyBankLessonId> = {
+  mapId: 'tiny-bank',
+  version: 1,
+  lessonOrder: ['saving-goal', 'balance-counter', 'growth-bonus', 'four-week-mission'],
+  finalLessonId: 'four-week-mission',
+  finalMinStars: 3,
+  seedBase: 20260930,
+  chapterXpReward: 80,
+  chapterCoinReward: 80,
 }
 
 export function createTinyBankQuiz(
   lessonId: Exclude<TinyBankLessonId, 'four-week-mission'>,
   seed: number,
 ): TinyBankQuestion[] {
-  const rng = createRng(seed)
+  const rng = createSeededRng(seed)
 
   if (lessonId === 'saving-goal') {
     return Array.from({ length: 3 }, (_, index) => {
-      const weeks = pickInt(rng, 4, 8)
-      const weekly = pickInt(rng, 20_000, 50_000, 5_000)
-      const current = pickInt(rng, 50_000, 150_000, 10_000)
+      const weeks = pickSeededInt(rng, 4, 8)
+      const weekly = pickSeededInt(rng, 20_000, 50_000, 5_000)
+      const current = pickSeededInt(rng, 50_000, 150_000, 10_000)
       const remaining = weeks * weekly
       const goal = current + remaining
       return {
@@ -142,9 +139,9 @@ export function createTinyBankQuiz(
 
   if (lessonId === 'balance-counter') {
     return Array.from({ length: 3 }, (_, index) => {
-      const start = pickInt(rng, 80_000, 200_000, 10_000)
-      const deposit = pickInt(rng, 30_000, 90_000, 10_000)
-      const withdraw = pickInt(rng, 10_000, 50_000, 5_000)
+      const start = pickSeededInt(rng, 80_000, 200_000, 10_000)
+      const deposit = pickSeededInt(rng, 30_000, 90_000, 10_000)
+      const withdraw = pickSeededInt(rng, 10_000, 50_000, 5_000)
       return {
         id: `balance-${seed}-${index}`,
         prompt:
@@ -164,7 +161,7 @@ export function createTinyBankQuiz(
   const rates = [5, 10, 20]
   return Array.from({ length: 3 }, (_, index) => {
     const rate = rates[index]
-    const amount = pickInt(rng, 100_000, 400_000, 20_000)
+    const amount = pickSeededInt(rng, 100_000, 400_000, 20_000)
     const bonus = Math.round((amount * rate) / 100)
     return {
       id: `bonus-${seed}-${index}`,
@@ -182,11 +179,11 @@ export function createTinyBankQuiz(
 }
 
 export function createTinyBankMission(seed: number): TinyBankMissionRun {
-  const rng = createRng(seed)
-  const start = pickInt(rng, 90_000, 120_000, 10_000)
+  const rng = createSeededRng(seed)
+  const start = pickSeededInt(rng, 90_000, 120_000, 10_000)
   const reserve = 30_000
   const weeklyIncome = Array.from({ length: 4 }, () =>
-    pickInt(rng, 55_000, 75_000, 5_000),
+    pickSeededInt(rng, 55_000, 75_000, 5_000),
   )
   const goal =
     start +
@@ -343,7 +340,7 @@ export function createTinyBankMission(seed: number): TinyBankMissionRun {
     startingReserve: reserve,
     rounds: rounds.map((round) => ({
       ...round,
-      choices: shuffle(round.choices, rng),
+      choices: seededShuffle(round.choices, rng),
     })),
   }
 }
