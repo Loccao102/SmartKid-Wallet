@@ -71,7 +71,9 @@ export function ShoppingProduct({
   return (
     <article
       className={
-        'shelf-product ' +
+        'shelf-product shelf-product-' +
+        product.stallId +
+        ' ' +
         (quantity ? 'in-basket ' : '') +
         (unavailable ? 'is-unavailable' : '')
       }
@@ -90,7 +92,7 @@ export function ShoppingProduct({
         <p>
           <strong>{money.format(product.price)}đ</strong> / {product.unitLabel}
         </p>
-        <span>Đủ cho {product.servesPeople} bạn</span>
+        <span className="product-serves">Đủ cho {product.servesPeople} bạn</span>
       </div>
       {onAdd && onRemove ? (
         <QuantityControl
