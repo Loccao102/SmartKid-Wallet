@@ -433,6 +433,8 @@ export function WorkModeScreen({
         category: scenario.category,
         difficulty: scenario.difficulty,
         billDelta: choice.billDelta,
+        scenarioVariantKey: customer.scenarioVariantKey ?? null,
+        scenarioChoiceOrder: customer.scenarioChoiceOrder?.join(',') ?? null,
       },
     })
 
