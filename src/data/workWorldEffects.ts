@@ -334,6 +334,249 @@ const effects: Record<string, WorkWorldEffect> = {
       },
     ],
   },
+
+  'SCENARIO_SHORT_CASH:remove-optional-item': {
+    clearFlags: ['cash-discrepancy'],
+  },
+  'SCENARIO_SHORT_CASH:unauthorized-discount': {
+    setFlags: ['cash-discrepancy'],
+    deferredConsequences: [
+      {
+        id: 'short-cash-discount-audit',
+        trigger: 'shift-end',
+        title: 'Cuối ca có khoản giảm không khớp chương trình',
+        description:
+          'Đối soát phát hiện một hóa đơn được giảm thủ công nhưng không gắn với chương trình hoặc quyền giảm hợp lệ.',
+        employeeRatingDelta: -0.18,
+        storeReputationDelta: -0.12,
+        customerSatisfactionDelta: 0,
+        clearFlags: ['cash-discrepancy'],
+      },
+    ],
+  },
+  'SCENARIO_SHORT_CASH:insist-full-payment': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'short-cash-service-feedback',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách góp ý về cách hỗ trợ ngân sách',
+        description:
+          'Khách cho biết họ chấp nhận phải trả đủ nhưng mong được hỗ trợ tìm món có thể bỏ hoặc thay thế.',
+        employeeRatingDelta: -0.05,
+        storeReputationDelta: -0.06,
+        customerSatisfactionDelta: -0.08,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_CHANGE_DRAWER_SHORT:request-change-support': {
+    clearFlags: ['cash-discrepancy'],
+  },
+  'SCENARIO_CHANGE_DRAWER_SHORT:ask-digital-change': {
+    clearFlags: ['cash-discrepancy'],
+  },
+  'SCENARIO_CHANGE_DRAWER_SHORT:round-change': {
+    setFlags: ['cash-discrepancy'],
+    deferredConsequences: [
+      {
+        id: 'rounded-change-drawer-mismatch',
+        trigger: 'shift-end',
+        title: 'Ngăn kéo tiền mặt không khớp hoàn toàn',
+        description:
+          'Việc tự làm tròn tiền thừa khiến số tiền thực tế trong quầy không trùng với lịch sử giao dịch.',
+        employeeRatingDelta: -0.2,
+        storeReputationDelta: -0.12,
+        customerSatisfactionDelta: 0,
+        clearFlags: ['cash-discrepancy'],
+      },
+    ],
+  },
+
+  'SCENARIO_LAST_ITEM_RESERVED:verify-reservation': {
+    clearFlags: ['inventory-pressure'],
+  },
+  'SCENARIO_LAST_ITEM_RESERVED:offer-alternative': {
+    clearFlags: ['inventory-pressure'],
+  },
+  'SCENARIO_LAST_ITEM_RESERVED:sell-reserved-item': {
+    setFlags: ['inventory-pressure', 'complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'reserved-order-no-stock',
+        trigger: 'after-customers',
+        delayCustomers: 2,
+        title: 'Khách đặt trước đến nhưng món đã hết',
+        description:
+          'Sản phẩm cuối cùng đã được bán tại quầy nên đơn nhận tại cửa hàng không còn đủ hàng khi khách đến.',
+        employeeRatingDelta: -0.18,
+        storeReputationDelta: -0.3,
+        customerSatisfactionDelta: -0.18,
+        clearFlags: ['inventory-pressure', 'complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_MEMBER_PRICE:verify-member-account': {
+    clearFlags: ['cash-discrepancy'],
+  },
+  'SCENARIO_MEMBER_PRICE:manual-member-discount': {
+    setFlags: ['cash-discrepancy'],
+    deferredConsequences: [
+      {
+        id: 'member-discount-audit',
+        trigger: 'shift-end',
+        title: 'Ưu đãi thành viên cần được đối soát',
+        description:
+          'Hệ thống phát hiện một mức giá thành viên được áp dụng mà giao dịch không có tài khoản thành viên đã xác minh.',
+        employeeRatingDelta: -0.16,
+        storeReputationDelta: -0.12,
+        customerSatisfactionDelta: 0,
+        clearFlags: ['cash-discrepancy'],
+      },
+    ],
+  },
+  'SCENARIO_MEMBER_PRICE:reject-member-price': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'member-price-followup',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách quay lại sau khi tìm được mã thành viên',
+        description:
+          'Khách đã tìm được thông tin tài khoản và muốn hỏi vì sao quầy chưa thử xác minh trước khi từ chối ưu đãi.',
+        employeeRatingDelta: -0.06,
+        storeReputationDelta: -0.08,
+        customerSatisfactionDelta: -0.1,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_MISSING_PRICE_LABEL:scan-and-confirm-price': {
+    clearFlags: ['pricing-mismatch'],
+  },
+  'SCENARIO_MISSING_PRICE_LABEL:guess-similar-price': {
+    setFlags: ['pricing-mismatch', 'billing-dispute'],
+    deferredConsequences: [
+      {
+        id: 'guessed-price-dispute',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách kiểm tra lại giá sản phẩm',
+        description:
+          'Giá được ước đoán tại quầy khác với giá hệ thống, khiến khách quay lại yêu cầu kiểm tra hóa đơn.',
+        employeeRatingDelta: -0.16,
+        storeReputationDelta: -0.22,
+        customerSatisfactionDelta: -0.18,
+        clearFlags: ['pricing-mismatch', 'billing-dispute'],
+      },
+    ],
+  },
+  'SCENARIO_MISSING_PRICE_LABEL:remove-item-only': {
+    setFlags: ['pricing-mismatch'],
+    deferredConsequences: [
+      {
+        id: 'missing-label-remains',
+        trigger: 'shift-end',
+        title: 'Cuối ca vẫn còn sản phẩm thiếu nhãn giá',
+        description:
+          'Món hàng đã được bỏ khỏi giao dịch nhưng nguyên nhân trên kệ chưa được xử lý, nên khách khác vẫn có thể gặp cùng vấn đề.',
+        employeeRatingDelta: -0.04,
+        storeReputationDelta: -0.08,
+        customerSatisfactionDelta: 0,
+        clearFlags: ['pricing-mismatch'],
+      },
+    ],
+  },
+
+  'SCENARIO_BULK_PROMO_NEED:compare-total-and-need': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_BULK_PROMO_NEED:recommend-single-item': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_BULK_PROMO_NEED:push-bulk-promo': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'bulk-promo-regret',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách hỏi lại vì đã mua nhiều hơn nhu cầu',
+        description:
+          'Sau khi xem hóa đơn, khách nhận ra combo có đơn giá tốt hơn nhưng tổng tiền cao hơn nhiều so với món mình thực sự cần.',
+        employeeRatingDelta: -0.07,
+        storeReputationDelta: -0.1,
+        customerSatisfactionDelta: -0.12,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_END_DAY_BREAD:disclose-and-discount': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_END_DAY_BREAD:remove-for-end-day-process': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_END_DAY_BREAD:sell-without-disclosure': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'end-day-bread-return',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách phát hiện hạn dùng sau khi thanh toán',
+        description:
+          'Khách quay lại vì chỉ sau khi mua mới biết sản phẩm hết hạn vào cuối ngày và muốn đổi sang sản phẩm khác.',
+        employeeRatingDelta: -0.1,
+        storeReputationDelta: -0.18,
+        customerSatisfactionDelta: -0.16,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_PRICE_MATCH_REQUEST:verify-price-match-policy': {
+    clearFlags: ['pricing-mismatch'],
+  },
+  'SCENARIO_PRICE_MATCH_REQUEST:match-without-checking': {
+    setFlags: ['cash-discrepancy'],
+    deferredConsequences: [
+      {
+        id: 'unchecked-price-match-audit',
+        trigger: 'shift-end',
+        title: 'Mức giảm đối chiếu giá không có căn cứ',
+        description:
+          'Cuối ca, hệ thống phát hiện một hóa đơn được giảm theo giá bên ngoài nhưng không có bước xác minh chính sách.',
+        employeeRatingDelta: -0.16,
+        storeReputationDelta: -0.14,
+        customerSatisfactionDelta: 0,
+        clearFlags: ['cash-discrepancy'],
+      },
+    ],
+  },
+  'SCENARIO_PRICE_MATCH_REQUEST:reject-price-match': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'price-match-policy-question',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách hỏi lại quản lý về chính sách đối chiếu giá',
+        description:
+          'Khách muốn biết liệu cửa hàng có quy trình kiểm tra giá trên kênh khác thay vì từ chối ngay tại quầy.',
+        employeeRatingDelta: -0.05,
+        storeReputationDelta: -0.08,
+        customerSatisfactionDelta: -0.1,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
 }
 
 export function getWorkWorldEffect(
