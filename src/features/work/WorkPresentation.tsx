@@ -3,11 +3,10 @@ import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleAlert, Coins, ReceiptTe
 import { gameAssets } from '../../assets/registry'
 import { getWorkScenario } from '../../data/workShift'
 import { scoreWorkShift } from '../../domain/scoring'
-import type { WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress, WorkWorldFlag } from '../../domain/types'
+import type { WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress } from '../../domain/types'
 import { money } from '../smartmart/ShoppingProducts'
 
 const WorkModeGame = lazy(() => import('../../game/WorkModeGame'))
-const flagLabels: Record<WorkWorldFlag,string> = { 'complaint-risk': 'Khách có thể khiếu nại', 'pricing-mismatch': 'Cần kiểm tra giá', 'inventory-pressure': 'Lưu ý lượng hàng còn lại', 'cash-discrepancy': 'Cần kiểm tra tiền mặt', 'billing-dispute': 'Khách thắc mắc về hóa đơn', 'stale-promo-sign': 'Cần kiểm tra biển khuyến mãi' }
 
 function SimulationMetrics({ progress }: { progress: WorkShiftProgress }) {
   return <div className="simulation-metrics"><div><Star size={22} /><span>Đánh giá nhân viên<strong>{progress.metrics.employeeRating.toFixed(1)}/5</strong></span></div><div><Store size={22} /><span>Uy tín cửa hàng<strong>{progress.metrics.storeReputation.toFixed(1)}/5</strong></span></div><div><Users size={22} /><span>Hài lòng khách<strong>{progress.metrics.customerSatisfaction.toFixed(1)}/5</strong></span></div><div><Wallet size={22} /><span>Doanh thu<strong>{money.format(progress.metrics.revenue)}đ</strong></span></div></div>
