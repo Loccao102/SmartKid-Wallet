@@ -11,7 +11,7 @@ import {
 import { missions } from '../../data/missions'
 import { stalls } from '../../data/stalls'
 import { traineeShift } from '../../data/workShift'
-import { advancedShift } from '../../data/workShiftInstances'
+import { advancedShift, expertShift } from '../../data/workShiftInstances'
 import { useProgressionStore } from '../../store/progression'
 import { useWorkShiftStore } from '../../store/workShift'
 
@@ -45,10 +45,14 @@ export function MissionsScreen({
   const advancedCompleted = useWorkShiftStore(
     (state) => state.progressByShiftId[advancedShift.id]?.completed ?? false,
   )
+  const expertCompleted = useWorkShiftStore(
+    (state) => state.progressByShiftId[expertShift.id]?.completed ?? false,
+  )
 
   const firstMissionCompleted = completedMissionIds.includes(missions[0].id)
   const workModeUnlocked = firstMissionCompleted
   const advancedUnlocked = traineeCompleted
+  const expertUnlocked = advancedCompleted && level >= 6
 
   return (
     <section className="missions-screen">
@@ -288,6 +292,78 @@ export function MissionsScreen({
               : advancedUnlocked
                 ? 'Bắt đầu Ca 02'
                 : 'Hoàn thành Ca 01'}
+          </button>
+        </article>
+
+        <div className="journey-connector" aria-hidden="true">
+          <span />
+          <Check size={14} />
+          <span />
+        </div>
+
+        <article
+          className={
+            'journey-mission-card work-mode-card seeded-shift-card ' +
+            (expertUnlocked ? 'is-unlocked' : 'is-locked')
+          }
+        >
+          <div className="journey-step-number">W3</div>
+          <div className="journey-mission-icon" aria-hidden="true">
+            <UsersRound size={30} strokeWidth={1.8} />
+          </div>
+          <div className="journey-mission-copy">
+            <div className="journey-status-row">
+              <span>WORK MODE · CUỐI TUẦN CAO ĐIỂM · CẤP 6+</span>
+              <em
+                className={
+                  'journey-status ' +
+                  (expertCompleted
+                    ? 'complete'
+                    : expertUnlocked
+                      ? 'ready'
+                      : 'locked')
+                }
+              >
+                {expertCompleted ? (
+                  <Check size={12} />
+                ) : expertUnlocked ? (
+                  <Play size={11} fill="currentColor" />
+                ) : (
+                  <LockKeyhole size={12} />
+                )}
+                {expertCompleted
+                  ? 'Đã hoàn thành ca'
+                  : expertUnlocked
+                    ? 'Ca khó đã sẵn sàng'
+                    : level < 6
+                      ? 'Cần Cấp 6'
+                      : 'Hoàn thành Ca 02'}
+              </em>
+            </div>
+            <h2>{expertShift.title}</h2>
+            <p>
+              8 khách, 5 tình huống và có thể xuất hiện đổi trả, hàng lỗi,
+              coupon, so sánh đơn giá hoặc sự cố bảo quản.
+            </p>
+            <div className="journey-mission-meta">
+              <span>8 khách</span>
+              <span>5 tình huống</span>
+              <span>Độ khó 1–3</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="journey-action"
+            disabled={!expertUnlocked}
+            onClick={() => onOpenWorkMode(expertShift.id)}
+          >
+            {expertCompleted
+              ? 'Chơi lại nâng sao'
+              : expertUnlocked
+                ? 'Bắt đầu Ca 03'
+                : level < 6
+                  ? 'Cần Cấp 6'
+                  : 'Hoàn thành Ca 02'}
           </button>
         </article>
       </div>
