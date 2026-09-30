@@ -33,11 +33,21 @@ Toán → mở stall → Mission → chapter progression.
 - hidden score;
 - consequence.
 
-### Daily Challenge
+### Weekly Arena — competitive mode chính
+- tuần tính từ thứ Hai theo Asia/Ho_Chi_Minh;
+- cùng tuần = cùng challenge ID/version/seed;
+- 6 bài Toán + 2 tình huống SmartMart;
+- không dùng xu để mua retry/lợi thế;
+- sai được sửa miễn phí nhưng mất điểm first-attempt;
+- bảng xếp hạng cloud: score giảm dần, rồi elapsed time tăng dần;
+- reward completion giới hạn 1 lần/tuần;
+- public board chỉ dùng mã người chơi ẩn danh.
+
+### Daily Challenge — solo/secondary
 - fixed daily seed;
 - ngắn;
 - reward giới hạn 1 lần/ngày;
-- leaderboard/research friendly.
+- không phải competitive mode chính.
 
 ## 3. Mission unlock
 
@@ -68,7 +78,10 @@ Mission có thể reveal event giữa run:
 - yêu cầu mới;
 - thay đổi khuyến mãi;
 - nhu cầu đặc biệt;
-- item quality/availability.
+- item quality/availability;
+- số người thay đổi;
+- ngân sách thay đổi;
+- sản phẩm hết hàng giữa lượt.
 
 Event phải:
 - seeded/replayable;
@@ -95,13 +108,18 @@ Best star lưu theo activity/version.
 - Practice retry miễn phí;
 - Work Mode hidden trade-off + deferred consequence;
 - Daily Challenge 5 câu seeded theo ngày;
+- Weekly Arena 6 Math + 2 Scenario dùng cùng seed cho mọi người trong tuần;
+- live Supabase leaderboard bằng mã người chơi ẩn danh;
 - 4 Shopping Mission definitions mở theo level/prerequisite;
 - Mission soft-goal/clue xuất hiện giữa lượt nhưng không hard-fail;
+- persistent live Mission events thay đổi people/budget/product availability;
 - best stars / best score / replay;
 - Teacher 5★ Challenge model và one-time reward;
 - future map requirements hiển thị theo level/prerequisite.
 
 Chưa coi là hoàn thành:
-- Tiny Bank / Restaurant / Weekend Market gameplay riêng;
-- Teacher workspace để phát challenge từ UI;
+- server-side Weekly Arena verification/anti-cheat;
+- class-scoped leaderboard + Teacher workspace;
 - cloud persistence cho XP/xu/star/progression.
+
+Tiny Bank / Restaurant / Weekend Market **chủ động đóng băng gameplay** cho tới khi SmartMart đạt depth gate trong `docs/SMARTMART_DEPTH.md`.
