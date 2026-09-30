@@ -86,3 +86,22 @@ Mỗi activity:
 - scoring profile.
 
 Best star lưu theo activity/version.
+
+
+## 7. Trạng thái implementation hiện tại
+
+Đã chạy trong app:
+- Adventure unlock bằng Toán;
+- Practice retry miễn phí;
+- Work Mode hidden trade-off + deferred consequence;
+- Daily Challenge 5 câu seeded theo ngày;
+- 4 Shopping Mission definitions mở theo level/prerequisite;
+- Mission soft-goal/clue xuất hiện giữa lượt nhưng không hard-fail;
+- best stars / best score / replay;
+- Teacher 5★ Challenge model và one-time reward;
+- future map requirements hiển thị theo level/prerequisite.
+
+Chưa coi là hoàn thành:
+- Tiny Bank / Restaurant / Weekend Market gameplay riêng;
+- Teacher workspace để phát challenge từ UI;
+- cloud persistence cho XP/xu/star/progression.
