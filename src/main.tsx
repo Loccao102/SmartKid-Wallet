@@ -8,6 +8,30 @@ import './shopping-ui.css'
 
 const queryClient = new QueryClient()
 
+function resetDemoStorageFromUrl() {
+  const url = new URL(window.location.href)
+  if (url.searchParams.get('reset') !== '1') return false
+
+  const shouldRemove = (key: string) =>
+    key.startsWith('smartkid-wallet-') ||
+    key.startsWith('smartkid-weekly-')
+
+  for (const storage of [window.localStorage, window.sessionStorage]) {
+    const keys = Array.from({ length: storage.length }, (_, index) =>
+      storage.key(index),
+    ).filter((key): key is string => Boolean(key))
+
+    for (const key of keys) {
+      if (shouldRemove(key)) storage.removeItem(key)
+    }
+  }
+
+  url.searchParams.delete('reset')
+  window.location.replace(url.toString())
+  return true
+}
+
+if (!resetDemoStorageFromUrl()) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
@@ -15,3 +39,4 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 )
+}
