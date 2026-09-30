@@ -258,5 +258,71 @@ export const scenarioCustomerBlueprints: Record<string, WorkCustomerBlueprint> =
     ],
     cashGiven: 200000,
   },
+  SCENARIO_SHORT_CASH: {
+    key: 'short-cash',
+    basket: [
+      { name: 'hộp sandwich', quantity: 1, unitPrice: 45000 },
+      { name: 'gói khăn giấy', quantity: 1, unitPrice: 15000 },
+      { name: 'lốc nước suối', quantity: 1, unitPrice: 30000 },
+    ],
+    cashGiven: 100000,
+  },
+  SCENARIO_CHANGE_DRAWER_SHORT: {
+    key: 'change-drawer-short',
+    basket: [
+      { name: 'túi táo', quantity: 1, unitPrice: 33000 },
+      { name: 'hộp bánh', quantity: 1, unitPrice: 47000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_LAST_ITEM_RESERVED: {
+    key: 'last-item-reserved',
+    basket: [
+      { name: 'hộp ngũ cốc cuối kệ', quantity: 1, unitPrice: 78000 },
+      { name: 'lốc sữa', quantity: 1, unitPrice: 36000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_MEMBER_PRICE: {
+    key: 'member-price',
+    basket: [
+      { name: 'bình nước', quantity: 1, unitPrice: 60000 },
+      { name: 'hộp bút', quantity: 1, unitPrice: 45000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_MISSING_PRICE_LABEL: {
+    key: 'missing-price-label',
+    basket: [
+      { name: 'hộp bánh chưa có nhãn giá', quantity: 1, unitPrice: 40000 },
+      { name: 'lốc nước ép', quantity: 1, unitPrice: 42000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_BULK_PROMO_NEED: {
+    key: 'bulk-promo-need',
+    basket: [
+      { name: 'combo ngũ cốc', quantity: 1, unitPrice: 75000 },
+      { name: 'lốc sữa', quantity: 1, unitPrice: 36000 },
+    ],
+    cashGiven: 200000,
+  },
+  SCENARIO_END_DAY_BREAD: {
+    key: 'end-day-bread',
+    basket: [
+      { name: 'giỏ bánh mì cuối ngày', quantity: 1, unitPrice: 36000 },
+      { name: 'lốc sữa', quantity: 1, unitPrice: 36000 },
+    ],
+    cashGiven: 100000,
+  },
+  SCENARIO_PRICE_MATCH_REQUEST: {
+    key: 'price-match-request',
+    basket: [
+      { name: 'balo', quantity: 1, unitPrice: 100000 },
+      { name: 'bình nước', quantity: 1, unitPrice: 50000 },
+    ],
+    cashGiven: 200000,
+  },
+
 
 }

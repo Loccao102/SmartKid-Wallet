@@ -659,6 +659,334 @@ export const workScenarios: WorkScenarioDefinition[] = [
           'Khách được lợi trong giao dịch này nhưng chính sách khuyến mãi bị áp dụng sai và đối soát có thể phát hiện chênh lệch.',
       },
     ],
+  },
+  {
+    id: 'SCENARIO_SHORT_CASH',
+    version: 1,
+    category: 'customer-needs',
+    difficulty: 2,
+    title: 'Khách thiếu một ít tiền',
+    description:
+      'Sau khi tính xong, khách phát hiện mình thiếu 8.000đ và hỏi em có cách nào giúp giảm hóa đơn mà vẫn đúng quy định không.',
+    choices: [
+      {
+        id: 'remove-optional-item',
+        label: 'Cùng khách chọn một món không cần thiết để bỏ khỏi giỏ.',
+        billDelta: -15000,
+        employeeRatingDelta: 0.18,
+        storeReputationDelta: 0.12,
+        customerSatisfactionDelta: 0.16,
+        feedback:
+          'Khách vẫn tự quyết định món nào bỏ đi và hóa đơn được điều chỉnh minh bạch.',
+      },
+      {
+        id: 'unauthorized-discount',
+        label: 'Tự giảm 8.000đ để khách đủ tiền thanh toán.',
+        billDelta: -8000,
+        employeeRatingDelta: -0.22,
+        storeReputationDelta: -0.18,
+        customerSatisfactionDelta: 0.16,
+        feedback:
+          'Khách được hỗ trợ ngay nhưng khoản giảm không có căn cứ và có thể gây lệch đối soát cuối ca.',
+      },
+      {
+        id: 'insist-full-payment',
+        label: 'Yêu cầu khách trả đủ tiền mà không đề xuất phương án khác.',
+        billDelta: 0,
+        employeeRatingDelta: -0.08,
+        storeReputationDelta: -0.05,
+        customerSatisfactionDelta: -0.18,
+        feedback:
+          'Quy định thanh toán được giữ nhưng khách chưa được hỗ trợ tìm phương án phù hợp ngân sách.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_CHANGE_DRAWER_SHORT',
+    version: 1,
+    category: 'billing',
+    difficulty: 3,
+    title: 'Quầy thiếu tiền lẻ',
+    description:
+      'Ngăn kéo hiện không đủ mệnh giá nhỏ để trả đúng tiền thừa. Khách đang chờ và hàng phía sau bắt đầu dài hơn.',
+    choices: [
+      {
+        id: 'request-change-support',
+        label: 'Nhờ quầy bên cạnh hoặc quản lý đổi đủ tiền lẻ rồi trả đúng cho khách.',
+        billDelta: 0,
+        employeeRatingDelta: 0.16,
+        storeReputationDelta: 0.16,
+        customerSatisfactionDelta: -0.04,
+        feedback:
+          'Khách phải đợi thêm một chút nhưng giao dịch vẫn chính xác và dễ đối soát.',
+      },
+      {
+        id: 'ask-digital-change',
+        label: 'Hỏi khách có đồng ý nhận phần tiền lẻ qua phương thức thanh toán điện tử được hỗ trợ hay không.',
+        billDelta: 0,
+        employeeRatingDelta: 0.14,
+        storeReputationDelta: 0.12,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Nếu hệ thống hỗ trợ và khách đồng ý, giao dịch vẫn chính xác mà quầy không phải tự ý làm tròn.',
+      },
+      {
+        id: 'round-change',
+        label: 'Tự làm tròn tiền thừa để phục vụ nhanh hơn.',
+        billDelta: 0,
+        employeeRatingDelta: -0.3,
+        storeReputationDelta: -0.25,
+        customerSatisfactionDelta: -0.18,
+        feedback:
+          'Quầy nhanh hơn nhưng số tiền thực tế không còn khớp giao dịch, dễ gây tranh chấp hoặc lệch quỹ.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_LAST_ITEM_RESERVED',
+    version: 1,
+    category: 'inventory',
+    difficulty: 2,
+    title: 'Món cuối cùng đã được giữ',
+    description:
+      'Khách đang cầm sản phẩm cuối cùng trên kệ, nhưng hệ thống kho cho thấy món này đã được giữ cho một đơn nhận tại cửa hàng.',
+    choices: [
+      {
+        id: 'verify-reservation',
+        label: 'Kiểm tra lại trạng thái giữ hàng và giải thích rõ với khách trước khi quyết định.',
+        billDelta: 0,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.18,
+        customerSatisfactionDelta: 0.04,
+        feedback:
+          'Quầy xử lý chậm hơn một chút nhưng tránh bán nhầm hàng đã có cam kết với khách khác.',
+      },
+      {
+        id: 'offer-alternative',
+        label: 'Giải thích tình trạng và tìm sản phẩm thay thế tương đương cho khách.',
+        billDelta: -5000,
+        employeeRatingDelta: 0.14,
+        storeReputationDelta: 0.12,
+        customerSatisfactionDelta: 0.16,
+        feedback:
+          'Khách có thêm lựa chọn mà đơn đã giữ vẫn được bảo toàn.',
+      },
+      {
+        id: 'sell-reserved-item',
+        label: 'Bán luôn vì khách hiện tại đã mang sản phẩm ra quầy.',
+        billDelta: 0,
+        employeeRatingDelta: -0.28,
+        storeReputationDelta: -0.35,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Khách hiện tại hài lòng nhưng đơn đã giữ có nguy cơ không còn hàng khi người nhận tới.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_MEMBER_PRICE',
+    version: 1,
+    category: 'promotion',
+    difficulty: 2,
+    title: 'Giá thành viên chưa nhận diện',
+    description:
+      'Khách nói mình là thành viên và trên kệ có giá ưu đãi thành viên, nhưng tài khoản chưa hiện trên máy POS.',
+    choices: [
+      {
+        id: 'verify-member-account',
+        label: 'Kiểm tra số điện thoại hoặc mã thành viên trước khi áp dụng giá ưu đãi.',
+        billDelta: -10000,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.16,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Khách được nhận đúng quyền lợi nếu xác minh thành công và giao dịch vẫn có căn cứ.',
+      },
+      {
+        id: 'manual-member-discount',
+        label: 'Tự áp giá thành viên vì khách nói đã đăng ký.',
+        billDelta: -10000,
+        employeeRatingDelta: -0.18,
+        storeReputationDelta: -0.15,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Khách được giảm ngay nhưng ưu đãi không được xác minh trên hệ thống.',
+      },
+      {
+        id: 'reject-member-price',
+        label: 'Từ chối giá thành viên ngay vì POS chưa nhận diện.',
+        billDelta: 0,
+        employeeRatingDelta: -0.08,
+        storeReputationDelta: -0.08,
+        customerSatisfactionDelta: -0.2,
+        feedback:
+          'Quầy tránh áp sai ưu đãi nhưng chưa thử các bước xác minh có thể giúp khách.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_MISSING_PRICE_LABEL',
+    version: 1,
+    category: 'transparency',
+    difficulty: 2,
+    title: 'Sản phẩm không có nhãn giá',
+    description:
+      'Một sản phẩm trong giỏ không còn nhãn giá trên kệ. Khách muốn biết giá trước khi quyết định mua.',
+    choices: [
+      {
+        id: 'scan-and-confirm-price',
+        label: 'Quét mã hoặc kiểm tra hệ thống rồi báo giá cho khách trước khi thêm vào hóa đơn.',
+        billDelta: 0,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.18,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Giá được xác minh trước khi khách quyết định, giúp giao dịch minh bạch.',
+      },
+      {
+        id: 'guess-similar-price',
+        label: 'Ước giá dựa trên sản phẩm tương tự để tiết kiệm thời gian.',
+        billDelta: 0,
+        employeeRatingDelta: -0.25,
+        storeReputationDelta: -0.28,
+        customerSatisfactionDelta: -0.18,
+        feedback:
+          'Quầy nhanh hơn nhưng giá bán không được kiểm chứng và có thể gây tranh chấp.',
+      },
+      {
+        id: 'remove-item-only',
+        label: 'Đề nghị bỏ món khỏi giỏ nếu khách không muốn chờ kiểm tra giá.',
+        billDelta: -20000,
+        employeeRatingDelta: 0.06,
+        storeReputationDelta: 0.02,
+        customerSatisfactionDelta: -0.04,
+        feedback:
+          'Khách không bị tính một mức giá chưa rõ, nhưng cửa hàng bỏ lỡ cơ hội xử lý nguyên nhân thiếu nhãn.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_BULK_PROMO_NEED',
+    version: 1,
+    category: 'customer-needs',
+    difficulty: 3,
+    title: 'Combo rẻ theo đơn vị nhưng mua dư',
+    description:
+      'Khách chỉ cần một món nhưng đang cân nhắc combo mua nhiều vì giá tính trên mỗi sản phẩm thấp hơn.',
+    choices: [
+      {
+        id: 'compare-total-and-need',
+        label: 'So sánh cả tổng tiền, giá theo đơn vị và nhu cầu thực tế rồi để khách tự chọn.',
+        billDelta: 0,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.18,
+        customerSatisfactionDelta: 0.18,
+        feedback:
+          'Khách nhìn được cả lợi ích đơn giá và chi phí thực tế thay vì chỉ thấy chữ khuyến mãi.',
+      },
+      {
+        id: 'recommend-single-item',
+        label: 'Đề xuất mua một món nếu phần còn lại có khả năng không dùng đến.',
+        billDelta: -25000,
+        employeeRatingDelta: 0.12,
+        storeReputationDelta: 0.1,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Khách tiết kiệm tổng chi ngay lúc này, dù bỏ qua mức giá theo đơn vị tốt hơn của combo.',
+      },
+      {
+        id: 'push-bulk-promo',
+        label: 'Khuyên mua combo vì nhìn chung “rẻ hơn” mà không hỏi nhu cầu sử dụng.',
+        billDelta: 0,
+        employeeRatingDelta: -0.15,
+        storeReputationDelta: -0.12,
+        customerSatisfactionDelta: -0.12,
+        feedback:
+          'Khách có thể chi nhiều hơn cần thiết dù giá từng món thấp hơn.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_END_DAY_BREAD',
+    version: 1,
+    category: 'product-quality',
+    difficulty: 3,
+    title: 'Bánh mì chỉ còn hạn trong hôm nay',
+    description:
+      'Một số bánh mì còn an toàn để bán nhưng hết hạn vào cuối ngày. Khách chưa biết thông tin này.',
+    choices: [
+      {
+        id: 'disclose-and-discount',
+        label: 'Báo rõ hạn dùng và áp mức giảm được phép nếu khách vẫn muốn mua.',
+        billDelta: -10000,
+        employeeRatingDelta: 0.18,
+        storeReputationDelta: 0.18,
+        customerSatisfactionDelta: 0.18,
+        feedback:
+          'Khách có đủ thông tin để quyết định, còn cửa hàng giảm được nguy cơ lãng phí.',
+      },
+      {
+        id: 'remove-for-end-day-process',
+        label: 'Tách sản phẩm sang quy trình xử lý cuối ngày và lấy bánh khác cho khách.',
+        billDelta: 0,
+        employeeRatingDelta: 0.16,
+        storeReputationDelta: 0.14,
+        customerSatisfactionDelta: 0.08,
+        feedback:
+          'Khách nhận sản phẩm có hạn dài hơn nhưng cửa hàng phải xử lý phần hàng sắp hết hạn theo quy trình.',
+      },
+      {
+        id: 'sell-without-disclosure',
+        label: 'Bán bình thường vì sản phẩm vẫn còn hạn sử dụng.',
+        billDelta: 0,
+        employeeRatingDelta: -0.22,
+        storeReputationDelta: -0.28,
+        customerSatisfactionDelta: -0.2,
+        feedback:
+          'Khách không biết một thông tin có thể ảnh hưởng đến quyết định mua và cách sử dụng sản phẩm.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_PRICE_MATCH_REQUEST',
+    version: 1,
+    category: 'transparency',
+    difficulty: 3,
+    title: 'Khách yêu cầu đối chiếu giá',
+    description:
+      'Khách cho xem một mức giá thấp hơn của cùng sản phẩm trên kênh bán hàng khác và hỏi SmartMart có áp dụng mức đó tại quầy không.',
+    choices: [
+      {
+        id: 'verify-price-match-policy',
+        label: 'Kiểm tra đúng sản phẩm, thời điểm và chính sách đối chiếu giá trước khi xử lý.',
+        billDelta: -10000,
+        employeeRatingDelta: 0.18,
+        storeReputationDelta: 0.2,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Khách phải chờ xác minh nhưng mức giá cuối cùng có căn cứ và áp dụng nhất quán.',
+      },
+      {
+        id: 'match-without-checking',
+        label: 'Giảm theo mức khách đưa ra để tránh tranh luận.',
+        billDelta: -20000,
+        employeeRatingDelta: -0.2,
+        storeReputationDelta: -0.16,
+        customerSatisfactionDelta: 0.18,
+        feedback:
+          'Khách hài lòng ngay nhưng quầy chưa xác minh điều kiện của mức giá được đưa ra.',
+      },
+      {
+        id: 'reject-price-match',
+        label: 'Từ chối ngay vì giá trên kênh khác không phải giá tại quầy.',
+        billDelta: 0,
+        employeeRatingDelta: -0.08,
+        storeReputationDelta: -0.08,
+        customerSatisfactionDelta: -0.18,
+        feedback:
+          'Quầy xử lý nhanh nhưng chưa kiểm tra liệu cửa hàng có chính sách hỗ trợ trường hợp này hay không.',
+      },
+    ],
   }
 ]
 
