@@ -3,25 +3,42 @@ import {
   LockKeyhole,
   Play,
   ShoppingBasket,
+  Star,
   Target,
   UserRoundCheck,
   UsersRound,
 } from 'lucide-react'
-import { firstMission } from '../../data/missions'
+import { missions } from '../../data/missions'
+import { stalls } from '../../data/stalls'
 import { traineeShift } from '../../data/workShift'
 import { advancedShift } from '../../data/workShiftInstances'
 import { useProgressionStore } from '../../store/progression'
 import { useWorkShiftStore } from '../../store/workShift'
 
+function StarBadge({ stars }: { stars: number }) {
+  if (!stars) return null
+  return (
+    <span className="mission-best-stars" aria-label={'Kỷ lục ' + stars + '/5 sao'}>
+      <Star size={14} fill="currentColor" />
+      {stars}/5
+    </span>
+  )
+}
+
 export function MissionsScreen({
   onOpenMission,
   onOpenWorkMode,
 }: {
-  onOpenMission: () => void
+  onOpenMission: (missionId: string) => void
   onOpenWorkMode: (shiftId: string) => void
 }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
-  const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
+  const completedMissionIds = useProgressionStore(
+    (state) => state.completedMissionIds,
+  )
+  const level = useProgressionStore((state) => state.level)
+  const activityResults = useProgressionStore((state) => state.activityResults)
+
   const traineeCompleted = useWorkShiftStore(
     (state) => state.progressByShiftId[traineeShift.id]?.completed ?? false,
   )
@@ -29,9 +46,8 @@ export function MissionsScreen({
     (state) => state.progressByShiftId[advancedShift.id]?.completed ?? false,
   )
 
-  const missionUnlocked = unlockedStalls.length >= 5
-  const missionCompleted = completedMissionIds.includes(firstMission.id)
-  const workModeUnlocked = missionCompleted
+  const firstMissionCompleted = completedMissionIds.includes(missions[0].id)
+  const workModeUnlocked = firstMissionCompleted
   const advancedUnlocked = traineeCompleted
 
   return (
@@ -42,58 +58,102 @@ export function MissionsScreen({
         </div>
         <div>
           <p className="page-kicker">NHIỆM VỤ CỦA EM</p>
-          <h1>Vận dụng những gì em đã học</h1>
+          <h1>Mỗi cấp độ mở thêm một thử thách</h1>
           <p>
-            Mở các gian, hoàn thành Mission mua sắm rồi chuyển sang vai trò nhân
-            viên với những ca làm việc ngày càng khó hơn.
+            Hoàn thành Toán để mở gian, chinh phục nhiệm vụ để lấy sao, rồi
+            bước vào những ca làm việc có trade-off và hậu quả thật sự.
           </p>
         </div>
       </header>
 
       <div className="mission-journey-list">
-        <article className={`journey-mission-card ${missionUnlocked ? 'is-unlocked' : 'is-locked'}`}>
-          <div className="journey-step-number">01</div>
-          <div className="journey-mission-icon" aria-hidden="true">
-            <ShoppingBasket size={30} strokeWidth={1.8} />
-          </div>
+        {missions.map((mission, index) => {
+          const prerequisiteReady =
+            !mission.prerequisiteMissionId ||
+            completedMissionIds.includes(mission.prerequisiteMissionId)
+          const stallsReady =
+            mission.id === missions[0].id
+              ? stalls.every((stall) => unlockedStalls.includes(stall.id))
+              : mission.requiredStalls.every((stallId) =>
+                  unlockedStalls.includes(stallId),
+                )
+          const unlocked =
+            level >= mission.unlockLevel && prerequisiteReady && stallsReady
+          const completed = completedMissionIds.includes(mission.id)
+          const best =
+            activityResults['mission:' + mission.id + ':v' + mission.version]
 
-          <div className="journey-mission-copy">
-            <div className="journey-status-row">
-              <span>BÀI VẬN DỤNG · SMARTMART</span>
-              {missionCompleted ? (
-                <em className="journey-status complete">
-                  <Check size={12} /> Đã hoàn thành
-                </em>
-              ) : missionUnlocked ? (
-                <em className="journey-status ready">
-                  <Play size={11} fill="currentColor" /> Sẵn sàng
-                </em>
-              ) : (
-                <em className="journey-status locked">
-                  <LockKeyhole size={12} /> Đang khóa
-                </em>
-              )}
-            </div>
+          return (
+            <article
+              key={mission.id}
+              className={
+                'journey-mission-card ' +
+                (unlocked ? 'is-unlocked' : 'is-locked')
+              }
+            >
+              <div className="journey-step-number">
+                {String(index + 1).padStart(2, '0')}
+              </div>
+              <div className="journey-mission-icon" aria-hidden="true">
+                <ShoppingBasket size={30} strokeWidth={1.8} />
+              </div>
 
-            <h2>{firstMission.title}</h2>
-            <p>{firstMission.shortDescription}</p>
+              <div className="journey-mission-copy">
+                <div className="journey-status-row">
+                  <span>SHOPPING MISSION · CẤP {mission.unlockLevel}+</span>
+                  {completed ? (
+                    <em className="journey-status complete">
+                      <Check size={12} /> Đã hoàn thành
+                    </em>
+                  ) : unlocked ? (
+                    <em className="journey-status ready">
+                      <Play size={11} fill="currentColor" /> Sẵn sàng
+                    </em>
+                  ) : (
+                    <em className="journey-status locked">
+                      <LockKeyhole size={12} /> Đang khóa
+                    </em>
+                  )}
+                </div>
 
-            <div className="journey-mission-meta">
-              <span>20 bạn</span>
-              <span>500.000đ</span>
-              <span>3 gian hàng</span>
-            </div>
-          </div>
+                <h2>
+                  {mission.title}
+                  <StarBadge stars={best?.bestStars ?? 0} />
+                </h2>
+                <p>{mission.shortDescription}</p>
 
-          <button
-            type="button"
-            className="journey-action"
-            disabled={!missionUnlocked}
-            onClick={onOpenMission}
-          >
-            {missionCompleted ? 'Chơi lại' : missionUnlocked ? 'Bắt đầu' : 'Mở đủ 5 gian'}
-          </button>
-        </article>
+                {mission.teacherChallenge ? (
+                  <div className="teacher-challenge-chip">
+                    <Star size={14} />
+                    {mission.teacherChallenge.label} · +
+                    {mission.teacherChallenge.coinReward} xu
+                  </div>
+                ) : null}
+
+                <div className="journey-mission-meta">
+                  <span>{mission.people} người</span>
+                  <span>{mission.budget.toLocaleString('vi-VN')}đ</span>
+                  <span>{mission.requiredStalls.length} nhóm hàng</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="journey-action"
+                disabled={!unlocked}
+                onClick={() => onOpenMission(mission.id)}
+              >
+                {completed
+                  ? 'Chơi lại nâng sao'
+                  : unlocked
+                    ? 'Bắt đầu'
+                    : level < mission.unlockLevel
+                      ? 'Cần Cấp ' + mission.unlockLevel
+                      : 'Hoàn thành chặng trước'}
+              </button>
+            </article>
+          )
+        })}
 
         <div className="journey-connector" aria-hidden="true">
           <span />
@@ -101,19 +161,28 @@ export function MissionsScreen({
           <span />
         </div>
 
-        <article className={`journey-mission-card work-mode-card ${workModeUnlocked ? 'is-unlocked' : 'is-locked'}`}>
-          <div className="journey-step-number">02</div>
+        <article
+          className={
+            'journey-mission-card work-mode-card ' +
+            (workModeUnlocked ? 'is-unlocked' : 'is-locked')
+          }
+        >
+          <div className="journey-step-number">W1</div>
           <div className="journey-mission-icon" aria-hidden="true">
             <UserRoundCheck size={30} strokeWidth={1.8} />
           </div>
-
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>WORK MODE · ONBOARDING</span>
+              <span>WORK MODE · NHÂN VIÊN TẬP SỰ</span>
               <em
-                className={`journey-status ${
-                  traineeCompleted ? 'complete' : workModeUnlocked ? 'ready' : 'locked'
-                }`}
+                className={
+                  'journey-status ' +
+                  (traineeCompleted
+                    ? 'complete'
+                    : workModeUnlocked
+                      ? 'ready'
+                      : 'locked')
+                }
               >
                 {traineeCompleted ? (
                   <Check size={12} />
@@ -129,20 +198,17 @@ export function MissionsScreen({
                     : 'Chưa mở'}
               </em>
             </div>
-
             <h2>{traineeShift.title} · Nhân viên tập sự</h2>
             <p>
-              Phục vụ 3 khách đầu tiên, tính hóa đơn, tiền thừa và xử lý hai tình
-              huống cơ bản tại quầy.
+              Phục vụ khách, tính toán khi công việc yêu cầu và đưa ra lựa chọn
+              mà không được biết trước điểm số.
             </p>
-
             <div className="journey-mission-meta">
               <span>3 khách</span>
-              <span>2 event</span>
-              <span>Thu ngân cơ bản</span>
+              <span>Trade-off ẩn</span>
+              <span>Chấm 1–5 sao cuối ca</span>
             </div>
           </div>
-
           <button
             type="button"
             className="journey-action"
@@ -150,10 +216,10 @@ export function MissionsScreen({
             onClick={() => onOpenWorkMode(traineeShift.id)}
           >
             {traineeCompleted
-              ? 'Xem kết quả ca'
+              ? 'Chơi lại nâng sao'
               : workModeUnlocked
-                ? 'Bắt đầu ca làm việc'
-                : 'Hoàn thành Mission 01'}
+                ? 'Bắt đầu ca làm'
+                : 'Hoàn thành Mission đầu'}
           </button>
         </article>
 
@@ -163,23 +229,28 @@ export function MissionsScreen({
           <span />
         </div>
 
-        <article className={`journey-mission-card work-mode-card seeded-shift-card ${advancedUnlocked ? 'is-unlocked' : 'is-locked'}`}>
-          <div className="journey-step-number">03</div>
+        <article
+          className={
+            'journey-mission-card work-mode-card seeded-shift-card ' +
+            (advancedUnlocked ? 'is-unlocked' : 'is-locked')
+          }
+        >
+          <div className="journey-step-number">W2</div>
           <div className="journey-mission-icon" aria-hidden="true">
             <UsersRound size={30} strokeWidth={1.8} />
           </div>
-
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>WORK MODE · SEEDED SHIFT</span>
+              <span>WORK MODE · QUẦY ĐÔNG KHÁCH</span>
               <em
-                className={`journey-status ${
-                  advancedCompleted
+                className={
+                  'journey-status ' +
+                  (advancedCompleted
                     ? 'complete'
                     : advancedUnlocked
                       ? 'ready'
-                      : 'locked'
-                }`}
+                      : 'locked')
+                }
               >
                 {advancedCompleted ? (
                   <Check size={12} />
@@ -195,19 +266,17 @@ export function MissionsScreen({
                     : 'Hoàn thành Ca 01'}
               </em>
             </div>
-
-            <h2>{advancedShift.title} · Quầy đông khách</h2>
+            <h2>{advancedShift.title}</h2>
             <p>
-              Giúp 6 vị khách mua sắm, tính tiền và xử lý những tình huống
-              ở quầy thu ngân.
+              6 khách, 4 tình huống và nhiều trade-off hơn. Mỗi lựa chọn có thể
+              tác động tới khách sau hoặc cuối ca.
             </p>
-
             <div className="journey-mission-meta">
               <span>6 khách</span>
               <span>4 tình huống</span>
+              <span>Seed cá nhân</span>
             </div>
           </div>
-
           <button
             type="button"
             className="journey-action"
@@ -215,7 +284,7 @@ export function MissionsScreen({
             onClick={() => onOpenWorkMode(advancedShift.id)}
           >
             {advancedCompleted
-              ? 'Xem kết quả ca'
+              ? 'Chơi lại nâng sao'
               : advancedUnlocked
                 ? 'Bắt đầu Ca 02'
                 : 'Hoàn thành Ca 01'}
