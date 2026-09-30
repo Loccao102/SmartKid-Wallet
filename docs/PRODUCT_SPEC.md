@@ -126,6 +126,25 @@ Một học sinh có thể xử lý học tập rất tốt nhưng customer sati
 
 Màn kết quả production phải diễn đạt rõ sự khác nhau này.
 
+## 7A. Mastery, economy và level
+
+Production v1 dùng ba lớp progression tách nhau:
+
+- **XP / Level** — tiến trình dài hạn, không bị trừ.
+- **Xu** — tài nguyên có thể tiêu cho retry/cosmetic; không được tạo learning paywall.
+- **Stars** — mastery của một run, phụ thuộc accuracy + time + resource efficiency + decision trade-offs + objective.
+
+Sai Unlock Exercise không còn chỉ hiện "SAI". Feedback tăng dần theo mức hỗ trợ; muốn retry trong Adventure dùng phí xu 5 → 10 → 15 → 20 → 25 → max 30. Practice retry miễn phí.
+
+Level-up thưởng 100 xu. Map/Mission mở bằng **level + prerequisite**, không chỉ XP farm.
+
+Scenario trong Work Mode không reveal đúng/sai ngay. Lựa chọn được ghi nhận, hậu quả xuất hiện tự nhiên, và score/star chỉ reveal khi kết thúc ca.
+
+Chi tiết chuẩn:
+- `docs/SCORING_PROGRESSION.md`
+- `docs/WORLD_MODES_MISSIONS.md`
+- `docs/AUDIO_SYSTEM.md`
+
 ## 8. User roles
 
 ### Student
