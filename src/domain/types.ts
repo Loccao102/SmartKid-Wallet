@@ -204,6 +204,7 @@ export interface WorkCustomerDefinition {
   name: string
   basket: WorkBasketItem[]
   cashGiven: number
+  requestLine?: string
   scenarioId?: string
   scenarioVersion?: number
 }
@@ -229,6 +230,7 @@ export interface WorkShiftTemplateDefinition {
   scenarioCount: number
   minScenarioDifficulty: 1 | 2 | 3
   maxScenarioDifficulty: 1 | 2 | 3
+  mathDifficulty: 1 | 2 | 3
   startingEmployeeRating: number
   startingStoreReputation: number
   startingCustomerSatisfaction: number
@@ -240,6 +242,9 @@ export interface WorkShiftInstance extends WorkShiftDefinition {
   seed: number
   studentKey: string
   variantIndex: number
+  generationAttempt: number
+  fingerprint: string
+  difficultyScore: number
 }
 
 export type WorkWorldFlag =
