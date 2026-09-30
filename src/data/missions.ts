@@ -16,6 +16,17 @@ export const missions: MissionDefinition[] = [
     unlockLevel: 1,
     targetTimeSeconds: 300,
     xpReward: 75,
+    softGoals: [
+      {
+        id: 'class-party-variety',
+        title: 'Cô nhắn thêm',
+        description:
+          'Nếu có thể, hãy chuẩn bị đa dạng món để các bạn có nhiều lựa chọn hơn.',
+        revealAfterItems: 3,
+        kind: 'min-distinct-products',
+        target: 5,
+      },
+    ],
     teacherChallenge: {
       id: 'teacher-five-star-class-party',
       requiredStars: 5,
@@ -39,6 +50,17 @@ export const missions: MissionDefinition[] = [
     prerequisiteMissionId: 'mission-class-party-01',
     targetTimeSeconds: 260,
     xpReward: 80,
+    softGoals: [
+      {
+        id: 'picnic-no-dairy',
+        title: 'Tin nhắn từ nhóm',
+        description:
+          'Có 2 bạn không dùng sữa. Hãy cân nhắc giỏ đồ để mọi người dễ dùng chung.',
+        revealAfterItems: 2,
+        kind: 'avoid-products',
+        productIds: ['food-yogurt-pack', 'drinks-milk-pack'],
+      },
+    ],
   },
   {
     id: 'mission-smart-basket-01',
@@ -56,6 +78,17 @@ export const missions: MissionDefinition[] = [
     prerequisiteMissionId: 'mission-weekend-picnic-01',
     targetTimeSeconds: 240,
     xpReward: 90,
+    softGoals: [
+      {
+        id: 'smart-basket-existing-cups',
+        title: 'Nhà vừa nhắn',
+        description:
+          'Ở nhà vẫn còn đủ cốc giấy. Đừng mua thêm nếu không thực sự cần.',
+        revealAfterItems: 2,
+        kind: 'avoid-products',
+        productIds: ['supplies-paper-cups'],
+      },
+    ],
   },
   {
     id: 'mission-promo-planner-01',
@@ -73,6 +106,17 @@ export const missions: MissionDefinition[] = [
     prerequisiteMissionId: 'mission-smart-basket-01',
     targetTimeSeconds: 300,
     xpReward: 100,
+    softGoals: [
+      {
+        id: 'promo-variety',
+        title: 'Nhắc nhỏ trước khi thanh toán',
+        description:
+          'Đừng để biển giảm giá làm em mua quá nhiều một loại. Giỏ đa dạng thường hữu ích hơn.',
+        revealAfterItems: 3,
+        kind: 'min-distinct-products',
+        target: 6,
+      },
+    ],
   },
 ]
 
