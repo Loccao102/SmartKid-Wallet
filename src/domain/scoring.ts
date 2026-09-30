@@ -149,7 +149,15 @@ export function scoreShoppingMission(
   const reserveQuality = evaluation.remaining < reserveTarget
     ? 0
     : clamp(1 - Math.max(0, evaluation.remaining - reserveTarget * 2) / (mission.budget * 0.5))
-  const decisions = reserveQuality * 20
+  const softGoalRatio =
+    evaluation.softGoalResults.length > 0
+      ? evaluation.softGoalResults.filter((item) => item.achieved).length /
+        evaluation.softGoalResults.length
+      : 1
+  const decisions =
+    evaluation.softGoalResults.length > 0
+      ? reserveQuality * 10 + softGoalRatio * 10
+      : reserveQuality * 20
 
   const objectives = evaluation.success ? 10 : 0
   const total = Math.round(
