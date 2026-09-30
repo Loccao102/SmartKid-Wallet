@@ -20,7 +20,8 @@ import { traineeShift } from './data/workShift'
 import { getWorkShiftById } from './data/workShiftInstances'
 import { xpNeededForNextLevel } from './domain/progression'
 import { buildWorkShiftFingerprint } from './domain/workShiftGenerator'
-import type { ProductStallId } from './domain/types'
+import type { MapId, ProductStallId } from './domain/types'
+import { TinyBankScreen } from './features/bank/TinyBankScreen'
 import { DailyChallengeScreen } from './features/challenges/DailyChallengeScreen'
 import { WeeklyChallengeScreen } from './features/challenges/WeeklyChallengeScreen'
 import { HomeScreen } from './features/home/HomeScreen'
@@ -45,6 +46,7 @@ type StudentPage =
   | 'weekly-challenge'
   | 'maps'
   | 'smartmart'
+  | 'tiny-bank'
   | 'mission-class-party'
   | 'work-mode'
   | 'missions'
@@ -103,7 +105,7 @@ export function App() {
     recentWorkFingerprints,
   )
   const activeNavPage =
-    page === 'smartmart'
+    page === 'smartmart' || page === 'tiny-bank'
       ? 'maps'
       : page === 'mission-class-party' || page === 'work-mode'
         ? 'missions'
@@ -195,7 +197,9 @@ export function App() {
           )}
           {working
             ? 'Ca làm tại SmartMart'
-            : 'Một hành trình nhỏ, thật nhiều điều hay'}
+            : page === 'tiny-bank'
+              ? 'Đang khám phá Ngân hàng tí hon'
+              : 'Một hành trình nhỏ, thật nhiều điều hay'}
         </span>
         <div className="game-economy">
           <span className="game-coins">
@@ -228,12 +232,19 @@ export function App() {
           ) : page === 'weekly-challenge' ? (
             <WeeklyChallengeScreen onBack={() => setPage('leaderboard')} />
           ) : page === 'maps' ? (
-            <WorldMapScreen onOpenSmartMart={() => setPage('smartmart')} />
+            <WorldMapScreen
+              onOpenMap={(mapId: MapId) => {
+                if (mapId === 'smartmart') setPage('smartmart')
+                if (mapId === 'tiny-bank') setPage('tiny-bank')
+              }}
+            />
           ) : page === 'smartmart' ? (
             <SmartMartScreen
               onBack={() => setPage('maps')}
               onStartMission={openMissionFromHub}
             />
+          ) : page === 'tiny-bank' ? (
+            <TinyBankScreen onBack={() => setPage('maps')} />
           ) : page === 'mission-class-party' ? (
             <ClassPartyMissionScreen
               missionId={activeMissionId}

@@ -21,6 +21,7 @@ interface ProgressionState {
   unlockedStalls: StallId[]
   stallExerciseProgress: StallExerciseProgress
   completedMissionIds: string[]
+  completedWorldChapterIds: MapId[]
 
   level: number
   levelXp: number
@@ -34,6 +35,7 @@ interface ProgressionState {
   unlockStall: (stallId: StallId) => void
   completeStallExercise: (stallId: StallId, familyId: string) => void
   completeMission: (missionId: string) => void
+  completeWorldChapter: (mapId: MapId) => void
 
   awardXp: (amount: number) => XpGainResult
   awardXpOnce: (rewardKey: string, amount: number) => XpGainResult | null
@@ -55,6 +57,7 @@ const initialProgression = {
   unlockedStalls: [] as StallId[],
   stallExerciseProgress: {} as StallExerciseProgress,
   completedMissionIds: [] as string[],
+  completedWorldChapterIds: [] as MapId[],
   level: 1,
   levelXp: 0,
   totalXp: 0,
@@ -102,6 +105,18 @@ export const useProgressionStore = create<ProgressionState>()(
           state.completedMissionIds.includes(missionId)
             ? state
             : { completedMissionIds: [...state.completedMissionIds, missionId] },
+        ),
+
+      completeWorldChapter: (mapId) =>
+        set((state) =>
+          state.completedWorldChapterIds.includes(mapId)
+            ? state
+            : {
+                completedWorldChapterIds: [
+                  ...state.completedWorldChapterIds,
+                  mapId,
+                ],
+              },
         ),
 
       awardXp: (amount) => {
@@ -193,6 +208,12 @@ export const useProgressionStore = create<ProgressionState>()(
           typeof (persisted as Partial<ProgressionState>)?.coins === 'number'
             ? (persisted as Partial<ProgressionState>).coins!
             : STARTING_COINS,
+        completedWorldChapterIds:
+          Array.isArray(
+            (persisted as Partial<ProgressionState>)?.completedWorldChapterIds,
+          )
+            ? (persisted as Partial<ProgressionState>).completedWorldChapterIds!
+            : [],
       }),
     },
   ),

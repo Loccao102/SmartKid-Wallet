@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Compass,
+  Landmark,
   LockKeyhole,
   ShoppingCart,
   Sparkles,
@@ -8,15 +9,20 @@ import {
 import { gameAssets } from '../../assets/registry'
 import { worldMaps } from '../../data/worldMaps'
 import { stalls } from '../../data/stalls'
+import type { MapId } from '../../domain/types'
 import { useProgressionStore } from '../../store/progression'
 
 export function WorldMapScreen({
-  onOpenSmartMart,
+  onOpenMap,
 }: {
-  onOpenSmartMart: () => void
+  onOpenMap: (mapId: MapId) => void
 }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
+  const completedWorldChapterIds = useProgressionStore(
+    (state) => state.completedWorldChapterIds,
+  )
+  const unlockMap = useProgressionStore((state) => state.unlockMap)
   const level = useProgressionStore((state) => state.level)
   const count = stalls.filter((stall) =>
     unlockedStalls.includes(stall.id),
@@ -56,40 +62,67 @@ export function WorldMapScreen({
                 alt=""
                 className="destination-art"
               />
-              {map.id === 'smartmart' ? (
-                <>
-                  <button
-                    type="button"
-                    className="destination-sign is-available"
-                    onClick={onOpenSmartMart}
-                  >
-                    <ShoppingCart size={21} aria-hidden="true" />
-                    <span>Siêu thị SmartMart</span>
-                    <ArrowRight size={20} aria-hidden="true" />
-                  </button>
-                  <span className="destination-note">
-                    {count === 0
-                      ? 'Hành trình đầu tiên của em'
-                      : `${count}/${stalls.length} gian hàng đã mở`}
-                  </span>
-                </>
-              ) : (() => {
+              {(() => {
                 const levelReady = level >= map.unlockLevel
-                const prerequisiteReady =
+                const missionReady =
                   !map.prerequisiteMissionId ||
                   completedMissionIds.includes(map.prerequisiteMissionId)
-                const requirementsReady = levelReady && prerequisiteReady
+                const chapterReady =
+                  !map.prerequisiteMapId ||
+                  completedWorldChapterIds.includes(map.prerequisiteMapId)
+                const requirementsReady =
+                  levelReady && missionReady && chapterReady
+                const playable = map.status === 'available' && requirementsReady
+                const Icon = map.id === 'smartmart' ? ShoppingCart : Landmark
+
+                if (playable) {
+                  return (
+                    <>
+                      <button
+                        type="button"
+                        className="destination-sign is-available"
+                        onClick={() => {
+                          unlockMap(map.id)
+                          onOpenMap(map.id)
+                        }}
+                      >
+                        <Icon size={21} aria-hidden="true" />
+                        <span>
+                          {map.id === 'smartmart'
+                            ? 'Siêu thị SmartMart'
+                            : map.name}
+                        </span>
+                        <ArrowRight size={20} aria-hidden="true" />
+                      </button>
+                      <span className="destination-note">
+                        {map.id === 'smartmart'
+                          ? count === 0
+                            ? 'Hành trình đầu tiên của em'
+                            : `${count}/${stalls.length} gian hàng đã mở`
+                          : completedWorldChapterIds.includes(map.id)
+                            ? 'Đã hoàn thành · có thể chơi lại'
+                            : 'Chương mới đã sẵn sàng'}
+                      </span>
+                    </>
+                  )
+                }
 
                 return (
                   <>
-                    <h2 className={'destination-sign ' + (requirementsReady ? 'is-ready-next' : '')}>
+                    <h2
+                      className={
+                        'destination-sign ' +
+                        (requirementsReady ? 'is-ready-next' : '')
+                      }
+                    >
                       <LockKeyhole size={18} aria-hidden="true" />
                       {map.name}
                     </h2>
                     <span className="destination-note">
                       {requirementsReady
-                        ? 'Đã đủ điều kiện · chương mới đang chuẩn bị'
-                        : 'Mở ở Cấp ' + map.unlockLevel + (map.prerequisiteMissionId ? ' + nhiệm vụ trước' : '')}
+                        ? 'Đã đủ điều kiện · chương đang được phát triển'
+                        : map.unlockHint ??
+                          'Mở ở Cấp ' + map.unlockLevel}
                     </span>
                   </>
                 )
@@ -125,7 +158,7 @@ export function WorldMapScreen({
         <button
           type="button"
           className="adventure-button"
-          onClick={onOpenSmartMart}
+          onClick={() => onOpenMap('smartmart')}
         >
           {count ? 'Tiếp tục khám phá' : 'Khám phá SmartMart'}
           <ArrowRight size={20} aria-hidden="true" />

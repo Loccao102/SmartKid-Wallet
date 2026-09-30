@@ -24,6 +24,7 @@ export interface WorldMapDefinition {
   unlockHint?: string
   unlockLevel: number
   prerequisiteMissionId?: string
+  prerequisiteMapId?: MapId
   theme: 'supermarket' | 'bank' | 'restaurant' | 'market'
   artworkKey: string
 }
