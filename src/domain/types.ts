@@ -263,6 +263,22 @@ export type WorkWorldFlag =
   | 'billing-dispute'
   | 'stale-promo-sign'
 
+export interface WorkStoryChoice {
+  id: string
+  label: string
+  employeeRatingDelta: number
+  storeReputationDelta: number
+  customerSatisfactionDelta: number
+  feedback: string
+  setFlags?: WorkWorldFlag[]
+  clearFlags?: WorkWorldFlag[]
+}
+
+export interface WorkStoryDecisionDefinition {
+  prompt: string
+  choices: WorkStoryChoice[]
+}
+
 export interface WorkDeferredConsequenceDefinition {
   id: string
   trigger: 'after-customers' | 'shift-end'
@@ -273,6 +289,7 @@ export interface WorkDeferredConsequenceDefinition {
   storeReputationDelta: number
   customerSatisfactionDelta: number
   clearFlags?: WorkWorldFlag[]
+  storyDecision?: WorkStoryDecisionDefinition
 }
 
 export interface WorkWorldEffect {
@@ -288,14 +305,21 @@ export interface WorkPendingConsequence
   dueAtServedCustomers?: number
 }
 
+export interface WorkPendingStoryDecision extends WorkPendingConsequence {
+  storyDecision: WorkStoryDecisionDefinition
+}
+
 export interface WorkResolvedConsequence
   extends WorkPendingConsequence {
   resolvedAtServedCustomers: number
+  resolutionChoiceId?: string
+  resolutionFeedback?: string
 }
 
 export interface WorkWorldState {
   flags: WorkWorldFlag[]
   pendingConsequences: WorkPendingConsequence[]
+  pendingStoryDecisions: WorkPendingStoryDecision[]
   resolvedConsequences: WorkResolvedConsequence[]
 }
 
