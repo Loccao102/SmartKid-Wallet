@@ -443,6 +443,7 @@ export const traineeShift: WorkShiftDefinition = {
       ],
       cashGiven: 200000,
       scenarioId: 'SCENARIO_DAMAGED_DRINK',
+      scenarioVersion: 2,
     },
     {
       id: 'customer-thao',
@@ -453,6 +454,7 @@ export const traineeShift: WorkShiftDefinition = {
       ],
       cashGiven: 200000,
       scenarioId: 'SCENARIO_VALID_VOUCHER',
+      scenarioVersion: 1,
     },
   ],
 }
