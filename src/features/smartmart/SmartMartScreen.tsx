@@ -132,6 +132,9 @@ export function SmartMartScreen({
   const [nearStallId, setNearStallId] = useState<StallId | null>(null)
   const [viewMode, setViewMode] = useState<'overview' | 'game'>('overview')
   const [celebration, setCelebration] = useState<string | null>(null)
+  const [practiceAttemptByStall, setPracticeAttemptByStall] = useState<
+    Partial<Record<StallId, number>>
+  >({})
   const unlockedSet = useMemo(() => new Set(unlockedStalls), [unlockedStalls])
   const nextLockedStall = stalls.find((stall) => !unlockedSet.has(stall.id))
   const unlockedCount = stalls.filter((stall) =>
@@ -151,6 +154,9 @@ export function SmartMartScreen({
   const activeCompletedFamilies = activeStall
     ? (stallExerciseProgress[activeStall.id] ?? [])
     : []
+  const activePracticeAttempt = activeStall
+    ? (practiceAttemptByStall[activeStall.id] ?? 0)
+    : 0
   const activeFamilyId =
     activeStall && activeMode
       ? activeMode === 'unlock'
@@ -159,7 +165,8 @@ export function SmartMartScreen({
           ) ??
           activeStall.unlockFamilyIds[activeStall.unlockFamilyIds.length - 1])
         : activeStall.exerciseFamilyIds[
-            activeStall.exerciseFamilyIds.length - 1
+            Math.max(0, activePracticeAttempt - 1) %
+              activeStall.exerciseFamilyIds.length
           ]
       : null
   const activeFamily = activeFamilyId
@@ -172,7 +179,7 @@ export function SmartMartScreen({
           demoStudentKey,
           activeMode === 'unlock'
             ? activeCompletedFamilies.length
-            : 100 + activeStall.order,
+            : 1000 + activeStall.order * 100 + activePracticeAttempt,
         )
       : null
   const activeStepNumber =
@@ -188,6 +195,14 @@ export function SmartMartScreen({
     if (unlockedSet.has(stallId)) setShoppingStallId(stallId)
     else if (nextLockedStall?.id === stallId) setActiveStallId(stallId)
   }
+
+  const openPractice = (stallId: StallId) => {
+    setPracticeAttemptByStall((current) => ({
+      ...current,
+      [stallId]: (current[stallId] ?? 0) + 1,
+    }))
+    setActiveStallId(stallId)
+  }
   const handleExerciseCorrect = () => {
     if (activeMode !== 'unlock' || !activeStall || !activeFamilyId) return
     completeStallExercise(activeStall.id, activeFamilyId)
@@ -199,7 +214,7 @@ export function SmartMartScreen({
 
   return (
     <>
-    {shoppingStallId ? <StallShoppingScreen stall={stalls.find(stall => stall.id === shoppingStallId)!} missionUnlocked={missionUnlocked} onBack={() => setShoppingStallId(null)} onPractice={() => setActiveStallId(shoppingStallId)} onStartMission={onStartMission} /> :
+    {shoppingStallId ? <StallShoppingScreen stall={stalls.find(stall => stall.id === shoppingStallId)!} missionUnlocked={missionUnlocked} onBack={() => setShoppingStallId(null)} onPractice={() => openPractice(shoppingStallId)} onStartMission={onStartMission} /> :
     <section className="production-hub" aria-labelledby="hub-title">
       <div className="hub-toolbar">
         <button type="button" className="quiet-button" onClick={onBack}>
