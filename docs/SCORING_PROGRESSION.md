@@ -96,6 +96,7 @@ Baseline:
 | Shopping Mission lần đầu | +75 |
 | Work Shift lần đầu | +90 |
 | Daily Challenge | +30 |
+| Weekly Arena | +60 lần đầu/tuần |
 
 Replay dùng để nâng sao, không phải farm XP vô hạn.
 
@@ -189,7 +190,29 @@ Scenario choice quality được suy ra từ effects/rubric, không hiển thị
 
 Live employee/store/customer metrics không dùng làm "điểm bài".
 
-## 11. Teacher 5★ Challenge
+## 11. Weekly Arena scoring
+
+Weekly Arena có rubric riêng vì là competitive mode:
+
+| Dimension | Max |
+| --- | ---: |
+| Math first-attempt accuracy | 55 |
+| Scenario trade-off quality | 30 |
+| Time efficiency | 15 |
+
+Fairness rules:
+- cùng tuần = cùng challenge ID/version/seed;
+- không dùng xu để mua retry;
+- retry miễn phí nhưng không khôi phục first-attempt score;
+- score chỉ reveal sau khi hoàn thành;
+- xếp hạng theo best score, sau đó best elapsed time;
+- top rank không nhận thêm XP để tránh rich-get-richer progression;
+- completion reward hiện tại: +60 XP và +50 xu một lần/tuần;
+- public leaderboard chỉ hiện pseudonymous player code.
+
+Client score hiện đã có DB constraints và append-only attempts nhưng chưa phải anti-cheat hoàn chỉnh. Trước pilot cạnh tranh nghiêm túc phải chuyển validation sang server/Edge Function.
+
+## 12. Teacher 5★ Challenge
 
 Teacher challenge có:
 - activityId/contentVersion/seed;
@@ -205,7 +228,7 @@ Cô giáo: "Bạn nào đạt 5/5 sao ở Liên hoan lớp sẽ nhận phần qu
 
 Cùng challenge phải dùng cùng content version/seed nếu dùng cho so sánh lớp.
 
-## 12. Replay
+## 13. Replay
 
 Replay:
 - giữ best stars + best score;
