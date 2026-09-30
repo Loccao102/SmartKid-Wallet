@@ -37,11 +37,11 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 
 ## P1 — Runtime & deployment hardening
 
-- [ ] Vercel production reconnect về canonical repo `Loccao102/SmartKid-Wallet`
+- [x] Vercel production reconnect về canonical repo `Loccao102/SmartKid-Wallet`
   - [x] mirror repo được đánh dấu deployment-only
   - [x] reconnect procedure được ghi trong docs/DEPLOYMENT.md
   - [x] tracking issue #1 được tạo
-  - [ ] thực hiện Vercel Git reconnect
+  - [x] thực hiện Vercel Git reconnect + verify metadata production
 - [ ] archive repo clone production sau khi reconnect + verify
 - [x] recoverable Error Boundary cho student feature screens
 - [x] user-friendly crash recovery về bản đồ
@@ -54,19 +54,37 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 
 ## P2 — Student UI/UX production redesign
 
-- [ ] Learning visual language
-- [ ] Employee visual language
+- [x] Learning visual language foundation
+- [x] Employee visual language foundation
 - [ ] typography production cho lớp 4–5
 - [ ] responsive tablet
 - [ ] responsive mobile
-- [ ] bottom navigation mobile
-- [ ] exercise unlock celebration
+- [x] bottom navigation mobile
+- [x] exercise unlock celebration
 - [ ] Mission UI polish
 - [ ] Work Mode hierarchy redesign
-- [ ] result screen: performance vs simulation
+- [x] result screen: performance vs simulation + 1–5★ mastery
 - [ ] bỏ research JSON/CSV/session detail khỏi student UI
 - [ ] asset placeholder → production art
 - [ ] reduced motion / accessibility
+
+## P2.5 — Game progression foundation
+
+- [x] persistent local XP / level / coin economy
+- [x] level-up +100 xu
+- [x] retry fee 5 → 10 → 15 → 20 → 25 → max 30
+- [x] free recovery path khi không đủ xu
+- [x] Practice retry miễn phí, không farm XP
+- [x] hidden 100-point mastery score → 1–5★
+- [x] best-star/best-score replay records
+- [x] teacher 5★ challenge reward model
+- [x] map unlock requirements theo level + prerequisite
+- [x] playable seeded Daily Challenge
+- [x] Music / Ambient / SFX mix settings
+- [x] procedural chill audio foundation + game SFX
+- [ ] final original/licensed music and ambient assets
+- [ ] cosmetic coin sinks
+- [ ] level-up celebration / reward presentation polish
 
 ## P3 — Cloud identity & progression
 
@@ -88,9 +106,9 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 - [ ] Zod validation pipeline
 - [ ] content migration rules
 - [ ] educational review cho 20 family hiện tại
-- [ ] thêm ít nhất 2 Mission chất lượng
-- [ ] Work Mode interaction types đa dạng
-- [ ] tune rating/consequence coefficients
+- [x] thêm mission ladder SmartMart (4 Shopping Mission definitions)
+- [~] Work Mode trade-off v2 + hidden consequence; tiếp tục đa dạng interaction type
+- [~] hidden star scoring v1 + scenario trade-off v2; cần pilot để tune coefficients
 
 ## P5 — Teacher & Research workspace
 
@@ -100,7 +118,7 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 - [ ] skill/attempt analytics
 - [ ] research session explorer
 - [ ] JSON/CSV export chuyển khỏi student UI
-- [ ] fixed-seed challenge
+- [x] seeded Daily Challenge foundation; class challenge vẫn cần teacher workspace
 - [ ] data dictionary
 - [ ] researcher/admin access policy
 
