@@ -1,6 +1,8 @@
 import type {
   WorkBasketItem,
+  WorkPendingFollowUp,
   WorkResolvedConsequence,
+  WorkStoryFollowUpChoice,
   WorkScenarioChoice,
   WorkShiftCustomerProgress,
   WorkShiftDefinition,
@@ -47,6 +49,8 @@ export function createInitialWorkWorldState(): WorkWorldState {
     flags: [],
     pendingConsequences: [],
     resolvedConsequences: [],
+    pendingFollowUps: [],
+    resolvedFollowUps: [],
   }
 }
 
@@ -129,6 +133,8 @@ export function applyWorkWorldEffect(
   worldState: WorkWorldState,
   effect: WorkWorldEffect | undefined,
   servedCustomers: number,
+  sourceScenarioId = 'unknown-scenario',
+  sourceChoiceId = 'unknown-choice',
 ): WorkWorldState {
   if (!effect) return worldState
 
@@ -150,6 +156,24 @@ export function applyWorkWorldEffect(
     })),
   ]
 
+  const pendingFollowUps = [
+    ...worldState.pendingFollowUps,
+    ...(effect.followUps ?? []).map((followUp, index) => ({
+      ...followUp,
+      instanceId:
+        followUp.id +
+        '-' +
+        (servedCustomers + 1) +
+        '-' +
+        (worldState.pendingFollowUps.length + index),
+      scheduledAtServedCustomers: servedCustomers,
+      dueAtServedCustomers:
+        servedCustomers + Math.max(1, followUp.delayCustomers),
+      sourceScenarioId,
+      sourceChoiceId,
+    })),
+  ]
+
   return {
     ...worldState,
     flags: mergeFlags(
@@ -158,6 +182,7 @@ export function applyWorkWorldEffect(
       effect.clearFlags,
     ),
     pendingConsequences,
+    pendingFollowUps,
   }
 }
 
@@ -219,6 +244,7 @@ export function resolveDueConsequences(
   return {
     metrics: nextMetrics,
     worldState: {
+      ...worldState,
       flags: nextFlags,
       pendingConsequences: worldState.pendingConsequences.filter(
         (item) => !dueIds.has(item.instanceId),
@@ -229,6 +255,56 @@ export function resolveDueConsequences(
       ],
     },
     newlyResolved,
+  }
+}
+
+
+export function getDueStoryFollowUp(
+  worldState: WorkWorldState,
+  servedCustomers: number,
+): WorkPendingFollowUp | undefined {
+  return worldState.pendingFollowUps.find(
+    (followUp) => followUp.dueAtServedCustomers <= servedCustomers,
+  )
+}
+
+export function applyStoryFollowUpChoice(
+  metrics: WorkShiftMetrics,
+  worldState: WorkWorldState,
+  followUp: WorkPendingFollowUp,
+  choice: WorkStoryFollowUpChoice,
+  servedCustomers: number,
+) {
+  const nextMetrics: WorkShiftMetrics = {
+    ...metrics,
+    employeeRating: clampRating(
+      metrics.employeeRating + choice.employeeRatingDelta,
+    ),
+    storeReputation: clampRating(
+      metrics.storeReputation + choice.storeReputationDelta,
+    ),
+    customerSatisfaction: clampRating(
+      metrics.customerSatisfaction + choice.customerSatisfactionDelta,
+    ),
+  }
+
+  return {
+    metrics: nextMetrics,
+    worldState: {
+      ...worldState,
+      pendingFollowUps: worldState.pendingFollowUps.filter(
+        (item) => item.instanceId !== followUp.instanceId,
+      ),
+      resolvedFollowUps: [
+        ...worldState.resolvedFollowUps,
+        {
+          ...followUp,
+          resolvedAtServedCustomers: servedCustomers,
+          selectedChoiceId: choice.id,
+          feedback: choice.feedback,
+        },
+      ],
+    },
   }
 }
 
