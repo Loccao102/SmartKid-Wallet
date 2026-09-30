@@ -15,22 +15,10 @@ export type RestaurantLessonId =
   | 'zero-waste'
   | 'dinner-rush'
 
-export interface RestaurantLessonDefinition {
-  id: RestaurantLessonId
-  title: string
-  subtitle: string
-  description: string
-  skillLabel: string
-  xpReward: number
-}
+export interface RestaurantLessonDefinition
+  extends WorldChapterLessonDefinition<RestaurantLessonId> {}
 
-export interface RestaurantQuestion {
-  id: string
-  prompt: string
-  answer: number
-  unit: string
-  hint: string
-}
+export type RestaurantQuestion = WorldChapterQuestion
 
 export interface RestaurantRushChoice {
   id: string
