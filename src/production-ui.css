@@ -1600,3 +1600,400 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* === Production v1 progression / economy / audio === */
+
+.game-header-actions,
+.game-economy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audio-settings-trigger {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #d5dfca;
+  border-radius: 13px;
+  background: #f7f6e9;
+  color: #567060;
+}
+
+.mode-work .audio-settings-trigger {
+  border-color: #55766a;
+  background: #31594d;
+  color: #fff0c9;
+}
+
+.game-coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff4bd;
+  color: #725516;
+}
+
+.game-coins svg {
+  color: #c69022;
+}
+
+.audio-settings-modal {
+  width: min(640px, calc(100vw - 30px));
+}
+
+.audio-master-toggle {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border-radius: 16px;
+  background: #eef3e8;
+}
+
+.audio-master-toggle > div {
+  display: grid;
+  gap: 3px;
+}
+
+.audio-master-toggle span {
+  color: #6d7d71;
+  font-size: 13px;
+}
+
+.audio-toggle-row {
+  display: grid;
+  gap: 7px;
+  padding: 13px 0;
+  border-top: 1px solid #e6eadf;
+}
+
+.audio-toggle-row > label {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-weight: 750;
+}
+
+.audio-volume-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(150px, 2fr) 54px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.audio-volume-row input {
+  width: 100%;
+}
+
+.audio-volume-row strong {
+  text-align: right;
+  color: #26705a;
+}
+
+.exercise-wallet,
+.pos-wallet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 10px;
+  color: #755919;
+  font-size: 13px;
+}
+
+.exercise-wallet small {
+  color: #637568;
+}
+
+.retry-button {
+  gap: 8px;
+}
+
+.run-stars {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #c7cbbb;
+}
+
+.run-stars svg.is-earned {
+  color: #e6ad2d;
+  fill: #ffd96b;
+}
+
+.teacher-challenge-chip,
+.teacher-challenge-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #715316;
+  background: #fff2b8;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.teacher-challenge-result {
+  display: grid;
+  justify-items: start;
+  border-radius: 14px;
+  margin: 10px 0;
+}
+
+.teacher-challenge-result.is-complete {
+  background: #e5f1d9;
+  color: #356648;
+}
+
+.mission-score-breakdown,
+.run-score-breakdown {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.mission-score-breakdown span,
+.run-score-breakdown span {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid #e1e4d5;
+  border-radius: 12px;
+  background: #fffdf6;
+  color: #687666;
+  font-size: 12px;
+}
+
+.mission-score-breakdown strong,
+.run-score-breakdown strong {
+  color: #2a6652;
+  font-size: 16px;
+}
+
+.work-mastery-result {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin: 16px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: #fff6c9;
+}
+
+.work-mastery-result > strong {
+  font-size: 20px;
+}
+
+.work-mastery-result > span {
+  color: #766a4f;
+  font-size: 13px;
+}
+
+.decision-reflection {
+  margin-top: 18px;
+}
+
+.decision-reflection article {
+  padding: 13px 0;
+  border-top: 1px solid #e3e7dd;
+}
+
+.decision-reflection p {
+  margin: 5px 0 0;
+  color: #647268;
+  line-height: 1.55;
+}
+
+.decision-feedback.is-neutral {
+  color: #4f6a60;
+  background: #edf2e9;
+}
+
+.mission-best-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  color: #b77f1d;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.home-mode-hub {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid #dfe4d7;
+  border-radius: 20px;
+  background: #fffdf5;
+}
+
+.home-mode-hub > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.home-mode-hub h2 {
+  margin: 3px 0 0;
+}
+
+.home-coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #fff0a9;
+  color: #765714;
+  font-weight: 800;
+}
+
+.home-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.home-mode-grid button {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 15px;
+  border: 1px solid #dbe4d6;
+  border-radius: 16px;
+  background: #f7f8ef;
+  color: #345e50;
+  text-align: left;
+}
+
+.home-mode-grid button:hover {
+  transform: translateY(-2px);
+  background: #edf4e7;
+}
+
+.home-mode-grid button > span {
+  display: grid;
+  gap: 4px;
+}
+
+.home-mode-grid strong {
+  font-size: 15px;
+}
+
+.home-mode-grid small {
+  color: #68796d;
+  line-height: 1.45;
+}
+
+.passport-wallet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 13px;
+  background: #fff2b9;
+  color: #715718;
+}
+
+.passport-wallet span {
+  margin-left: auto;
+  font-size: 12px;
+  color: #796f54;
+}
+
+.passport-best-runs {
+  margin-top: 22px;
+}
+
+.passport-best-runs > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.passport-best-runs article {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid #dde4d7;
+  border-radius: 14px;
+  background: #fffdf6;
+}
+
+.passport-best-runs article strong {
+  color: #b17c1e;
+}
+
+.passport-best-runs article small {
+  color: #718078;
+  line-height: 1.4;
+}
+
+.destination-sign.is-ready-next {
+  color: #6d5c31;
+  background: #f3e8ba;
+  box-shadow: 0 4px 0 #cbbb7f;
+}
+
+@media (max-width: 900px) {
+  .home-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mission-score-breakdown,
+  .run-score-breakdown {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .passport-best-runs > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .game-economy {
+    gap: 6px;
+  }
+
+  .game-coins {
+    padding: 5px 8px;
+  }
+
+  .game-xp > span,
+  .game-xp progress {
+    display: none;
+  }
+
+  .audio-master-toggle {
+    grid-template-columns: auto 1fr;
+  }
+
+  .audio-master-toggle button {
+    grid-column: 1 / -1;
+  }
+
+  .audio-volume-row {
+    grid-template-columns: 1fr 62px;
+  }
+
+  .audio-volume-row > span {
+    grid-column: 1 / -1;
+  }
+
+  .home-mode-grid {
+    grid-template-columns: 1fr;
+  }
+}
