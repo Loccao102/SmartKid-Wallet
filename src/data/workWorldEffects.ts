@@ -27,10 +27,46 @@ const effects: Record<string, WorkWorldEffect> = {
         title: 'Khách phản hồi về sản phẩm gần hết hạn',
         description:
           'Khách trước liên hệ lại vì phát hiện hạn dùng còn rất ngắn và cho biết họ muốn đổi sản phẩm.',
-        employeeRatingDelta: -0.1,
-        storeReputationDelta: -0.25,
-        customerSatisfactionDelta: -0.15,
+        employeeRatingDelta: 0,
+        storeReputationDelta: 0,
+        customerSatisfactionDelta: 0,
         clearFlags: ['complaint-risk'],
+        storyDecision: {
+          prompt:
+            'Khách quay lại quầy với sản phẩm gần hết hạn. Em sẽ xử lý tiếp câu chuyện này như thế nào?',
+          choices: [
+            {
+              id: 'replace-and-apologize',
+              label: 'Xin lỗi, đổi sản phẩm hạn dài hơn và giải thích rõ.',
+              employeeRatingDelta: 0.08,
+              storeReputationDelta: 0.04,
+              customerSatisfactionDelta: 0.12,
+              feedback:
+                'Việc sửa sai tốn thời gian và chi phí đổi hàng, nhưng khách cảm thấy được lắng nghe và vấn đề được khép lại minh bạch.',
+              clearFlags: ['complaint-risk'],
+            },
+            {
+              id: 'refund-without-discussion',
+              label: 'Hoàn tiền nhanh để khách rời quầy sớm.',
+              employeeRatingDelta: 0,
+              storeReputationDelta: -0.05,
+              customerSatisfactionDelta: 0.04,
+              feedback:
+                'Khách được hoàn tiền nhưng nguyên nhân vì sao thông tin hạn dùng không được nói từ đầu chưa được xử lý.',
+              clearFlags: ['complaint-risk'],
+            },
+            {
+              id: 'defend-original-sale',
+              label: 'Giải thích sản phẩm vẫn còn hạn nên không cần đổi.',
+              employeeRatingDelta: -0.12,
+              storeReputationDelta: -0.22,
+              customerSatisfactionDelta: -0.2,
+              feedback:
+                'Quầy giữ quan điểm giao dịch ban đầu nhưng làm mâu thuẫn kéo dài vì khách chưa được trao đủ thông tin khi mua.',
+              setFlags: ['complaint-risk'],
+            },
+          ],
+        },
       },
     ],
   },
@@ -72,10 +108,46 @@ const effects: Record<string, WorkWorldEffect> = {
         title: 'Khách phát hiện bị tính trùng',
         description:
           'Khách kiểm tra hóa đơn và quay lại báo rằng một sản phẩm đã bị quét hai lần.',
-        employeeRatingDelta: -0.2,
-        storeReputationDelta: -0.2,
-        customerSatisfactionDelta: -0.2,
+        employeeRatingDelta: 0,
+        storeReputationDelta: 0,
+        customerSatisfactionDelta: 0,
         clearFlags: ['billing-dispute'],
+        storyDecision: {
+          prompt:
+            'Khách mang hóa đơn quay lại và chỉ đúng dòng bị quét hai lần. Em sẽ xử lý ra sao?',
+          choices: [
+            {
+              id: 'verify-and-refund',
+              label: 'Kiểm tra hóa đơn, hoàn phần quét trùng và xin lỗi khách.',
+              employeeRatingDelta: 0.06,
+              storeReputationDelta: 0.02,
+              customerSatisfactionDelta: 0.1,
+              feedback:
+                'Sai sót được xác minh và sửa ngay. Cửa hàng chịu thêm thao tác nhưng giảm nguy cơ tranh chấp kéo dài.',
+              clearFlags: ['billing-dispute'],
+            },
+            {
+              id: 'refund-first-check-later',
+              label: 'Hoàn tiền ngay rồi mới ghi nhận lỗi sau.',
+              employeeRatingDelta: -0.03,
+              storeReputationDelta: -0.04,
+              customerSatisfactionDelta: 0.06,
+              feedback:
+                'Khách được xử lý nhanh nhưng hồ sơ giao dịch thiếu bước xác minh rõ ràng.',
+              clearFlags: ['billing-dispute'],
+            },
+            {
+              id: 'ask-customer-to-return-later',
+              label: 'Đề nghị khách quay lại lúc quầy vắng hơn.',
+              employeeRatingDelta: -0.12,
+              storeReputationDelta: -0.18,
+              customerSatisfactionDelta: -0.2,
+              feedback:
+                'Hàng chờ hiện tại không bị chậm nhưng khách phải gánh thêm thời gian vì lỗi phát sinh từ quầy.',
+              setFlags: ['billing-dispute', 'complaint-risk'],
+            },
+          ],
+        },
       },
     ],
   },
@@ -411,10 +483,47 @@ const effects: Record<string, WorkWorldEffect> = {
         title: 'Khách đặt trước đến nhưng món đã hết',
         description:
           'Sản phẩm cuối cùng đã được bán tại quầy nên đơn nhận tại cửa hàng không còn đủ hàng khi khách đến.',
-        employeeRatingDelta: -0.18,
-        storeReputationDelta: -0.3,
-        customerSatisfactionDelta: -0.18,
+        employeeRatingDelta: 0,
+        storeReputationDelta: 0,
+        customerSatisfactionDelta: 0,
         clearFlags: ['inventory-pressure', 'complaint-risk'],
+        storyDecision: {
+          prompt:
+            'Khách đặt trước đã tới nhận hàng nhưng sản phẩm cuối cùng đã bị bán. Em phải xử lý tiếp thế nào?',
+          choices: [
+            {
+              id: 'find-equivalent-and-compensate',
+              label: 'Tìm sản phẩm tương đương, giải thích và xin quản lý hỗ trợ phần chênh lệch hợp lý.',
+              employeeRatingDelta: 0.04,
+              storeReputationDelta: 0.02,
+              customerSatisfactionDelta: 0.08,
+              feedback:
+                'Không thể hoàn tác việc bán món đã giữ, nhưng cửa hàng chủ động tìm phương án thay thế và chịu trách nhiệm cho sai sót.',
+              clearFlags: ['inventory-pressure', 'complaint-risk'],
+            },
+            {
+              id: 'offer-later-pickup',
+              label: 'Xin lỗi và hẹn khách nhận ngay khi lô mới về.',
+              employeeRatingDelta: -0.02,
+              storeReputationDelta: -0.06,
+              customerSatisfactionDelta: -0.04,
+              feedback:
+                'Khách vẫn phải chờ thêm nhưng nhận được một cam kết rõ ràng thay vì bị từ chối.',
+              clearFlags: ['complaint-risk'],
+              setFlags: ['inventory-pressure'],
+            },
+            {
+              id: 'cancel-reservation',
+              label: 'Hủy đơn giữ hàng và đề nghị khách tự chọn sản phẩm khác.',
+              employeeRatingDelta: -0.18,
+              storeReputationDelta: -0.28,
+              customerSatisfactionDelta: -0.24,
+              feedback:
+                'Cửa hàng chuyển phần lớn hậu quả của lỗi tồn kho sang khách đặt trước, làm uy tín giảm mạnh.',
+              setFlags: ['complaint-risk'],
+            },
+          ],
+        },
       },
     ],
   },
@@ -469,10 +578,47 @@ const effects: Record<string, WorkWorldEffect> = {
         title: 'Khách kiểm tra lại giá sản phẩm',
         description:
           'Giá được ước đoán tại quầy khác với giá hệ thống, khiến khách quay lại yêu cầu kiểm tra hóa đơn.',
-        employeeRatingDelta: -0.16,
-        storeReputationDelta: -0.22,
-        customerSatisfactionDelta: -0.18,
+        employeeRatingDelta: 0,
+        storeReputationDelta: 0,
+        customerSatisfactionDelta: 0,
         clearFlags: ['pricing-mismatch', 'billing-dispute'],
+        storyDecision: {
+          prompt:
+            'Khách quay lại vì giá trên hóa đơn không khớp giá hệ thống vừa kiểm tra. Em sẽ xử lý tiếp thế nào?',
+          choices: [
+            {
+              id: 'verify-correct-and-refund',
+              label: 'Xác minh giá đúng, hoàn phần chênh lệch và báo lại lỗi nhãn giá.',
+              employeeRatingDelta: 0.06,
+              storeReputationDelta: 0.04,
+              customerSatisfactionDelta: 0.1,
+              feedback:
+                'Khách được trả đúng phần chênh lệch và nguyên nhân trên kệ cũng được đưa vào xử lý.',
+              clearFlags: ['pricing-mismatch', 'billing-dispute'],
+            },
+            {
+              id: 'refund-difference-only',
+              label: 'Chỉ hoàn phần chênh lệch cho khách rồi tiếp tục phục vụ.',
+              employeeRatingDelta: 0,
+              storeReputationDelta: -0.04,
+              customerSatisfactionDelta: 0.06,
+              feedback:
+                'Giao dịch của khách được sửa nhưng vấn đề thiếu nhãn hoặc sai dữ liệu trên kệ có thể còn lặp lại.',
+              clearFlags: ['billing-dispute'],
+              setFlags: ['pricing-mismatch'],
+            },
+            {
+              id: 'defend-estimated-price',
+              label: 'Giữ nguyên giá đã tính vì khách đã đồng ý thanh toán.',
+              employeeRatingDelta: -0.16,
+              storeReputationDelta: -0.24,
+              customerSatisfactionDelta: -0.22,
+              feedback:
+                'Việc dựa vào giá ước đoán thay vì giá đã xác minh khiến tranh chấp tiếp tục và làm giảm niềm tin.',
+              setFlags: ['pricing-mismatch', 'billing-dispute'],
+            },
+          ],
+        },
       },
     ],
   },
