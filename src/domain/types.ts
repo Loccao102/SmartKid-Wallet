@@ -215,12 +215,25 @@ export interface WorkCustomerDefinition {
 
 export type WorkGuidanceLevel = 'guided' | 'light' | 'implicit'
 
+export type WorkManagerProtection = 'operations' | 'inventory' | 'service'
+
+export interface WorkManagerPlanDefinition {
+  id: string
+  title: string
+  description: string
+  protection: WorkManagerProtection
+  employeeRatingDelta: number
+  storeReputationDelta: number
+  customerSatisfactionDelta: number
+}
+
 export interface WorkShiftDefinition {
   id: string
   title: string
   subtitle: string
   roleTitle: string
   guidanceLevel?: WorkGuidanceLevel
+  managerMode?: boolean
   customers: WorkCustomerDefinition[]
   startingEmployeeRating: number
   startingStoreReputation: number
@@ -234,6 +247,7 @@ export interface WorkShiftTemplateDefinition {
   subtitle: string
   roleTitle: string
   guidanceLevel: WorkGuidanceLevel
+  managerMode?: boolean
   customerCount: number
   scenarioCount: number
   minScenarioDifficulty: 1 | 2 | 3
@@ -333,6 +347,8 @@ export interface WorkWorldState {
   pendingFollowUps: WorkPendingFollowUp[]
   resolvedFollowUps: WorkResolvedFollowUp[]
   lastFollowUpResolvedAtServedCustomers?: number
+  managerProtections: WorkManagerProtection[]
+  consumedManagerProtections: WorkManagerProtection[]
 }
 
 export interface WorkShiftMetrics {
@@ -356,6 +372,7 @@ export interface WorkShiftProgress {
   shiftId: string
   customerIndex: number
   activeFollowUpInstanceId?: string
+  managerPlanId?: string
   customerProgress: Record<string, WorkShiftCustomerProgress>
   metrics: WorkShiftMetrics
   worldState: WorkWorldState

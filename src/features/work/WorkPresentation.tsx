@@ -1,15 +1,78 @@
 import { lazy, Suspense, useState } from 'react'
-import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleAlert, Coins, ReceiptText, RotateCcw, Star, Store, Users, Wallet, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BadgeCheck, Boxes, Check, CircleAlert, Coins, ReceiptText, RotateCcw, ShieldCheck, Star, Store, Users, Wallet, X } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
+import { getWorkManagerPlan, workManagerPlans } from '../../data/workManagerPlans'
 import { getWorkScenario } from '../../data/workShift'
 import { scoreWorkShift } from '../../domain/scoring'
-import type { WorkPendingFollowUp, WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress, WorkStoryFollowUpChoice } from '../../domain/types'
+import type { WorkManagerPlanDefinition, WorkPendingFollowUp, WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress, WorkStoryFollowUpChoice } from '../../domain/types'
 import { money } from '../smartmart/ShoppingProducts'
 
 const WorkModeGame = lazy(() => import('../../game/WorkModeGame'))
 
 function SimulationMetrics({ progress }: { progress: WorkShiftProgress }) {
   return <div className="simulation-metrics"><div><Star size={22} /><span>Đánh giá nhân viên<strong>{progress.metrics.employeeRating.toFixed(1)}/5</strong></span></div><div><Store size={22} /><span>Uy tín cửa hàng<strong>{progress.metrics.storeReputation.toFixed(1)}/5</strong></span></div><div><Users size={22} /><span>Hài lòng khách<strong>{progress.metrics.customerSatisfaction.toFixed(1)}/5</strong></span></div><div><Wallet size={22} /><span>Doanh thu<strong>{money.format(progress.metrics.revenue)}đ</strong></span></div></div>
+}
+
+export function ManagerPlanScreen({
+  shift,
+  onBack,
+  onSelectPlan,
+}: {
+  shift: WorkShiftDefinition
+  onBack: () => void
+  onSelectPlan: (plan: WorkManagerPlanDefinition) => void
+}) {
+  return (
+    <section className="manager-plan-screen">
+      <button type="button" className="quiet-button" onClick={onBack}>
+        <ArrowLeft size={18} />
+        Nhiệm vụ
+      </button>
+      <header className="manager-plan-heading">
+        <div>
+          <p className="eyebrow">SHIFT MANAGER · LẬP KẾ HOẠCH TRƯỚC CA</p>
+          <h1>{shift.title}</h1>
+          <p>
+            Em chỉ có đủ nguồn lực để ưu tiên một khu vực. Kế hoạch đã chọn sẽ
+            giúp chặn một sự cố tương ứng trong ca, sau đó nguồn lực đó sẽ được
+            xem là đã sử dụng.
+          </p>
+        </div>
+        <ShieldCheck size={54} aria-hidden="true" />
+      </header>
+      <div className="manager-plan-grid">
+        {workManagerPlans.map((plan) => (
+          <button
+            key={plan.id}
+            type="button"
+            className="manager-plan-card"
+            onClick={() => onSelectPlan(plan)}
+          >
+            <span className="manager-plan-icon" aria-hidden="true">
+              {plan.protection === 'inventory' ? (
+                <Boxes size={30} />
+              ) : plan.protection === 'service' ? (
+                <Users size={30} />
+              ) : (
+                <ReceiptText size={30} />
+              )}
+            </span>
+            <strong>{plan.title}</strong>
+            <p>{plan.description}</p>
+            <small>Một lớp bảo vệ · chỉ dùng được 1 lần trong ca</small>
+            <span className="manager-plan-action">
+              Chọn kế hoạch
+              <ArrowRight size={18} />
+            </span>
+          </button>
+        ))}
+      </div>
+      <p className="manager-plan-footnote">
+        Không có kế hoạch hoàn hảo cho mọi tình huống. Mục tiêu là dự đoán rủi
+        ro nào đáng ưu tiên trong ca đông khách.
+      </p>
+    </section>
+  )
 }
 
 export function WorkResult({ shift, progress, onBack, onReplay }: { shift: WorkShiftDefinition; progress: WorkShiftProgress; onBack: () => void; onReplay: () => void }) {
@@ -20,11 +83,15 @@ export function WorkResult({ shift, progress, onBack, onReplay }: { shift: WorkS
   const scenarios = shift.customers.filter(customer => customer.scenarioId)
   const handled = scenarios.filter(customer => progress.customerProgress[customer.id]?.scenarioChoiceId).length
   const hiddenScore = scoreWorkShift(shift, progress, (id) => getWorkScenario(id))
+  const managerPlan = progress.managerPlanId
+    ? getWorkManagerPlan(progress.managerPlanId)
+    : null
   const elapsedMs = Math.max(0, (progress.completedAtEpochMs ?? Date.now()) - (progress.startedAtEpochMs ?? Date.now()))
   return <section className="work-result-production"><button type="button" className="quiet-button" onClick={onBack}><ArrowLeft size={18} />Nhiệm vụ của em</button><header><img src={gameAssets.production.employee} alt="Nhân viên SmartMart" /><div><p className="eyebrow">MỘT CA LÀM, THÊM NHIỀU TRẢI NGHIỆM</p><h1>Hoàn thành ca làm!</h1><p>{shift.title} · {progress.metrics.servedCustomers}/{shift.customers.length} khách đã phục vụ</p></div><BadgeCheck size={58} aria-hidden="true" /></header>
     <section className="work-mastery-result"><div className="run-stars" aria-label={hiddenScore.stars + ' trên 5 sao'}>{Array.from({length:5},(_,index)=><Star key={index} size={31} className={index < hiddenScore.stars ? 'is-earned' : ''} />)}</div><strong>{hiddenScore.stars === 5 ? 'Ca làm 5 sao!' : 'Kỷ lục của lượt này: ' + hiddenScore.stars + '/5 sao'}</strong><span>{Math.floor(elapsedMs / 60000)} phút {Math.floor((elapsedMs % 60000) / 1000)} giây</span></section>
     <section className="work-learning-results" aria-labelledby="work-learning-title"><h2 id="work-learning-title">Kết quả học tập và làm việc</h2><div className="learning-result-grid"><div><ReceiptText size={26} /><strong>{solved}/{shift.customers.length * 2}</strong><span>Phép tính hoàn thành</span><small>{firstTry} đúng ngay lần đầu · {attempts} lượt thử</small></div><div><Check size={26} /><strong>{handled}/{scenarios.length}</strong><span>Tình huống đã xử lý</span><small>Mỗi lựa chọn mang lại một kết quả riêng.</small></div><div><CircleAlert size={26} /><strong>{progress.worldState.resolvedConsequences.length}</strong><span>Hệ quả đã xảy ra</span><small>{progress.worldState.resolvedFollowUps.length} lần em đã xử lý tiếp câu chuyện.</small></div></div></section>
     <section className="run-score-breakdown" aria-label="Các yếu tố tạo nên số sao"><span>Chính xác<strong>{Math.round(hiddenScore.accuracy)}/30</strong></span><span>Thời gian<strong>{Math.round(hiddenScore.time)}/20</strong></span><span>Vận hành<strong>{Math.round(hiddenScore.resources)}/20</strong></span><span>Quyết định<strong>{Math.round(hiddenScore.decisions)}/20</strong></span><span>Mục tiêu<strong>{Math.round(hiddenScore.objectives)}/10</strong></span></section>
+    {managerPlan ? <section className="manager-plan-result"><p className="eyebrow">KẾ HOẠCH ĐẦU CA</p><h2>{managerPlan.title}</h2><p>{managerPlan.description}</p><strong>{progress.worldState.consumedManagerProtections.includes(managerPlan.protection) ? 'Nguồn lực đã được sử dụng để chặn một sự cố trong ca.' : 'Nguồn lực dự phòng không phải dùng đến trong ca này.'}</strong></section> : null}
     <section className="simulation-result-section" aria-labelledby="simulation-title"><h2 id="simulation-title">Trạng thái mô phỏng</h2><p>Các chỉ số dưới đây phản ánh cửa hàng và khách hàng, <strong>không phải điểm học tập</strong>.</p><SimulationMetrics progress={progress} /></section>
     <section className="decision-reflection"><h2>Nhìn lại lựa chọn sau khi kết ca</h2>{scenarios.map(customer => { const scenario = customer.scenarioId ? getWorkScenario(customer.scenarioId) : null; const choiceId = progress.customerProgress[customer.id]?.scenarioChoiceId; const choice = scenario?.choices.find(item => item.id === choiceId); if (!scenario || !choice) return null; return <article key={customer.id}><strong>{scenario.title}</strong><p>{choice.feedback}</p></article> })}</section>
     {progress.worldState.resolvedFollowUps.length ? <section className="consequence-reflection"><h2>Những câu chuyện em đã xử lý tiếp</h2>{progress.worldState.resolvedFollowUps.map(item => <article key={item.instanceId}><CircleAlert size={20} /><div><h3>{item.title}</h3><p>{item.feedback}</p></div></article>)}</section> : null}

@@ -2,6 +2,7 @@ import {
   Check,
   LockKeyhole,
   Play,
+  ShieldCheck,
   ShoppingBasket,
   Star,
   Target,
@@ -11,7 +12,7 @@ import {
 import { missions } from '../../data/missions'
 import { stalls } from '../../data/stalls'
 import { traineeShift } from '../../data/workShift'
-import { advancedShift, expertShift } from '../../data/workShiftInstances'
+import { advancedShift, expertShift, managerShift } from '../../data/workShiftInstances'
 import { useProgressionStore } from '../../store/progression'
 import { useWorkShiftStore } from '../../store/workShift'
 
@@ -48,11 +49,15 @@ export function MissionsScreen({
   const expertCompleted = useWorkShiftStore(
     (state) => state.progressByShiftId[expertShift.id]?.completed ?? false,
   )
+  const managerCompleted = useWorkShiftStore(
+    (state) => state.progressByShiftId[managerShift.id]?.completed ?? false,
+  )
 
   const firstMissionCompleted = completedMissionIds.includes(missions[0].id)
   const workModeUnlocked = firstMissionCompleted
   const advancedUnlocked = traineeCompleted
   const expertUnlocked = advancedCompleted && level >= 6
+  const managerUnlocked = expertCompleted && level >= 8
 
   return (
     <section className="missions-screen">
@@ -364,6 +369,79 @@ export function MissionsScreen({
                 : level < 6
                   ? 'Cần Cấp 6'
                   : 'Hoàn thành Ca 02'}
+          </button>
+        </article>
+
+        <div className="journey-connector" aria-hidden="true">
+          <span />
+          <Check size={14} />
+          <span />
+        </div>
+
+        <article
+          className={
+            'journey-mission-card work-mode-card seeded-shift-card ' +
+            (managerUnlocked ? 'is-unlocked' : 'is-locked')
+          }
+        >
+          <div className="journey-step-number">W4</div>
+          <div className="journey-mission-icon" aria-hidden="true">
+            <ShieldCheck size={30} strokeWidth={1.8} />
+          </div>
+          <div className="journey-mission-copy">
+            <div className="journey-status-row">
+              <span>SHIFT MANAGER · ĐIỀU PHỐI NGUỒN LỰC · CẤP 8+</span>
+              <em
+                className={
+                  'journey-status ' +
+                  (managerCompleted
+                    ? 'complete'
+                    : managerUnlocked
+                      ? 'ready'
+                      : 'locked')
+                }
+              >
+                {managerCompleted ? (
+                  <Check size={12} />
+                ) : managerUnlocked ? (
+                  <Play size={11} fill="currentColor" />
+                ) : (
+                  <LockKeyhole size={12} />
+                )}
+                {managerCompleted
+                  ? 'Đã hoàn thành ca quản lý'
+                  : managerUnlocked
+                    ? 'Sẵn sàng điều phối'
+                    : level < 8
+                      ? 'Cần Cấp 8'
+                      : 'Hoàn thành Ca 03'}
+              </em>
+            </div>
+            <h2>{managerShift.title}</h2>
+            <p>
+              Trước khi mở ca, em phải chọn khu vực được ưu tiên nguồn lực.
+              Quyết định này có thể chặn một sự cố tương ứng nhưng chỉ dùng
+              được một lần trong cả ca.
+            </p>
+            <div className="journey-mission-meta">
+              <span>10 khách</span>
+              <span>6 tình huống</span>
+              <span>Planning + simulation</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="journey-action"
+            disabled={!managerUnlocked}
+            onClick={() => onOpenWorkMode(managerShift.id)}
+          >
+            {managerCompleted
+              ? 'Chơi lại với kế hoạch khác'
+              : managerUnlocked
+                ? 'Lập kế hoạch Ca 04'
+                : level < 8
+                  ? 'Cần Cấp 8'
+                  : 'Hoàn thành Ca 03'}
           </button>
         </article>
       </div>

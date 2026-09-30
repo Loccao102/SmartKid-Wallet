@@ -3,6 +3,7 @@ import { workScenarios } from '../data/workShift'
 import {
   advancedShiftTemplate,
   expertShiftTemplate,
+  managerShiftTemplate,
   scenarioCustomerBlueprints,
 } from '../data/workShiftTemplates'
 import { calculateEffectiveTotal } from './workShiftEngine'
@@ -308,6 +309,22 @@ describe('seeded work shift generator', () => {
     }
 
     expect(seenScenarioIds.size).toBeGreaterThanOrEqual(20)
+  })
+
+
+  it('creates a manager shift with planning enabled and six scenarios', () => {
+    const shift = generateWorkShiftInstance(
+      managerShiftTemplate,
+      'student-manager',
+      0,
+    )
+
+    expect(shift.managerMode).toBe(true)
+    expect(shift.customers).toHaveLength(10)
+    expect(
+      shift.customers.filter((customer) => customer.scenarioId),
+    ).toHaveLength(6)
+    expect(shift.guidanceLevel).toBe('implicit')
   })
 
 })
