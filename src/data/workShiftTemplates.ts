@@ -61,6 +61,25 @@ export const expertShiftTemplate: WorkShiftTemplateDefinition = {
   startingCustomerSatisfaction: 4,
 }
 
+export const managerShiftTemplate: WorkShiftTemplateDefinition = {
+  id: 'work-shift-manager-04',
+  version: 1,
+  title: 'Ca làm việc 04 · Điều phối SmartMart',
+  subtitle:
+    '10 khách, 6 tình huống và một quyết định phân bổ nguồn lực trước khi mở ca.',
+  roleTitle: 'Quản lý ca',
+  guidanceLevel: 'implicit',
+  managerMode: true,
+  customerCount: 10,
+  scenarioCount: 6,
+  minScenarioDifficulty: 2,
+  maxScenarioDifficulty: 3,
+  mathDifficulty: 3,
+  startingEmployeeRating: 4,
+  startingStoreReputation: 4,
+  startingCustomerSatisfaction: 4,
+}
+
 export const workCustomerNames = [
   'Cô Hương',
   'Chú Nam',
