@@ -34,6 +34,14 @@ export function createResearchSnapshot(
         ...item,
         clearFlags: item.clearFlags ? [...item.clearFlags] : undefined,
       })),
+      pendingFollowUps: progress.worldState.pendingFollowUps.map((item) => ({
+        ...item,
+        choices: item.choices.map((choice) => ({ ...choice })),
+      })),
+      resolvedFollowUps: progress.worldState.resolvedFollowUps.map((item) => ({
+        ...item,
+        choices: item.choices.map((choice) => ({ ...choice })),
+      })),
     },
   }
 }

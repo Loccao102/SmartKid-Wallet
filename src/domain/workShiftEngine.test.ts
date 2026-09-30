@@ -7,12 +7,14 @@ import {
 import {
   applyMathAttempt,
   applyScenarioChoice,
+  applyStoryFollowUpChoice,
   applyWorkWorldEffect,
   calculateBasketTotal,
   calculateChange,
   calculateEffectiveTotal,
   createInitialShiftMetrics,
   createInitialWorkWorldState,
+  getDueStoryFollowUp,
   resolveDueConsequences,
   settleCustomer,
 } from './workShiftEngine'
@@ -181,4 +183,87 @@ describe('work shift engine', () => {
       expect(() => getWorkScenario(customer.scenarioId!)).not.toThrow()
     }
   })
+
+  it('schedules an interactive follow-up from a risky scenario choice', () => {
+    const scenario = getWorkScenario('SCENARIO_NEAR_EXPIRY_YOGURT')
+    const choice = scenario.choices.find((item) => item.id === 'hide-expiry')!
+    const effect = getWorkWorldEffect(scenario.id, choice.id)!
+    const world = applyWorkWorldEffect(
+      createInitialWorkWorldState(),
+      effect,
+      1,
+      scenario.id,
+      choice.id,
+    )
+
+    expect(world.pendingFollowUps).toHaveLength(1)
+    expect(world.pendingFollowUps[0].sourceScenarioId).toBe(scenario.id)
+    expect(world.pendingFollowUps[0].sourceChoiceId).toBe(choice.id)
+    expect(getDueStoryFollowUp(world, 1)).toBeUndefined()
+    expect(getDueStoryFollowUp(world, 2)?.id).toBe(
+      'near-expiry-customer-returns',
+    )
+  })
+
+  it('resolves a story follow-up choice without settling revenue twice', () => {
+    const scenario = getWorkScenario('SCENARIO_NEAR_EXPIRY_YOGURT')
+    const choice = scenario.choices.find((item) => item.id === 'hide-expiry')!
+    const effect = getWorkWorldEffect(scenario.id, choice.id)!
+    const world = applyWorkWorldEffect(
+      createInitialWorkWorldState(),
+      effect,
+      1,
+      scenario.id,
+      choice.id,
+    )
+    const followUp = getDueStoryFollowUp(world, 2)!
+    const followUpChoice = followUp.choices.find(
+      (item) => item.id === 'apologize-and-replace',
+    )!
+    const initialMetrics = {
+      ...createInitialShiftMetrics(traineeShift),
+      revenue: 123000,
+      servedCustomers: 2,
+    }
+
+    const resolved = applyStoryFollowUpChoice(
+      initialMetrics,
+      world,
+      followUp,
+      followUpChoice,
+      2,
+    )
+
+    expect(resolved.metrics.revenue).toBe(123000)
+    expect(resolved.metrics.servedCustomers).toBe(2)
+    expect(resolved.worldState.pendingFollowUps).toHaveLength(0)
+    expect(resolved.worldState.resolvedFollowUps).toHaveLength(1)
+    expect(resolved.worldState.resolvedFollowUps[0].selectedChoiceId).toBe(
+      'apologize-and-replace',
+    )
+    expect(resolved.metrics.customerSatisfaction).toBeGreaterThan(
+      initialMetrics.customerSatisfaction,
+    )
+  })
+
+  it('forces remaining follow-ups to surface before the shift ends', () => {
+    const scenario = getWorkScenario('SCENARIO_LAST_ITEM_RESERVED')
+    const choice = scenario.choices.find(
+      (item) => item.id === 'sell-reserved-item',
+    )!
+    const effect = getWorkWorldEffect(scenario.id, choice.id)!
+    const world = applyWorkWorldEffect(
+      createInitialWorkWorldState(),
+      effect,
+      7,
+      scenario.id,
+      choice.id,
+    )
+
+    expect(getDueStoryFollowUp(world, 8, false)).toBeUndefined()
+    expect(getDueStoryFollowUp(world, 8, true)?.id).toBe(
+      'reserved-customer-arrives',
+    )
+  })
+
 })

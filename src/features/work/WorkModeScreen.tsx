@@ -31,17 +31,20 @@ import {
 import {
   applyMathAttempt,
   applyScenarioChoice,
+  applyStoryFollowUpChoice,
   applyWorkWorldEffect,
   calculateBasketTotal,
   calculateChange,
   calculateEffectiveTotal,
   createInitialWorkShiftProgress,
+  getDueStoryFollowUp,
   resolveDueConsequences,
   settleCustomer,
 } from '../../domain/workShiftEngine'
 import type {
   ResearchEvent,
   WorkScenarioChoice,
+  WorkStoryFollowUpChoice,
   WorkShiftDefinition,
   WorkShiftProgress,
   WorkWorldFlag,
@@ -162,6 +165,12 @@ export function WorkModeScreen({
     ? getWorkScenario(customer.scenarioId)
     : null
 
+  const activeFollowUp = progress.activeFollowUpInstanceId
+    ? progress.worldState.pendingFollowUps.find(
+        (item) => item.instanceId === progress.activeFollowUpInstanceId,
+      )
+    : undefined
+
   const selectedChoice = useMemo(() => {
     if (!scenario || !customerProgress?.scenarioChoiceId) return undefined
 
@@ -170,8 +179,10 @@ export function WorkModeScreen({
     )
   }, [scenario, customerProgress?.scenarioChoiceId])
 
-  const stage = !customerProgress
-    ? 'total'
+  const stage = activeFollowUp
+    ? 'follow-up'
+    : !customerProgress
+      ? 'total'
     : !customerProgress.totalSolved
       ? 'total'
       : scenario && !customerProgress.scenarioChoiceId
@@ -412,6 +423,8 @@ export function WorkModeScreen({
         progress.worldState,
         worldEffect,
         progress.metrics.servedCustomers,
+        scenario.id,
+        choice.id,
       ),
     }
 
@@ -443,6 +456,47 @@ export function WorkModeScreen({
     setFeedback('idle')
   }
 
+  const finalizeShift = (nextProgress: WorkShiftProgress) => {
+    const hiddenScore = scoreWorkShift(
+      shift,
+      nextProgress,
+      (scenarioId) => getWorkScenario(scenarioId),
+    )
+    recordActivityResult(
+      'work:' + shift.id,
+      hiddenScore.stars,
+      hiddenScore.total,
+      Math.max(
+        0,
+        (nextProgress.completedAtEpochMs ?? Date.now()) -
+          (nextProgress.startedAtEpochMs ?? Date.now()),
+      ),
+    )
+    const xpResult = awardXpOnce('work:' + shift.id, 90)
+    if (xpResult?.levelsGained) playGameSfx('level-up')
+    else if (xpResult) playGameSfx('xp')
+    playGameSfx('mission-complete')
+
+    logResearchEvent({
+      eventType: 'shift_completed',
+      customerId: customer.id,
+      customerIndex: progress.customerIndex,
+      before: createResearchSnapshot(progress),
+      after: createResearchSnapshot(nextProgress),
+      metadata: {
+        servedCustomers: nextProgress.metrics.servedCustomers,
+        mathMistakes: nextProgress.metrics.mathMistakes,
+        resolvedConsequences:
+          nextProgress.worldState.resolvedConsequences.length,
+        resolvedStoryFollowUps:
+          nextProgress.worldState.resolvedFollowUps.length,
+      },
+    })
+
+    endShiftSession(shift.id)
+    sessionIdRef.current = null
+  }
+
   const continueCustomer = () => {
     const settledMetrics = settleCustomer(
       progress.metrics,
@@ -456,15 +510,22 @@ export function WorkModeScreen({
       settledMetrics.servedCustomers,
       isLast,
     )
+    const dueFollowUp = getDueStoryFollowUp(
+      resolved.worldState,
+      settledMetrics.servedCustomers,
+      isLast,
+    )
+    const completed = isLast && !dueFollowUp
     const nextProgress: WorkShiftProgress = {
       ...progress,
       metrics: resolved.metrics,
       worldState: resolved.worldState,
+      activeFollowUpInstanceId: dueFollowUp?.instanceId,
       customerIndex: isLast
         ? progress.customerIndex
         : progress.customerIndex + 1,
-      completedAtEpochMs: isLast ? Date.now() : progress.completedAtEpochMs,
-      completed: isLast,
+      completedAtEpochMs: completed ? Date.now() : progress.completedAtEpochMs,
+      completed,
     }
 
     setProgress(shift.id, nextProgress)
@@ -484,6 +545,7 @@ export function WorkModeScreen({
         cashGiven: customer.cashGiven,
         changeGiven: expectedChange,
         consequencesResolved: resolved.newlyResolved.length,
+        storyFollowUpTriggered: dueFollowUp?.id ?? null,
       },
     })
 
@@ -505,47 +567,58 @@ export function WorkModeScreen({
       })
     }
 
-    if (isLast) {
-      const hiddenScore = scoreWorkShift(
-        shift,
-        nextProgress,
-        (scenarioId) => getWorkScenario(scenarioId),
-      )
-      recordActivityResult(
-        'work:' + shift.id,
-        hiddenScore.stars,
-        hiddenScore.total,
-        Math.max(
-          0,
-          (nextProgress.completedAtEpochMs ?? Date.now()) -
-            (nextProgress.startedAtEpochMs ?? Date.now()),
-        ),
-      )
-      const xpResult = awardXpOnce('work:' + shift.id, 90)
-      if (xpResult?.levelsGained) playGameSfx('level-up')
-      else if (xpResult) playGameSfx('xp')
-      playGameSfx('mission-complete')
-
-      logResearchEvent({
-        eventType: 'shift_completed',
-        customerId: customer.id,
-        customerIndex: progress.customerIndex,
-        before: createResearchSnapshot(progress),
-        after: createResearchSnapshot(nextProgress),
-        metadata: {
-          servedCustomers: nextProgress.metrics.servedCustomers,
-          mathMistakes: nextProgress.metrics.mathMistakes,
-          resolvedConsequences:
-            nextProgress.worldState.resolvedConsequences.length,
-        },
-      })
-
-      endShiftSession(shift.id)
-      sessionIdRef.current = null
-    }
+    if (completed) finalizeShift(nextProgress)
 
     setAnswer('')
     setFeedback('idle')
+  }
+
+  const chooseStoryFollowUp = (choice: WorkStoryFollowUpChoice) => {
+    if (!activeFollowUp) return
+
+    const resolved = applyStoryFollowUpChoice(
+      progress.metrics,
+      progress.worldState,
+      activeFollowUp,
+      choice,
+      progress.metrics.servedCustomers,
+    )
+    const isLast = progress.customerIndex >= shift.customers.length - 1
+    const nextDue = getDueStoryFollowUp(
+      resolved.worldState,
+      progress.metrics.servedCustomers,
+      isLast,
+    )
+    const completed = isLast && !nextDue
+    const nextProgress: WorkShiftProgress = {
+      ...progress,
+      metrics: resolved.metrics,
+      worldState: resolved.worldState,
+      activeFollowUpInstanceId: nextDue?.instanceId,
+      completedAtEpochMs: completed ? Date.now() : progress.completedAtEpochMs,
+      completed,
+    }
+
+    setProgress(shift.id, nextProgress)
+    playGameSfx('click')
+
+    logResearchEvent({
+      eventType: 'scenario_choice',
+      customerId: customer.id,
+      customerIndex: progress.customerIndex,
+      scenarioId: activeFollowUp.sourceScenarioId,
+      choiceId: choice.id,
+      before: createResearchSnapshot(progress),
+      after: createResearchSnapshot(nextProgress),
+      metadata: {
+        phase: 'story-follow-up',
+        storyFollowUpId: activeFollowUp.id,
+        storyFollowUpInstanceId: activeFollowUp.instanceId,
+        sourceChoiceId: activeFollowUp.sourceChoiceId,
+      },
+    })
+
+    if (completed) finalizeShift(nextProgress)
   }
 
   const wrongAttempts =
@@ -553,5 +626,5 @@ export function WorkModeScreen({
       ? customerProgress.changeAttempts
       : customerProgress.totalAttempts
 
-  return <WorkCounter shift={shift} progress={progress} stage={stage} answer={answer} feedback={feedback} selectedChoice={selectedChoice} baseTotal={baseTotal} effectiveTotal={effectiveTotal} expectedChange={expectedChange} coins={coins} retryPrice={retryCost(wrongAttempts)} onAnswer={(value) => { setAnswer(value); if (feedback !== 'wrong') setFeedback('idle') }} onSubmit={submitNumeric} onRetry={retryNumeric} onChoice={chooseScenario} onContinue={continueCustomer} onBack={onBack} />
+  return <WorkCounter shift={shift} progress={progress} stage={stage} activeFollowUp={activeFollowUp} answer={answer} feedback={feedback} selectedChoice={selectedChoice} baseTotal={baseTotal} effectiveTotal={effectiveTotal} expectedChange={expectedChange} coins={coins} retryPrice={retryCost(wrongAttempts)} onAnswer={(value) => { setAnswer(value); if (feedback !== 'wrong') setFeedback('idle') }} onSubmit={submitNumeric} onRetry={retryNumeric} onChoice={chooseScenario} onFollowUpChoice={chooseStoryFollowUp} onContinue={continueCustomer} onBack={onBack} />
 }

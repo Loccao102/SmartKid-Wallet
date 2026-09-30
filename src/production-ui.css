@@ -2742,3 +2742,25 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* === Work mode story follow-up === */
+.story-followup-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 12px 0 16px;
+  padding: 13px 14px;
+  border: 1px solid #e5c56b;
+  border-radius: 14px;
+  background: #fff5ca;
+  color: #675420;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.story-followup-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #a9781c;
+}
