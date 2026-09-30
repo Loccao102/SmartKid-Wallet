@@ -36,6 +36,7 @@ const effects: Record<string, WorkWorldEffect> = {
     followUps: [
       {
         id: 'near-expiry-customer-returns',
+        priority: 2,
         delayCustomers: 1,
         title: 'Khách quay lại với lốc sữa chua',
         description:
@@ -458,6 +459,7 @@ const effects: Record<string, WorkWorldEffect> = {
     followUps: [
       {
         id: 'reserved-customer-arrives',
+        priority: 3,
         delayCustomers: 2,
         title: 'Khách đặt trước đã đến nhận hàng',
         description:
@@ -554,6 +556,7 @@ const effects: Record<string, WorkWorldEffect> = {
     followUps: [
       {
         id: 'price-dispute-at-counter',
+        priority: 3,
         delayCustomers: 1,
         title: 'Khách mang hóa đơn quay lại',
         description:
@@ -632,6 +635,7 @@ const effects: Record<string, WorkWorldEffect> = {
     followUps: [
       {
         id: 'bulk-promo-customer-reconsiders',
+        priority: 1,
         delayCustomers: 1,
         title: 'Khách quay lại hỏi về combo',
         description:
@@ -694,6 +698,7 @@ const effects: Record<string, WorkWorldEffect> = {
     followUps: [
       {
         id: 'bread-customer-returns',
+        priority: 2,
         delayCustomers: 1,
         title: 'Khách quay lại với bánh mì cuối ngày',
         description:
