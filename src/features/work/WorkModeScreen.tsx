@@ -255,6 +255,7 @@ export function WorkModeScreen({
               typeof shift.generationAttempt === 'number'
                 ? shift.generationAttempt
                 : null,
+            guidanceLevel: shift.guidanceLevel ?? 'guided',
           },
         }),
       )
