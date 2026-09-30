@@ -198,4 +198,5 @@ Không gán skill không liên quan vào stall.
 - World/modes/missions: docs/WORLD_MODES_MISSIONS.md
 - Audio: docs/AUDIO_SYSTEM.md
 - SmartMart depth: docs/SMARTMART_DEPTH.md
+- Character/avatar system: docs/CHARACTER_SYSTEM.md
 - Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
