@@ -44,7 +44,7 @@ export const worldMaps: WorldMapDefinition[] = [
     name: 'Chợ cuối tuần',
     shortName: 'Chợ cuối tuần',
     description: 'Khám phá mua bán truyền thống, mặc cả và quản lý ngân sách.',
-    status: 'locked',
+    status: 'available',
     unlockLevel: 12,
     prerequisiteMapId: 'happy-restaurant',
     unlockHint: 'Đạt Cấp 12 và hoàn thành chương Nhà hàng vui vẻ.',
