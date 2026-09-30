@@ -5,37 +5,10 @@ const effects: Record<string, WorkWorldEffect> = {
     clearFlags: ['complaint-risk'],
   },
   'SCENARIO_DAMAGED_DRINK:sell-as-normal': {
-    setFlags: ['complaint-risk'],
-    deferredConsequences: [
-      {
-        id: 'damaged-item-complaint',
-        trigger: 'after-customers',
-        delayCustomers: 1,
-        title: 'Khách quay lại khiếu nại hàng bị móp',
-        description:
-          'Khách trước quay lại sau khi phát hiện hộp nước bị móp. Quầy phải dừng lại để đổi hàng và xử lý khiếu nại.',
-        employeeRatingDelta: -0.15,
-        storeReputationDelta: -0.25,
-        customerSatisfactionDelta: -0.1,
-        clearFlags: ['complaint-risk'],
-      },
-    ],
+    clearFlags: ['complaint-risk'],
   },
   'SCENARIO_DAMAGED_DRINK:silent-discount': {
-    setFlags: ['cash-discrepancy'],
-    deferredConsequences: [
-      {
-        id: 'silent-discount-reconciliation',
-        trigger: 'shift-end',
-        title: 'Đối soát phát hiện khoản giảm giá không có lý do',
-        description:
-          'Cuối ca, hệ thống đối soát phát hiện một giao dịch bị giảm giá nhưng không có ghi chú giải thích.',
-        employeeRatingDelta: -0.1,
-        storeReputationDelta: -0.1,
-        customerSatisfactionDelta: 0,
-        clearFlags: ['cash-discrepancy'],
-      },
-    ],
+    clearFlags: ['complaint-risk', 'cash-discrepancy'],
   },
 
   'SCENARIO_NEAR_EXPIRY_YOGURT:inform-and-offer-choice': {
@@ -107,21 +80,7 @@ const effects: Record<string, WorkWorldEffect> = {
     ],
   },
   'SCENARIO_DUPLICATE_SCAN:refund-later': {
-    setFlags: ['billing-dispute'],
-    deferredConsequences: [
-      {
-        id: 'delayed-refund-queue',
-        trigger: 'after-customers',
-        delayCustomers: 1,
-        title: 'Quầy bị gián đoạn để hoàn tiền',
-        description:
-          'Khách quay lại yêu cầu hoàn tiền cho dòng bị quét trùng, khiến hàng chờ tại quầy chậm lại.',
-        employeeRatingDelta: -0.1,
-        storeReputationDelta: -0.1,
-        customerSatisfactionDelta: -0.15,
-        clearFlags: ['billing-dispute'],
-      },
-    ],
+    clearFlags: ['billing-dispute'],
   },
 
   'SCENARIO_LOW_STOCK_SUBSTITUTE:offer-substitute': {
@@ -171,30 +130,18 @@ const effects: Record<string, WorkWorldEffect> = {
     ],
   },
   'SCENARIO_LOW_STOCK_SUBSTITUTE:charge-original': {
-    setFlags: ['inventory-pressure', 'pricing-mismatch'],
+    setFlags: ['inventory-pressure'],
     deferredConsequences: [
       {
-        id: 'substitute-price-dispute',
+        id: 'stock-check-delay',
         trigger: 'after-customers',
         delayCustomers: 1,
-        title: 'Khách phản hồi vì giá sản phẩm thay thế',
+        title: 'Kiểm tra kho làm quầy chậm hơn một chút',
         description:
-          'Khách nhận ra sản phẩm thay thế rẻ hơn nhưng vẫn bị tính theo giá cũ và yêu cầu kiểm tra lại hóa đơn.',
-        employeeRatingDelta: -0.2,
-        storeReputationDelta: -0.2,
-        customerSatisfactionDelta: -0.2,
-        clearFlags: ['pricing-mismatch'],
-      },
-      {
-        id: 'stock-pressure-after-charge',
-        trigger: 'after-customers',
-        delayCustomers: 2,
-        title: 'Tồn kho tiếp tục thiếu',
-        description:
-          'Sản phẩm cũ vẫn chưa được bổ sung, khiến một khách sau phải thay đổi lựa chọn.',
+          'Việc tìm đúng sản phẩm giúp khách có thêm cơ hội mua món họ cần, nhưng hàng chờ phải đợi trong lúc nhân viên kiểm tra kho.',
         employeeRatingDelta: 0,
-        storeReputationDelta: -0.05,
-        customerSatisfactionDelta: -0.1,
+        storeReputationDelta: 0.02,
+        customerSatisfactionDelta: -0.04,
         clearFlags: ['inventory-pressure'],
       },
     ],
@@ -220,21 +167,7 @@ const effects: Record<string, WorkWorldEffect> = {
     ],
   },
   'SCENARIO_EXTRA_CASH:wait-until-customer-notices': {
-    setFlags: ['cash-discrepancy'],
-    deferredConsequences: [
-      {
-        id: 'customer-returns-for-extra-cash',
-        trigger: 'after-customers',
-        delayCustomers: 1,
-        title: 'Khách quay lại hỏi về tiền đưa dư',
-        description:
-          'Khách kiểm tra lại ví và quay lại quầy hỏi về tờ tiền đã đưa dư trong giao dịch trước.',
-        employeeRatingDelta: -0.15,
-        storeReputationDelta: -0.1,
-        customerSatisfactionDelta: -0.2,
-        clearFlags: ['cash-discrepancy'],
-      },
-    ],
+    clearFlags: ['cash-discrepancy'],
   },
 
   'SCENARIO_PROMO_SIGN_MISSING:honor-visible-promo': {
