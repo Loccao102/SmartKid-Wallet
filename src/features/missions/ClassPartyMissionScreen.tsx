@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleAlert, LockKeyhole, ShoppingBasket, Trash2, Users, Wallet, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleAlert, LockKeyhole, ShoppingBasket, Star, Trash2, Users, Wallet, X } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
-import { firstMission } from '../../data/missions'
+import { firstMission, getMissionById } from '../../data/missions'
 import { getProductsByStall, products } from '../../data/products'
 import { stalls } from '../../data/stalls'
 import { evaluateMission } from '../../domain/missionEngine'
+import { scoreShoppingMission, type HiddenScoreBreakdown } from '../../domain/scoring'
+import { playGameSfx } from '../../lib/audioEngine'
 import type { CartLine, ProductStallId } from '../../domain/types'
 import { useMissionCartStore } from '../../store/missionCart'
 import { useProgressionStore } from '../../store/progression'
@@ -14,13 +16,16 @@ import { money, ProductImage, QuantityControl, shopLabels, ShoppingProduct } fro
 const EMPTY_CART: CartLine[] = []
 const shoppingStalls: ProductStallId[] = ['produce', 'food', 'drinks', 'supplies']
 
-export function ClassPartyMissionScreen({ onBack, initialStall = 'produce', onWork }: { onBack: () => void; initialStall?: ProductStallId; onWork: () => void }) {
-  const mission = firstMission
+export function ClassPartyMissionScreen({ missionId = firstMission.id, onBack, initialStall = 'produce', onWork }: { missionId?: string; onBack: () => void; initialStall?: ProductStallId; onWork: () => void }) {
+  const mission = getMissionById(missionId)
   const [activeStall, setActiveStall] = useState<ProductStallId>(initialStall)
   const [checkoutAttempted, setCheckoutAttempted] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
   const [clearOpen, setClearOpen] = useState(false)
   const [notice, setNotice] = useState('')
+  const [checkoutAttempts, setCheckoutAttempts] = useState(0)
+  const [runResult, setRunResult] = useState<HiddenScoreBreakdown | null>(null)
+  const runStartedAtRef = useRef(Date.now())
   const feedbackRef = useRef<HTMLDivElement>(null)
   const tabsRef = useRef<HTMLDivElement>(null)
   const carts = useMissionCartStore(state => state.carts)
@@ -29,13 +34,22 @@ export function ClassPartyMissionScreen({ onBack, initialStall = 'produce', onWo
   const removeItem = useMissionCartStore(state => state.removeItem)
   const clearCart = useMissionCartStore(state => state.clearCart)
   const completeMission = useProgressionStore(state => state.completeMission)
-  const completed = useProgressionStore(state => state.completedMissionIds.includes(mission.id))
+  const awardXpOnce = useProgressionStore(state => state.awardXpOnce)
+  const recordActivityResult = useProgressionStore(state => state.recordActivityResult)
+  const claimChallengeReward = useProgressionStore(state => state.claimChallengeReward)
+  const level = useProgressionStore(state => state.level)
+  const completedMissionIds = useProgressionStore(state => state.completedMissionIds)
+  const completed = completedMissionIds.includes(mission.id)
   const unlocked = useProgressionStore(state => state.unlockedStalls)
   const evaluation = useMemo(() => evaluateMission(mission, products, cart), [cart, mission])
   const quantityById = new Map(cart.map(line => [line.productId, line.quantity]))
   const count = cart.reduce((total, line) => total + line.quantity, 0)
-  const showResult = checkoutAttempted && evaluation.success
-  const ready = stalls.every(stall => unlocked.includes(stall.id))
+  const showResult = Boolean(runResult)
+  const prerequisiteReady = !mission.prerequisiteMissionId || completedMissionIds.includes(mission.prerequisiteMissionId)
+  const requiredStallsReady = mission.id === firstMission.id
+    ? stalls.every(stall => unlocked.includes(stall.id))
+    : mission.requiredStalls.every(stallId => unlocked.includes(stallId))
+  const ready = level >= mission.unlockLevel && prerequisiteReady && requiredStallsReady
 
   const changeQuantity = (id: string, add: boolean) => {
     const product = products.find(item => item.id === id)!
@@ -45,14 +59,60 @@ export function ClassPartyMissionScreen({ onBack, initialStall = 'produce', onWo
     setNotice(`${add ? 'Đã thêm' : 'Đã bớt'} ${product.name.toLowerCase()}.`)
   }
   const checkout = () => {
+    const nextAttempts = checkoutAttempts + 1
+    setCheckoutAttempts(nextAttempts)
     setCheckoutAttempted(true)
-    if (evaluation.success) { completeMission(mission.id); setCartOpen(false) }
-    else requestAnimationFrame(() => feedbackRef.current?.focus())
+
+    if (evaluation.success) {
+      const elapsedMs = Date.now() - runStartedAtRef.current
+      const result = scoreShoppingMission(
+        mission,
+        evaluation,
+        nextAttempts,
+        elapsedMs,
+      )
+      setRunResult(result)
+      completeMission(mission.id)
+      awardXpOnce(
+        `mission:${mission.id}:v${mission.version}`,
+        mission.xpReward,
+      )
+      recordActivityResult(
+        `mission:${mission.id}:v${mission.version}`,
+        result.stars,
+        result.total,
+        elapsedMs,
+      )
+
+      if (mission.coinReward) {
+        claimChallengeReward(
+          `mission-complete:${mission.id}:v${mission.version}`,
+          mission.coinReward,
+        )
+      }
+
+      if (
+        mission.teacherChallenge &&
+        result.stars >= mission.teacherChallenge.requiredStars
+      ) {
+        const claimed = claimChallengeReward(
+          mission.teacherChallenge.id,
+          mission.teacherChallenge.coinReward,
+        )
+        if (claimed) playGameSfx('coin')
+      }
+
+      playGameSfx('mission-complete')
+      setCartOpen(false)
+    } else {
+      playGameSfx('retry')
+      requestAnimationFrame(() => feedbackRef.current?.focus())
+    }
   }
   const friendlyReason = (reason: string) => shoppingStalls.reduce((text, id) => text.replace(`Gian ${id}`, `Gian ${shopLabels[id]}`), reason)
   const chooseStall = (id: ProductStallId) => { setActiveStall(id); setNotice('') }
 
-  if (!ready) return <section className="shopping-locked"><LockKeyhole size={40} /><h1>Cùng mở đủ các gian hàng nhé!</h1><p>Hoàn thành bài Toán ở 5 gian để bắt đầu liên hoan lớp.</p><button type="button" className="adventure-button" onClick={onBack}>Quay lại SmartMart<ArrowRight size={20} /></button></section>
+  if (!ready) return <section className="shopping-locked"><LockKeyhole size={40} /><h1>Nhiệm vụ này chưa mở</h1><p>Cần Cấp {mission.unlockLevel}{mission.id === firstMission.id ? ', mở đủ 5 gian SmartMart' : ''}{mission.prerequisiteMissionId ? ' và hoàn thành nhiệm vụ trước' : ''}.</p><button type="button" className="adventure-button" onClick={onBack}>Quay lại SmartMart<ArrowRight size={20} /></button></section>
 
   const cartContents = <>
     <div className="basket-goals"><h3>Đủ phần cho cả lớp</h3>{mission.requiredStalls.map(id => <div key={id} className={evaluation.coverageByStall[id] >= mission.people ? 'goal-done' : ''}><span>{evaluation.coverageByStall[id] >= mission.people ? <Check size={18} /> : <span className="goal-dot" />}{shopLabels[id]}</span><strong>{evaluation.coverageByStall[id]}/{mission.people} bạn</strong></div>)}</div>
@@ -66,7 +126,7 @@ export function ClassPartyMissionScreen({ onBack, initialStall = 'produce', onWo
 
   return <section className={`party-mission ${showResult ? 'mission-finished' : ''}`}>
     <div className="shop-toolbar"><button type="button" className="quiet-button" onClick={onBack}><ArrowLeft size={18} />Quay lại SmartMart</button><span className="mission-mode-label">{completed ? <Check size={17} /> : <ShoppingBasket size={17} />}{completed ? 'Đã hoàn thành nhiệm vụ' : 'Mua sắm cho cả lớp'}</span></div>
-    {showResult ? <div className="mission-result"><img src={gameAssets.production.party} alt="Các bạn cùng vui trong buổi liên hoan" /><div><BadgeCheck size={42} /><p className="eyebrow">NHIỆM VỤ HOÀN THÀNH</p><h1>Một giỏ hàng thật chu đáo!</h1><p>{mission.rewardTitle}</p><div className="mission-result-summary"><span>Đã chi<strong>{money.format(evaluation.spent)}đ</strong></span><span>Giữ lại<strong>{money.format(evaluation.remaining)}đ</strong></span></div><p>Em đã mua đủ hoa quả, đồ ăn và đồ uống cho {mission.people} bạn, đồng thời giữ đủ khoản dự phòng.</p><button className="adventure-button" type="button" onClick={onWork}>Khám phá công việc thu ngân<ArrowRight size={19} /></button><button type="button" className="quiet-button" onClick={() => setCheckoutAttempted(false)}>Xem lại và thử cách mua khác</button></div></div> : <>
+    {showResult && runResult ? <div className="mission-result"><img src={gameAssets.production.party} alt="Các bạn cùng vui sau khi hoàn thành nhiệm vụ" /><div><BadgeCheck size={42} /><p className="eyebrow">NHIỆM VỤ HOÀN THÀNH</p><h1>{runResult.stars === 5 ? 'Trọn vẹn 5 sao!' : 'Một chuyến mua sắm đáng nhớ!'}</h1><div className="run-stars" aria-label={`${runResult.stars} trên 5 sao`}>{Array.from({length:5},(_,index)=><Star key={index} size={29} className={index < runResult.stars ? 'is-earned' : ''} />)}</div><p>{mission.rewardTitle}</p>{mission.teacherChallenge ? <div className={`teacher-challenge-result ${runResult.stars === 5 ? 'is-complete' : ''}`}><strong>{mission.teacherChallenge.label}</strong><span>{runResult.stars === 5 ? `Hoàn thành · +${mission.teacherChallenge.coinReward} xu` : 'Chơi lại để chinh phục 5 sao.'}</span></div> : null}<div className="mission-score-breakdown"><span>Lập kế hoạch<strong>{Math.round(runResult.accuracy)}/30</strong></span><span>Thời gian<strong>{Math.round(runResult.time)}/20</strong></span><span>Tài nguyên<strong>{Math.round(runResult.resources)}/20</strong></span><span>Cân bằng ngân sách<strong>{Math.round(runResult.decisions)}/20</strong></span><span>Mục tiêu<strong>{Math.round(runResult.objectives)}/10</strong></span></div><div className="mission-result-summary"><span>Đã chi<strong>{money.format(evaluation.spent)}đ</strong></span><span>Giữ lại<strong>{money.format(evaluation.remaining)}đ</strong></span></div><p>Điểm chỉ được tổng kết sau khi em hoàn thành. Có nhiều cách khác nhau để tạo một giỏ hàng tốt.</p><button className="adventure-button" type="button" onClick={onWork}>Tiếp tục hành trình<ArrowRight size={19} /></button><button type="button" className="quiet-button" onClick={() => { setCheckoutAttempted(false); setRunResult(null); setCheckoutAttempts(0); runStartedAtRef.current = Date.now() }}>Chơi lại để nâng sao</button></div></div> : <>
       <header className="party-brief"><div><p className="eyebrow">NHIỆM VỤ 01 · SMARTMART</p><h1>Liên hoan lớp</h1><p>{mission.story}</p></div><img src={gameAssets.production.party} alt="Các bạn đang chuẩn bị bàn tiệc liên hoan" /></header>
       <div className="shopping-budget"><div><Users size={22} /><span>Cả lớp<strong>{mission.people} bạn</strong></span></div><div><Wallet size={22} /><span>Ngân sách<strong>{money.format(mission.budget)}đ</strong></span></div><div className={evaluation.remaining < mission.reserveRequired ? 'budget-warning' : ''}><span>{evaluation.remaining < mission.reserveRequired ? <CircleAlert size={22} /> : <Wallet size={22} />}</span><span>Còn lại<strong>{money.format(evaluation.remaining)}đ</strong></span></div></div>
       <div className="shopping-layout">
