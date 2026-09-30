@@ -6,7 +6,10 @@ import {
   scenarioCustomerBlueprints,
 } from '../data/workShiftTemplates'
 import { calculateEffectiveTotal } from './workShiftEngine'
-import { generateWorkShiftInstance } from './workShiftGenerator'
+import {
+  generateWorkShiftInstance,
+  workShiftFingerprintSimilarity,
+} from './workShiftGenerator'
 
 describe('seeded work shift generator', () => {
   it('replays exactly the same shift for the same student and variant', () => {
@@ -140,4 +143,77 @@ describe('seeded work shift generator', () => {
       }
     }
   })
+
+  it('changes the basket and answer space on a new replay variant', () => {
+    const first = generateWorkShiftInstance(
+      advancedShiftTemplate,
+      'student-replay',
+      0,
+    )
+    const next = generateWorkShiftInstance(
+      advancedShiftTemplate,
+      'student-replay',
+      1,
+    )
+
+    expect(next.seed).not.toBe(first.seed)
+    expect(next.fingerprint).not.toBe(first.fingerprint)
+    expect(next.customers.map((customer) => customer.basket)).not.toEqual(
+      first.customers.map((customer) => customer.basket),
+    )
+  })
+
+  it('regenerates when a candidate is too similar to recent play', () => {
+    const first = generateWorkShiftInstance(
+      advancedShiftTemplate,
+      'student-antirepeat',
+      2,
+    )
+    const regenerated = generateWorkShiftInstance(
+      advancedShiftTemplate,
+      'student-antirepeat',
+      2,
+      {
+        recentFingerprints: [first.fingerprint],
+        maxSimilarity: 0.95,
+      },
+    )
+
+    expect(regenerated.generationAttempt).toBeGreaterThan(0)
+    expect(regenerated.fingerprint).not.toBe(first.fingerprint)
+    expect(
+      workShiftFingerprintSimilarity(
+        regenerated.fingerprint,
+        first.fingerprint,
+      ),
+    ).toBeLessThan(0.95)
+  })
+
+  it('keeps generated bills payable after price and quantity variation', () => {
+    for (let variant = 0; variant < 20; variant += 1) {
+      const shift = generateWorkShiftInstance(
+        expertShiftTemplate,
+        'student-payable',
+        variant,
+      )
+
+      expect(shift.difficultyScore).toBeGreaterThan(0)
+      expect(shift.difficultyScore).toBeLessThanOrEqual(1)
+
+      for (const customer of shift.customers) {
+        const scenario = customer.scenarioId
+          ? workScenarios.find((item) => item.id === customer.scenarioId)
+          : undefined
+        const maximumPayable = Math.max(
+          calculateEffectiveTotal(customer.basket),
+          ...(scenario?.choices.map((choice) =>
+            calculateEffectiveTotal(customer.basket, choice),
+          ) ?? []),
+        )
+
+        expect(customer.cashGiven).toBeGreaterThanOrEqual(maximumPayable)
+      }
+    }
+  })
+
 })

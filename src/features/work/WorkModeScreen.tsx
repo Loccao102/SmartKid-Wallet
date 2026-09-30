@@ -117,9 +117,11 @@ function updateCustomerProgress(
 export function WorkModeScreen({
   shift,
   onBack,
+  onReplayShift,
 }: {
   shift: WorkShiftDefinition
   onBack: () => void
+  onReplayShift?: () => void
 }) {
   const storedProgress = useWorkShiftStore(
     (state) => state.progressByShiftId[shift.id],
@@ -235,6 +237,20 @@ export function WorkModeScreen({
             scenarioCount: shift.customers.filter(
               (item) => Boolean(item.scenarioId),
             ).length,
+            fingerprint:
+              'fingerprint' in shift && typeof shift.fingerprint === 'string'
+                ? shift.fingerprint
+                : null,
+            difficultyScore:
+              'difficultyScore' in shift &&
+              typeof shift.difficultyScore === 'number'
+                ? shift.difficultyScore
+                : null,
+            generationAttempt:
+              'generationAttempt' in shift &&
+              typeof shift.generationAttempt === 'number'
+                ? shift.generationAttempt
+                : null,
           },
         }),
       )
@@ -252,7 +268,21 @@ export function WorkModeScreen({
   }, [shift.id, progress.customerIndex, stage])
 
   if (progress.completed || !customer || !customerProgress) {
-    return <WorkResult shift={shift} progress={progress} onBack={onBack} onReplay={() => resetShift(shift.id)} />
+    return (
+      <WorkResult
+        shift={shift}
+        progress={progress}
+        onBack={onBack}
+        onReplay={() => {
+          if (onReplayShift) {
+            onReplayShift()
+            return
+          }
+
+          resetShift(shift.id)
+        }}
+      />
+    )
   }
 
   const baseTotal = calculateBasketTotal(customer.basket)

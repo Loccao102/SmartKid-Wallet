@@ -19,6 +19,7 @@ import { demoStudentProfile as student } from './data/studentDemo'
 import { traineeShift } from './data/workShift'
 import { getWorkShiftById } from './data/workShiftInstances'
 import { xpNeededForNextLevel } from './domain/progression'
+import { buildWorkShiftFingerprint } from './domain/workShiftGenerator'
 import type { ProductStallId } from './domain/types'
 import { DailyChallengeScreen } from './features/challenges/DailyChallengeScreen'
 import { WeeklyChallengeScreen } from './features/challenges/WeeklyChallengeScreen'
@@ -80,9 +81,15 @@ export function App() {
     setPage('mission-class-party')
   }
   const [activeWorkShiftId, setActiveWorkShiftId] = useState(traineeShift.id)
+  const [activeWorkVariant, setActiveWorkVariant] = useState(0)
+  const [recentWorkFingerprints, setRecentWorkFingerprints] = useState<string[]>([])
   const mainRef = useRef<HTMLElement>(null)
   const previousPage = useRef(page)
-  const activeWorkShift = getWorkShiftById(activeWorkShiftId)
+  const activeWorkShift = getWorkShiftById(
+    activeWorkShiftId,
+    activeWorkVariant,
+    recentWorkFingerprints,
+  )
   const activeNavPage =
     page === 'smartmart'
       ? 'maps'
@@ -226,12 +233,21 @@ export function App() {
             <WorkModeScreen
               shift={activeWorkShift}
               onBack={() => setPage('missions')}
+              onReplayShift={() => {
+                const fingerprint = buildWorkShiftFingerprint(activeWorkShift)
+                setRecentWorkFingerprints((current) =>
+                  [fingerprint, ...current].slice(0, 5),
+                )
+                setActiveWorkVariant((current) => current + 1)
+              }}
             />
           ) : page === 'missions' ? (
             <MissionsScreen
               onOpenMission={openMissionById}
               onOpenWorkMode={(shiftId) => {
                 setActiveWorkShiftId(shiftId)
+                setActiveWorkVariant(0)
+                setRecentWorkFingerprints([])
                 setPage('work-mode')
               }}
             />
