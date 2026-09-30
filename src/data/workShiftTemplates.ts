@@ -9,6 +9,22 @@ export interface WorkCustomerBlueprint {
   cashGiven: number
 }
 
+export const traineeShiftTemplate: WorkShiftTemplateDefinition = {
+  id: 'work-shift-trainee-01',
+  version: 2,
+  title: 'Ca làm việc 01',
+  subtitle: 'Phục vụ 3 khách đầu tiên với dữ kiện thay đổi sau mỗi lượt chơi.',
+  roleTitle: 'Nhân viên tập sự',
+  customerCount: 3,
+  scenarioCount: 2,
+  minScenarioDifficulty: 1,
+  maxScenarioDifficulty: 1,
+  mathDifficulty: 1,
+  startingEmployeeRating: 4,
+  startingStoreReputation: 4,
+  startingCustomerSatisfaction: 4,
+}
+
 export const advancedShiftTemplate: WorkShiftTemplateDefinition = {
   id: 'work-shift-counter-rush-02',
   version: 1,
@@ -19,6 +35,7 @@ export const advancedShiftTemplate: WorkShiftTemplateDefinition = {
   scenarioCount: 4,
   minScenarioDifficulty: 1,
   maxScenarioDifficulty: 2,
+  mathDifficulty: 2,
   startingEmployeeRating: 4,
   startingStoreReputation: 4,
   startingCustomerSatisfaction: 4,
@@ -35,6 +52,7 @@ export const expertShiftTemplate: WorkShiftTemplateDefinition = {
   scenarioCount: 5,
   minScenarioDifficulty: 1,
   maxScenarioDifficulty: 3,
+  mathDifficulty: 3,
   startingEmployeeRating: 4,
   startingStoreReputation: 4,
   startingCustomerSatisfaction: 4,
