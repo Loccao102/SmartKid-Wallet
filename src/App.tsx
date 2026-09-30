@@ -29,6 +29,7 @@ import { HappyRestaurantScreen } from './features/restaurant/HappyRestaurantScre
 import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
 import { MissionsScreen } from './features/missions/MissionsScreen'
+import { WeekendMarketScreen } from './features/market/WeekendMarketScreen'
 import { ProfileScreen } from './features/profile/ProfileScreen'
 import { ResearchSyncBridge } from './features/research/ResearchSyncBridge'
 import { AudioExperience } from './features/system/AudioExperience'
@@ -49,6 +50,7 @@ type StudentPage =
   | 'smartmart'
   | 'tiny-bank'
   | 'happy-restaurant'
+  | 'weekend-market'
   | 'mission-class-party'
   | 'work-mode'
   | 'missions'
@@ -109,7 +111,8 @@ export function App() {
   const activeNavPage =
     page === 'smartmart' ||
     page === 'tiny-bank' ||
-    page === 'happy-restaurant'
+    page === 'happy-restaurant' ||
+    page === 'weekend-market'
       ? 'maps'
       : page === 'mission-class-party' || page === 'work-mode'
         ? 'missions'
@@ -205,7 +208,9 @@ export function App() {
               ? 'Đang khám phá Ngân hàng tí hon'
               : page === 'happy-restaurant'
                 ? 'Đang phục vụ tại Nhà hàng vui vẻ'
-                : 'Một hành trình nhỏ, thật nhiều điều hay'}
+                : page === 'weekend-market'
+                  ? 'Đang khám phá Chợ cuối tuần'
+                  : 'Một hành trình nhỏ, thật nhiều điều hay'}
         </span>
         <div className="game-economy">
           <span className="game-coins">
@@ -243,6 +248,7 @@ export function App() {
                 if (mapId === 'smartmart') setPage('smartmart')
                 if (mapId === 'tiny-bank') setPage('tiny-bank')
                 if (mapId === 'happy-restaurant') setPage('happy-restaurant')
+                if (mapId === 'weekend-market') setPage('weekend-market')
               }}
             />
           ) : page === 'smartmart' ? (
@@ -254,6 +260,8 @@ export function App() {
             <TinyBankScreen onBack={() => setPage('maps')} />
           ) : page === 'happy-restaurant' ? (
             <HappyRestaurantScreen onBack={() => setPage('maps')} />
+          ) : page === 'weekend-market' ? (
+            <WeekendMarketScreen onBack={() => setPage('maps')} />
           ) : page === 'mission-class-party' ? (
             <ClassPartyMissionScreen
               missionId={activeMissionId}
