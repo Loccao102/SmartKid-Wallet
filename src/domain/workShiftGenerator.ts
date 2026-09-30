@@ -31,6 +31,33 @@ const requestLines = [
   'Mình mua những món này, nhờ em tính hóa đơn giúp.',
 ] as const
 
+const scenarioPresentationStyles = [
+  {
+    key: 'noticed',
+    titlePrefix: '',
+    describe: (customerName: string, description: string) =>
+      'Khi chuẩn bị chốt hóa đơn cho ' + customerName + ', em để ý thấy: ' + description,
+  },
+  {
+    key: 'customer-check',
+    titlePrefix: 'Khách hỏi lại · ',
+    describe: (customerName: string, description: string) =>
+      customerName + ' dừng lại kiểm tra giỏ hàng và nhờ em xem kỹ. ' + description,
+  },
+  {
+    key: 'busy-counter',
+    titlePrefix: 'Quầy đang bận · ',
+    describe: (_customerName: string, description: string) =>
+      'Giữa lúc hàng chờ đang dài hơn, một tình huống cần xử lý xuất hiện. ' + description,
+  },
+  {
+    key: 'before-payment',
+    titlePrefix: 'Trước khi thanh toán · ',
+    describe: (customerName: string, description: string) =>
+      'Ngay trước khi ' + customerName + ' thanh toán, em phát hiện thêm một chi tiết. ' + description,
+  },
+] as const
+
 const priceMultipliers: Record<1 | 2 | 3, readonly number[]> = {
   1: [0.9, 0.95, 1, 1.05, 1.1],
   2: [0.85, 0.9, 0.95, 1, 1.05, 1.1, 1.15],
@@ -166,6 +193,15 @@ function createCustomerFromBlueprint(
 ): WorkCustomerDefinition {
   const basket = varyBasket(blueprint, random, mathDifficulty)
   const basketTotal = calculateBasketTotal(basket)
+  const presentation = scenario
+    ? pickOne(scenarioPresentationStyles, random)
+    : undefined
+  const scenarioChoiceOrder = scenario
+    ? shuffleWithRandom(
+        scenario.choices.map((choice) => choice.id),
+        random,
+      )
+    : undefined
 
   return {
     id,
@@ -175,6 +211,16 @@ function createCustomerFromBlueprint(
     requestLine: pickOne(requestLines, random),
     scenarioId: scenario?.id,
     scenarioVersion: scenario?.version,
+    scenarioVariantKey: presentation?.key,
+    scenarioTitle:
+      scenario && presentation
+        ? presentation.titlePrefix + scenario.title
+        : undefined,
+    scenarioDescription:
+      scenario && presentation
+        ? presentation.describe(name, scenario.description)
+        : undefined,
+    scenarioChoiceOrder,
   }
 }
 
@@ -195,6 +241,8 @@ export function buildWorkShiftFingerprint(
     const position = customerIndex + 1
     tokens.push(
       `c${position}:scenario:${customer.scenarioId ?? 'normal'}`,
+      `c${position}:variant:${customer.scenarioVariantKey ?? 'none'}`,
+      `c${position}:choice-order:${customer.scenarioChoiceOrder?.join('.') ?? 'none'}`,
       `c${position}:cash:${Math.round(customer.cashGiven / 50000)}`,
     )
 

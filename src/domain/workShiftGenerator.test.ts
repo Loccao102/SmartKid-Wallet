@@ -216,4 +216,57 @@ describe('seeded work shift generator', () => {
     }
   })
 
+
+  it('seeds scenario framing and shuffles choice positions without changing choices', () => {
+    const first = generateWorkShiftInstance(
+      expertShiftTemplate,
+      'student-scenario-presentation',
+      4,
+    )
+    const replay = generateWorkShiftInstance(
+      expertShiftTemplate,
+      'student-scenario-presentation',
+      4,
+    )
+
+    expect(replay).toEqual(first)
+
+    for (const customer of first.customers.filter((item) => item.scenarioId)) {
+      const scenario = workScenarios.find((item) => item.id === customer.scenarioId)!
+      expect(customer.scenarioVariantKey).toBeTruthy()
+      expect(customer.scenarioDescription).toBeTruthy()
+      expect(customer.scenarioChoiceOrder).toHaveLength(scenario.choices.length)
+      expect(new Set(customer.scenarioChoiceOrder)).toEqual(
+        new Set(scenario.choices.map((choice) => choice.id)),
+      )
+    }
+  })
+
+  it('changes scenario presentation across replay variants', () => {
+    const signatures = new Set<string>()
+
+    for (let variant = 0; variant < 8; variant += 1) {
+      const shift = generateWorkShiftInstance(
+        expertShiftTemplate,
+        'student-scenario-variety',
+        variant,
+      )
+      signatures.add(
+        shift.customers
+          .filter((customer) => customer.scenarioId)
+          .map(
+            (customer) =>
+              customer.scenarioId +
+              ':' +
+              customer.scenarioVariantKey +
+              ':' +
+              customer.scenarioChoiceOrder?.join('.'),
+          )
+          .join('|'),
+      )
+    }
+
+    expect(signatures.size).toBeGreaterThan(4)
+  })
+
 })
