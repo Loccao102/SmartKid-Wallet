@@ -13,7 +13,7 @@ import {
   Wallet,
   type LucideIcon,
 } from 'lucide-react'
-import { gameAssets } from './assets/registry'
+import { AvatarCharacter } from './components/avatar/AvatarCharacter'
 import { firstMission, getMissionById } from './data/missions'
 import { demoStudentProfile as student } from './data/studentDemo'
 import { traineeShift } from './data/workShift'
@@ -35,6 +35,7 @@ import { FeatureErrorBoundary } from './features/system/FeatureErrorBoundary'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
+import { useAvatarProfileStore } from './store/avatarProfile'
 import { useLearningProfileStore } from './store/learningProfile'
 import { useProgressionStore } from './store/progression'
 
@@ -66,6 +67,7 @@ const navItems: Array<{
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
   const [audioSettingsOpen, setAudioSettingsOpen] = useState(false)
+  const avatar = useAvatarProfileStore((state) => state.avatar)
   const level = useProgressionStore((state) => state.level)
   const levelXp = useProgressionStore((state) => state.levelXp)
   const coins = useProgressionStore((state) => state.coins)
@@ -175,7 +177,7 @@ export function App() {
             aria-label={`Hồ sơ ${student.name}`}
           >
           <span className="student-portrait">
-            <img src={gameAssets.production.student} alt="" />
+            <AvatarCharacter config={avatar} className="student-avatar-render" decorative />
           </span>
           <span>
             <strong>{student.name}</strong>

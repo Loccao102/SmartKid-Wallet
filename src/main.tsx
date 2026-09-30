@@ -5,6 +5,10 @@ import { App } from './App'
 import './styles.css'
 import './production-ui.css'
 import './shopping-ui.css'
+import './design-system.css'
+import './work-ui.css'
+import './screen-ui.css'
+import './avatar-ui.css'
 
 const queryClient = new QueryClient()
 

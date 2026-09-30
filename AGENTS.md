@@ -133,10 +133,18 @@ Không gán skill không liên quan vào stall.
 - Student UI không mang cảm giác dashboard SaaS.
 - Learning và Employee có visual language khác nhau.
 - Body text production cho trẻ không dùng dày đặc .5rem/.6rem.
-- Touch target ≥44px.
-- Mobile là first-class.
+- Touch target ≥44px; input/action gameplay ưu tiên 52–64px khi phù hợp.
+- Mobile là first-class; không chỉ co desktop xuống một cột.
+- Mỗi màn chỉ có một hierarchy chính: context → task → primary action → supporting state.
+- Không dùng raw-looking form/table/card; mọi surface phải đi qua visual system chung.
+- Không lồng card quá hai tầng.
+- Dùng Lucide nhất quán; icon hệ thống production không dùng emoji.
+- Foundation token nằm tại `src/design-system.css`; không tự thêm màu/radius/shadow nền tảng rải rác.
+- Work Mode visual layer nằm tại `src/work-ui.css`; screen composition nằm tại `src/screen-ui.css`.
 - Simulation metric và learning performance phải trình bày tách biệt.
 - Research technical UI chuyển sang Researcher/Admin.
+- Giữ visible focus, keyboard navigation, contrast và prefers-reduced-motion.
+- Sau thay đổi UI lớn phải kiểm tra desktop + tablet + mobile và browser console.
 
 ## 11. Asset rules
 
@@ -160,11 +168,15 @@ Không gán skill không liên quan vào stall.
 1. Build/typecheck pass.
 2. Relevant unit tests pass.
 3. Critical flow smoke/E2E khi liên quan.
-4. Responsive desktop/tablet/mobile.
-5. Không secret trong git.
-6. Docs update khi đổi rule/schema.
-7. Supabase change review RLS + generated types.
-8. Production deploy source phải là canonical repo.
+4. UI lớn: visual verification ở desktop/tablet/mobile, không chỉ dựa vào typecheck.
+5. Browser console không có runtime error mới.
+6. Responsive desktop/tablet/mobile.
+7. React: tránh unstable Zustand selector/fallback object-array mới mỗi snapshot; giữ heavy gameplay lazy-loaded.
+8. Không secret trong git.
+9. Docs update khi đổi rule/schema.
+10. Supabase change review RLS + generated types.
+11. Không merge partial UI iteration vào `main`; gom coherent pass trên feature branch.
+12. Production deploy source phải là canonical repo; Vercel giữ main-only để tránh quota preview.
 
 ## 14. Source of truth
 
@@ -186,4 +198,5 @@ Không gán skill không liên quan vào stall.
 - World/modes/missions: docs/WORLD_MODES_MISSIONS.md
 - Audio: docs/AUDIO_SYSTEM.md
 - SmartMart depth: docs/SMARTMART_DEPTH.md
+- Character/avatar system: docs/CHARACTER_SYSTEM.md
 - Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
