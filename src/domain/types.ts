@@ -207,6 +207,10 @@ export interface WorkCustomerDefinition {
   requestLine?: string
   scenarioId?: string
   scenarioVersion?: number
+  scenarioVariantKey?: string
+  scenarioTitle?: string
+  scenarioDescription?: string
+  scenarioChoiceOrder?: string[]
 }
 
 export interface WorkShiftDefinition {
