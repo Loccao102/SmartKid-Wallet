@@ -31,7 +31,7 @@ export const worldMaps: WorldMapDefinition[] = [
     name: 'Nhà hàng vui vẻ',
     shortName: 'Nhà hàng',
     description: 'Lựa chọn món ăn, tính chi phí và xử lý các tình huống phục vụ.',
-    status: 'locked',
+    status: 'available',
     unlockLevel: 8,
     prerequisiteMapId: 'tiny-bank',
     unlockHint: 'Đạt Cấp 8 và hoàn thành chương Ngân hàng tí hon.',
