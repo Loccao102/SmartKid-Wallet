@@ -106,6 +106,22 @@ export interface MissionSoftGoalDefinition {
   productIds?: string[]
 }
 
+export type MissionDynamicEventKind =
+  | 'people-adjustment'
+  | 'budget-adjustment'
+  | 'product-unavailable'
+
+export interface MissionDynamicEventDefinition {
+  id: string
+  title: string
+  description: string
+  revealAfterItems: number
+  kind: MissionDynamicEventKind
+  peopleDelta?: number
+  budgetDelta?: number
+  productIds?: string[]
+}
+
 export interface MissionDefinition {
   id: string
   version: number
@@ -123,6 +139,7 @@ export interface MissionDefinition {
   xpReward: number
   coinReward?: number
   softGoals?: MissionSoftGoalDefinition[]
+  dynamicEvents?: MissionDynamicEventDefinition[]
   teacherChallenge?: {
     id: string
     requiredStars: 5
@@ -141,6 +158,10 @@ export interface MissionEvaluation {
     id: string
     achieved: boolean
   }>
+  activeEventIds: string[]
+  effectivePeople: number
+  effectiveBudget: number
+  unavailableProductIds: string[]
 }
 
 
