@@ -369,6 +369,7 @@ function buildShiftCandidate(
     subtitle: template.subtitle,
     roleTitle: template.roleTitle,
     guidanceLevel: template.guidanceLevel,
+    managerMode: template.managerMode,
     customers,
     startingEmployeeRating: template.startingEmployeeRating,
     startingStoreReputation: template.startingStoreReputation,
