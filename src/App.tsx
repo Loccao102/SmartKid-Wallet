@@ -49,6 +49,8 @@ type StudentPage =
   | 'missions'
   | 'leaderboard'
   | 'profile'
+const EMPTY_WORK_FINGERPRINTS: string[] = []
+
 const navItems: Array<{
   id: Exclude<StudentPage, 'daily-challenge' | 'weekly-challenge' | 'smartmart' | 'mission-class-party' | 'work-mode'>
   icon: LucideIcon
@@ -83,9 +85,11 @@ export function App() {
   }
   const [activeWorkShiftId, setActiveWorkShiftId] = useState(traineeShift.id)
   const [activeWorkVariant, setActiveWorkVariant] = useState(0)
-  const recentWorkFingerprints = useLearningProfileStore(
-    (state) => state.recentWorkFingerprintsByKey[activeWorkShiftId] ?? [],
+  const recentWorkFingerprintsByKey = useLearningProfileStore(
+    (state) => state.recentWorkFingerprintsByKey,
   )
+  const recentWorkFingerprints =
+    recentWorkFingerprintsByKey[activeWorkShiftId] ?? EMPTY_WORK_FINGERPRINTS
   const rememberWorkFingerprint = useLearningProfileStore(
     (state) => state.rememberWorkFingerprint,
   )
