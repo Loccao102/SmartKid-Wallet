@@ -32,6 +32,18 @@ SmartKid Wallet có hai pha tách biệt:
 - Simulation metrics không phải learning score.
 - Research/admin control không xuất hiện trong student UI production.
 
+## 2A. SmartMart scope freeze
+
+- SmartMart là gameplay scope chính.
+- Không triển khai gameplay Tiny Bank, Restaurant hoặc Weekend Market trước SmartMart depth gate.
+- Future maps có thể hiện ở world map nhưng không được lấy bandwidth khỏi SmartMart.
+- Ưu tiên thêm situation/event/mission/work shift/challenge có chiều sâu thay vì thêm map.
+- Weekly competitive content phải dùng cùng seed/version cho mọi người trong cùng tuần.
+- Competitive mode không được cho phép dùng xu để mua lợi thế.
+- Public leaderboard không hiển thị child PII.
+
+Chi tiết: docs/SMARTMART_DEPTH.md
+
 ## 3. Stall curriculum
 
 - Produce: measurement, unit price, multiplication/division.
@@ -173,4 +185,5 @@ Không gán skill không liên quan vào stall.
 - Scoring/progression/economy: docs/SCORING_PROGRESSION.md
 - World/modes/missions: docs/WORLD_MODES_MISSIONS.md
 - Audio: docs/AUDIO_SYSTEM.md
+- SmartMart depth: docs/SMARTMART_DEPTH.md
 - Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
