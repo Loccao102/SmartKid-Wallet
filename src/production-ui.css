@@ -2251,3 +2251,328 @@ body {
   font-size: 12px;
   color: #778176;
 }
+
+
+/* === SmartMart Weekly Arena === */
+
+.weekly-arena {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.weekly-locked,
+.weekly-result {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 38px 28px;
+  border: 1px solid #dfe5d7;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(239, 189, 79, .17), transparent 20rem),
+    #fffdf5;
+  text-align: center;
+}
+
+.weekly-time-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #edf2e7;
+  color: #496a59;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.weekly-heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+  margin: 20px 0 16px;
+}
+
+.weekly-heading h1 {
+  margin: 5px 0 7px;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: -1.3px;
+}
+
+.weekly-heading > div:first-child > p:last-child {
+  margin: 0;
+  color: #65776a;
+}
+
+.weekly-fairness,
+.weekly-fair-play {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #cdddc7;
+  border-radius: 16px;
+  background: #edf5e6;
+  color: #396351;
+}
+
+.weekly-fairness span {
+  display: grid;
+  gap: 3px;
+}
+
+.weekly-fairness small {
+  color: #68796d;
+}
+
+.weekly-progress {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 7px;
+  margin: 15px 0;
+}
+
+.weekly-progress i {
+  height: 9px;
+  border-radius: 99px;
+  background: #dde4d8;
+}
+
+.weekly-progress i.complete {
+  background: #4f9872;
+}
+
+.weekly-progress i.current {
+  background: #efbd4f;
+}
+
+.weekly-round-card {
+  padding: 28px;
+  border: 1px solid #dbe3d6;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(239, 189, 79, .13), transparent 20rem),
+    #fffdf5;
+  box-shadow: 0 12px 30px rgba(36, 72, 58, .06);
+}
+
+.weekly-round-card > h2 {
+  min-height: 84px;
+  margin: 16px 0 24px;
+  font-size: 23px;
+  line-height: 1.55;
+}
+
+.weekly-topic {
+  display: inline-block;
+  padding: 6px 9px;
+  border-radius: 9px;
+  background: #edf1e5;
+  color: #5d7565;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.weekly-round-card form > label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 750;
+}
+
+.weekly-round-card .adventure-button {
+  width: 100%;
+}
+
+.weekly-scenario-description {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f1f4e9;
+  color: #536c5e;
+  line-height: 1.6;
+}
+
+.weekly-scenario-round .scenario-options button.is-selected {
+  border-color: #36805f;
+  background: #e7f2e5;
+  box-shadow: inset 0 0 0 2px #8fbba0;
+}
+
+.weekly-score-grid {
+  width: min(720px, 100%);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.weekly-score-grid span {
+  display: grid;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid #e1e4d6;
+  border-radius: 14px;
+  background: #f8f8ef;
+  color: #68776a;
+}
+
+.weekly-score-grid strong {
+  color: #2d6955;
+  font-size: 21px;
+}
+
+.weekly-best,
+.weekly-submit-status {
+  margin: 3px 0;
+  font-weight: 700;
+  color: #72591f;
+}
+
+.weekly-live-board {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid #dce3d6;
+  border-radius: 20px;
+  background: #fffdf6;
+}
+
+.weekly-live-board > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.weekly-live-board h2 {
+  margin: 2px 0 0;
+}
+
+.weekly-live-board ol {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+}
+
+.weekly-live-board li {
+  display: grid;
+  grid-template-columns: 42px 1fr 85px 90px 70px;
+  gap: 9px;
+  align-items: center;
+  min-height: 48px;
+  border-top: 1px solid #e6e9df;
+}
+
+.weekly-rank {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #eef1e5;
+  color: #596d60;
+  font-weight: 900;
+}
+
+.weekly-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #b77d1c;
+  font-weight: 800;
+}
+
+.weekly-privacy-note {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin: 14px 0 0;
+  color: #708077;
+  font-size: 12px;
+}
+
+.weekly-fair-play {
+  margin: 0 0 20px;
+}
+
+.weekly-fair-play p {
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+.weekly-board-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  min-height: 220px;
+  place-content: center;
+  padding: 28px;
+  border: 1px dashed #ccd7ca;
+  border-radius: 20px;
+  background: #fafbf4;
+  text-align: center;
+  color: #627568;
+}
+
+.weekly-code-avatar {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: #e8f0df;
+  color: #3b755c;
+}
+
+.weekly-ranking li {
+  grid-template-columns: 50px 46px 1fr 100px 84px;
+}
+
+.weekly-rank-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #66766d;
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .weekly-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .weekly-progress {
+    gap: 4px;
+  }
+
+  .weekly-round-card {
+    padding: 20px 16px;
+  }
+
+  .weekly-round-card > h2 {
+    min-height: 0;
+    font-size: 19px;
+  }
+
+  .weekly-score-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .weekly-live-board li {
+    grid-template-columns: 34px 1fr 68px;
+    padding: 9px 0;
+  }
+
+  .weekly-live-board li > span:nth-of-type(3),
+  .weekly-live-board li > span:nth-of-type(4) {
+    display: none;
+  }
+
+  .weekly-ranking li {
+    grid-template-columns: 38px 40px 1fr 66px;
+  }
+
+  .weekly-ranking .weekly-rank-time {
+    display: none;
+  }
+}
