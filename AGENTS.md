@@ -200,6 +200,7 @@ Không gán skill không liên quan vào stall.
 - SmartMart depth: docs/SMARTMART_DEPTH.md
 - Character/avatar system: docs/CHARACTER_SYSTEM.md
 - World/map extension architecture: docs/WORLD_CHAPTER_CORE.md
+- Teacher/classroom architecture: docs/TEACHER_CONSOLE.md
 - Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
 
 
@@ -210,3 +211,13 @@ Không gán skill không liên quan vào stall.
 - Procedural math dùng `WorldChapterQuiz`.
 - Mission/simulation đặc thù là extension point của từng map và được phép khác hoàn toàn.
 - Xem `docs/WORLD_CHAPTER_CORE.md` trước khi thêm world/map mới.
+
+
+## Teacher / Classroom
+
+- Không hiển thị tên thật học sinh trên public leaderboard.
+- Không dùng service-role key trong frontend; tạo/reset/khóa tài khoản học sinh phải qua server/Edge Function.
+- Mọi bảng classroom phải có RLS theo teacher ownership / student identity.
+- Teacher Assignment dùng cùng một đề/variant cho cả lớp; Public Weekly Arena có thể dùng variant riêng.
+- Learning snapshot là formative analytics, không coi là dữ liệu chấm thi authoritative.
+- Xem `docs/TEACHER_CONSOLE.md` trước khi sửa auth, lớp, assignment hoặc teacher analytics.
