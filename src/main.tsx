@@ -15,6 +15,7 @@ import './restaurant-ui.css'
 import './market-ui.css'
 import './world-chapter-ui.css'
 import './teacher-ui.css'
+import './classroom-ui.css'
 
 const queryClient = new QueryClient()
 
