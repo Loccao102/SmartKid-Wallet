@@ -9,5 +9,11 @@
       "*": false,
       "main": true
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/teacher/:path*",
+      "destination": "/index.html"
+    }
+  ]
 }
