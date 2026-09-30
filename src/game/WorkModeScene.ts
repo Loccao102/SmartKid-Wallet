@@ -5,7 +5,7 @@ import type {
   WorkWorldFlag,
 } from '../domain/types'
 
-export type WorkVisualStage = 'total' | 'scenario' | 'change' | 'done'
+export type WorkVisualStage = 'total' | 'scenario' | 'change' | 'done' | 'follow-up'
 
 interface WorkModeSceneOptions {
   customers: WorkCustomerDefinition[]
@@ -271,6 +271,7 @@ export class WorkModeScene extends Phaser.Scene {
       scenario: 'CẦN XỬ LÝ\nTÌNH HUỐNG',
       change: 'TÍNH TIỀN\nTHỪA',
       done: 'GIAO DỊCH\nHOÀN TẤT',
+      'follow-up': 'CÂU CHUYỆN\nQUAY LẠI',
     }
 
     this.statusText.setText(stageLabel[this.view.stage])
@@ -281,7 +282,7 @@ export class WorkModeScene extends Phaser.Scene {
     )
 
     const statusColor =
-      this.view.stage === 'scenario'
+      this.view.stage === 'scenario' || this.view.stage === 'follow-up'
         ? 0xf3c34d
         : this.view.stage === 'done'
           ? 0x59b887
@@ -293,7 +294,7 @@ export class WorkModeScene extends Phaser.Scene {
 
     this.dynamicLayer.add(indicator)
 
-    if (this.view.stage === 'scenario') {
+    if (this.view.stage === 'scenario' || this.view.stage === 'follow-up') {
       const alert = this.add
         .container(584, 100)
         .setDepth(10)
@@ -306,7 +307,9 @@ export class WorkModeScene extends Phaser.Scene {
         .text(
           0,
           -5,
-          'TÌNH HUỐNG PHÁT SINH',
+          this.view.stage === 'follow-up'
+            ? 'CÂU CHUYỆN QUAY LẠI'
+            : 'TÌNH HUỐNG PHÁT SINH',
           {
             fontFamily: 'system-ui, sans-serif',
             fontSize: '13px',
@@ -320,7 +323,9 @@ export class WorkModeScene extends Phaser.Scene {
         .text(
           0,
           15,
-          'Xem lựa chọn bên dưới để xử lý trước khi thanh toán',
+          this.view.stage === 'follow-up'
+            ? 'Một quyết định trước đó đang tạo ra tình huống mới'
+            : 'Xem lựa chọn bên dưới để xử lý trước khi thanh toán',
           {
             fontFamily: 'system-ui, sans-serif',
             fontSize: '9px',
