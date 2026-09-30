@@ -1,15 +1,78 @@
 import { lazy, Suspense, useState } from 'react'
-import { ArrowLeft, ArrowRight, BadgeCheck, Check, CircleAlert, Coins, ReceiptText, RotateCcw, Star, Store, Users, Wallet, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BadgeCheck, Boxes, Check, CircleAlert, Coins, ReceiptText, RotateCcw, ShieldCheck, Star, Store, Users, Wallet, X } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
+import { workManagerPlans } from '../../data/workManagerPlans'
 import { getWorkScenario } from '../../data/workShift'
 import { scoreWorkShift } from '../../domain/scoring'
-import type { WorkPendingFollowUp, WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress, WorkStoryFollowUpChoice } from '../../domain/types'
+import type { WorkManagerPlanDefinition, WorkPendingFollowUp, WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress, WorkStoryFollowUpChoice } from '../../domain/types'
 import { money } from '../smartmart/ShoppingProducts'
 
 const WorkModeGame = lazy(() => import('../../game/WorkModeGame'))
 
 function SimulationMetrics({ progress }: { progress: WorkShiftProgress }) {
   return <div className="simulation-metrics"><div><Star size={22} /><span>Đánh giá nhân viên<strong>{progress.metrics.employeeRating.toFixed(1)}/5</strong></span></div><div><Store size={22} /><span>Uy tín cửa hàng<strong>{progress.metrics.storeReputation.toFixed(1)}/5</strong></span></div><div><Users size={22} /><span>Hài lòng khách<strong>{progress.metrics.customerSatisfaction.toFixed(1)}/5</strong></span></div><div><Wallet size={22} /><span>Doanh thu<strong>{money.format(progress.metrics.revenue)}đ</strong></span></div></div>
+}
+
+export function ManagerPlanScreen({
+  shift,
+  onBack,
+  onSelectPlan,
+}: {
+  shift: WorkShiftDefinition
+  onBack: () => void
+  onSelectPlan: (plan: WorkManagerPlanDefinition) => void
+}) {
+  return (
+    <section className="manager-plan-screen">
+      <button type="button" className="quiet-button" onClick={onBack}>
+        <ArrowLeft size={18} />
+        Nhiệm vụ
+      </button>
+      <header className="manager-plan-heading">
+        <div>
+          <p className="eyebrow">SHIFT MANAGER · LẬP KẾ HOẠCH TRƯỚC CA</p>
+          <h1>{shift.title}</h1>
+          <p>
+            Em chỉ có đủ nguồn lực để ưu tiên một khu vực. Kế hoạch đã chọn sẽ
+            giúp chặn một sự cố tương ứng trong ca, sau đó nguồn lực đó sẽ được
+            xem là đã sử dụng.
+          </p>
+        </div>
+        <ShieldCheck size={54} aria-hidden="true" />
+      </header>
+      <div className="manager-plan-grid">
+        {workManagerPlans.map((plan) => (
+          <button
+            key={plan.id}
+            type="button"
+            className="manager-plan-card"
+            onClick={() => onSelectPlan(plan)}
+          >
+            <span className="manager-plan-icon" aria-hidden="true">
+              {plan.protection === 'inventory' ? (
+                <Boxes size={30} />
+              ) : plan.protection === 'service' ? (
+                <Users size={30} />
+              ) : (
+                <ReceiptText size={30} />
+              )}
+            </span>
+            <strong>{plan.title}</strong>
+            <p>{plan.description}</p>
+            <small>Một lớp bảo vệ · chỉ dùng được 1 lần trong ca</small>
+            <span className="manager-plan-action">
+              Chọn kế hoạch
+              <ArrowRight size={18} />
+            </span>
+          </button>
+        ))}
+      </div>
+      <p className="manager-plan-footnote">
+        Không có kế hoạch hoàn hảo cho mọi tình huống. Mục tiêu là dự đoán rủi
+        ro nào đáng ưu tiên trong ca đông khách.
+      </p>
+    </section>
+  )
 }
 
 export function WorkResult({ shift, progress, onBack, onReplay }: { shift: WorkShiftDefinition; progress: WorkShiftProgress; onBack: () => void; onReplay: () => void }) {
