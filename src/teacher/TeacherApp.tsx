@@ -321,6 +321,304 @@ function StatCard({
   )
 }
 
+
+function average(values: number[]) {
+  if (!values.length) return 0
+  return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+function ClassStudentOverview({
+  workspace,
+  selectedClass,
+  onOpenStudent,
+}: {
+  workspace: TeacherWorkspace
+  selectedClass?: ClassroomRow
+  onOpenStudent: (studentId: string) => void
+}) {
+  const assignments = useMemo(
+    () =>
+      selectedClass
+        ? workspace.assignments.filter(
+            (item) => item.classroom_id === selectedClass.classroom_id,
+          )
+        : [],
+    [selectedClass, workspace.assignments],
+  )
+  const students = useMemo(
+    () =>
+      selectedClass
+        ? workspace.students
+            .filter(
+              (item) => item.classroom_id === selectedClass.classroom_id,
+            )
+            .sort((a, b) => {
+              if (a.active !== b.active) return a.active ? -1 : 1
+              return a.display_name.localeCompare(b.display_name, 'vi')
+            })
+        : [],
+    [selectedClass, workspace.students],
+  )
+  const [assignmentId, setAssignmentId] = useState(
+    assignments[0]?.assignment_id ?? '',
+  )
+
+  useEffect(() => {
+    if (!assignments.some((item) => item.assignment_id === assignmentId)) {
+      setAssignmentId(assignments[0]?.assignment_id ?? '')
+    }
+  }, [assignmentId, assignments])
+
+  const assignment = assignments.find(
+    (item) => item.assignment_id === assignmentId,
+  )
+  const bestAttempts = assignment
+    ? bestAttemptsForAssignment(assignment.assignment_id, workspace.attempts)
+    : new Map<string, AssignmentAttemptRow>()
+
+  const attemptCounts = new Map<string, number>()
+  if (assignment) {
+    for (const attempt of workspace.attempts) {
+      if (attempt.assignment_id !== assignment.assignment_id) continue
+      attemptCounts.set(
+        attempt.student_id,
+        (attemptCounts.get(attempt.student_id) ?? 0) + 1,
+      )
+    }
+  }
+
+  const snapshotByStudent = new Map(
+    workspace.snapshots.map((snapshot) => [snapshot.auth_user_id, snapshot]),
+  )
+
+  const rows = students.map((student) => {
+    const snapshot = snapshotByStudent.get(student.auth_user_id)
+    const bestAttempt = bestAttempts.get(student.auth_user_id)
+    const skills = masteryEntries(snapshot)
+    const masteryAverage = skills.length
+      ? average(skills.map((skill) => skill.score))
+      : null
+
+    return {
+      student,
+      snapshot,
+      bestAttempt,
+      assignmentAttempts: attemptCounts.get(student.auth_user_id) ?? 0,
+      masteryAverage,
+    }
+  })
+
+  const submittedRows = rows.filter((row) => row.bestAttempt)
+  const scoreAverage = submittedRows.length
+    ? average(
+        submittedRows.map((row) => Number(row.bestAttempt?.score ?? 0)),
+      )
+    : null
+  const snapshots = rows
+    .map((row) => row.snapshot)
+    .filter(
+      (snapshot): snapshot is StudentLearningSnapshotRow => Boolean(snapshot),
+    )
+  const levelAverage = snapshots.length
+    ? average(snapshots.map((snapshot) => snapshot.level))
+    : null
+  const masteryValues = rows
+    .map((row) => row.masteryAverage)
+    .filter((value): value is number => value !== null)
+  const classMasteryAverage = masteryValues.length
+    ? average(masteryValues)
+    : null
+
+  return (
+    <section className="teacher-card teacher-class-roster-card">
+      <header className="teacher-card-heading teacher-roster-heading">
+        <div>
+          <p className="teacher-eyebrow">HỒ SƠ NHANH CẢ LỚP</p>
+          <h2>{selectedClass?.name ?? 'Chọn lớp'}</h2>
+          <p>
+            Điểm assignment, tiến độ chơi và dữ liệu học tập của từng bé trong
+            cùng một bảng.
+          </p>
+        </div>
+        <label className="teacher-roster-assignment-picker">
+          Assignment
+          <select
+            value={assignmentId}
+            onChange={(event) => setAssignmentId(event.target.value)}
+            disabled={!assignments.length}
+          >
+            {assignments.length ? (
+              assignments.map((item) => (
+                <option key={item.assignment_id} value={item.assignment_id}>
+                  {item.title} · {item.week_key}
+                </option>
+              ))
+            ) : (
+              <option value="">Chưa có bài tuần</option>
+            )}
+          </select>
+        </label>
+      </header>
+
+      <div className="teacher-roster-kpis">
+        <div>
+          <span>Sĩ số</span>
+          <strong>{students.length}</strong>
+        </div>
+        <div>
+          <span>Đã nộp assignment</span>
+          <strong>
+            {assignment ? submittedRows.length + '/' + students.length : '—'}
+          </strong>
+        </div>
+        <div>
+          <span>Điểm assignment TB</span>
+          <strong>
+            {scoreAverage === null ? '—' : formatScore(scoreAverage)}
+          </strong>
+        </div>
+        <div>
+          <span>Cấp chơi TB</span>
+          <strong>
+            {levelAverage === null
+              ? '—'
+              : Math.round(levelAverage * 10) / 10}
+          </strong>
+        </div>
+        <div>
+          <span>Mastery TB</span>
+          <strong>
+            {classMasteryAverage === null
+              ? '—'
+              : Math.round(classMasteryAverage) + '/100'}
+          </strong>
+        </div>
+      </div>
+
+      {students.length === 0 ? (
+        <div className="teacher-roster-empty">
+          Chưa có học sinh trong lớp này.
+        </div>
+      ) : (
+        <div className="teacher-table-wrap teacher-roster-table-wrap">
+          <table className="teacher-table teacher-roster-table">
+            <thead>
+              <tr>
+                <th>Học sinh</th>
+                <th>Assignment</th>
+                <th>Tiến độ chơi</th>
+                <th>Mastery</th>
+                <th>Dữ liệu gần nhất</th>
+                <th>Trạng thái</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(
+                ({
+                  student,
+                  snapshot,
+                  bestAttempt,
+                  assignmentAttempts,
+                  masteryAverage,
+                }) => (
+                  <tr key={student.auth_user_id}>
+                    <td>
+                      <div className="teacher-roster-student">
+                        <span>
+                          {student.display_name.slice(0, 1).toUpperCase()}
+                        </span>
+                        <div>
+                          <strong>{student.display_name}</strong>
+                          <small>
+                            @{student.username} · {student.student_code}
+                          </small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {bestAttempt ? (
+                        <div className="teacher-roster-score">
+                          <strong>
+                            {formatScore(Number(bestAttempt.score))}
+                          </strong>
+                          <span>
+                            <Star size={14} fill="currentColor" />
+                            {bestAttempt.stars}/5 · {assignmentAttempts} lượt
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="teacher-roster-muted">
+                          {assignment ? 'Chưa nộp' : 'Chưa có bài'}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {snapshot ? (
+                        <div className="teacher-roster-progress">
+                          <strong>
+                            Cấp {snapshot.level} · {snapshot.total_xp} XP
+                          </strong>
+                          <span>
+                            {snapshot.completed_world_chapters.length} chapter ·{' '}
+                            {snapshot.completed_missions.length} nhiệm vụ
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="teacher-roster-muted">
+                          Chưa đồng bộ tiến độ
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {masteryAverage === null ? (
+                        <span className="teacher-roster-muted">Chưa có dữ liệu</span>
+                      ) : (
+                        <div className="teacher-roster-mastery">
+                          <strong>{Math.round(masteryAverage)}/100</strong>
+                          <progress value={masteryAverage} max={100} />
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <span className="teacher-roster-sync">
+                        {snapshot
+                          ? formatDateTime(snapshot.updated_at)
+                          : student.last_seen_at
+                            ? formatDateTime(student.last_seen_at)
+                            : 'Chưa có'}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          'teacher-status ' +
+                          (student.active ? 'is-published' : 'is-closed')
+                        }
+                      >
+                        {student.active ? 'Hoạt động' : 'Đã khóa'}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="teacher-roster-open"
+                        onClick={() => onOpenStudent(student.auth_user_id)}
+                      >
+                        Xem bé <ChevronRight size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ),
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  )
+}
+
 function ClassCreatePanel({
   onClose,
   onCreated,
@@ -664,12 +962,14 @@ function OverviewPage({
   onSelectClass,
   onOpenClasses,
   onOpenAssignments,
+  onOpenStudent,
 }: {
   workspace: TeacherWorkspace
   selectedClass?: ClassroomRow
   onSelectClass: (id: string) => void
   onOpenClasses: () => void
   onOpenAssignments: () => void
+  onOpenStudent: (studentId: string) => void
 }) {
   const activeStudents = workspace.students.filter((student) => student.active)
   const published = workspace.assignments.filter((item) => item.status === 'published')
@@ -699,6 +999,14 @@ function OverviewPage({
         <StatCard icon={ClipboardList} label="Bài đang mở" value={published.length} note="Weekly assignments đã xuất bản" />
         <StatCard icon={BookOpenCheck} label="Lượt nộp bài" value={workspace.attempts.length} note="Tổng trên các bài của lớp" />
       </div>
+
+      {workspace.classrooms.length && selectedClass ? (
+        <ClassStudentOverview
+          workspace={workspace}
+          selectedClass={selectedClass}
+          onOpenStudent={onOpenStudent}
+        />
+      ) : null}
 
       {workspace.classrooms.length ? (
         <section className="teacher-card">
@@ -1181,10 +1489,12 @@ function StudentsPage({
   workspace,
   selectedClass,
   onSelectClass,
+  focusStudentId,
 }: {
   workspace: TeacherWorkspace
   selectedClass?: ClassroomRow
   onSelectClass: (id: string) => void
+  focusStudentId?: string
 }) {
   const students = selectedClass
     ? workspace.students.filter((item) => item.classroom_id === selectedClass.classroom_id)
@@ -1194,10 +1504,18 @@ function StudentsPage({
   const [eventsLoading, setEventsLoading] = useState(false)
 
   useEffect(() => {
+    if (
+      focusStudentId &&
+      students.some((item) => item.auth_user_id === focusStudentId)
+    ) {
+      setStudentId(focusStudentId)
+      return
+    }
+
     if (!students.some((item) => item.auth_user_id === studentId)) {
       setStudentId(students[0]?.auth_user_id ?? '')
     }
-  }, [studentId, students])
+  }, [focusStudentId, studentId, students])
 
   useEffect(() => {
     if (!studentId) {
@@ -1357,6 +1675,7 @@ export function TeacherApp() {
   const [status, setStatus] = useState<'loading' | 'guest' | 'ready'>('loading')
   const [workspace, setWorkspace] = useState<TeacherWorkspace | null>(null)
   const [selectedClassId, setSelectedClassId] = useState('')
+  const [focusedStudentId, setFocusedStudentId] = useState('')
   const [createClassOpen, setCreateClassOpen] = useState(false)
   const [createStudentOpen, setCreateStudentOpen] = useState(false)
   const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false)
@@ -1504,6 +1823,10 @@ export function TeacherApp() {
               setPage('assignments')
               setCreateAssignmentOpen(true)
             }}
+            onOpenStudent={(studentId) => {
+              setFocusedStudentId(studentId)
+              setPage('students')
+            }}
           />
         ) : page === 'classes' ? (
           <ClassesPage
@@ -1533,6 +1856,7 @@ export function TeacherApp() {
             workspace={workspace}
             selectedClass={selectedClass}
             onSelectClass={setSelectedClassId}
+            focusStudentId={focusedStudentId}
           />
         )}
       </main>
