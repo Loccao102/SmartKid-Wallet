@@ -44,6 +44,10 @@ export function createResearchSnapshot(
       })),
       lastFollowUpResolvedAtServedCustomers:
         progress.worldState.lastFollowUpResolvedAtServedCustomers,
+      managerProtections: [...progress.worldState.managerProtections],
+      consumedManagerProtections: [
+        ...progress.worldState.consumedManagerProtections,
+      ],
     },
   }
 }
