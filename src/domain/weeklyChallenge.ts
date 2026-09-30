@@ -6,7 +6,7 @@ import { choiceQuality, starsFromScore, timeEfficiencyScore } from './scoring'
 import { createSeed, createSeededRandom, pickOne } from '../lib/seededRandom'
 import type { ExerciseInstance, WorkScenarioDefinition } from './types'
 
-export const WEEKLY_CHALLENGE_VERSION = 1
+export const WEEKLY_CHALLENGE_VERSION = 2
 export const WEEKLY_MATH_COUNT = 6
 export const WEEKLY_SCENARIO_COUNT = 2
 export const WEEKLY_TARGET_SECONDS = 600
@@ -25,6 +25,12 @@ export interface WeeklyChallengeDefinition {
   targetSeconds: number
   xpReward: number
   coinReward: number
+}
+
+export interface WeeklyScenarioRound {
+  scenario: WorkScenarioDefinition
+  choiceOrder: string[]
+  variantSeed: number
 }
 
 export interface WeeklyChallengeRunScore {
@@ -130,7 +136,7 @@ export function createWeeklyChallenge(
     weekKey,
     seed,
     title: 'SmartMart Weekly Arena',
-    subtitle: '6 bài Toán · 2 tình huống · cùng đề cho mọi người',
+    subtitle: '6 bài Toán · 2 tình huống · cùng độ khó, dữ kiện riêng',
     mathFamilyIds,
     scenarioIds: [firstScenario.id, secondScenario.id],
     targetSeconds: WEEKLY_TARGET_SECONDS,
@@ -139,13 +145,27 @@ export function createWeeklyChallenge(
   }
 }
 
+function shuffleWithRandom<T>(items: readonly T[], random: () => number) {
+  const result = [...items]
+
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1))
+    const current = result[index]
+    result[index] = result[swapIndex]
+    result[swapIndex] = current
+  }
+
+  return result
+}
+
 export function createWeeklyMathExercises(
   challenge: WeeklyChallengeDefinition,
+  variantKey = 'shared-preview',
 ): ExerciseInstance[] {
   return challenge.mathFamilyIds.map((familyId, index) =>
     generateExercise(
       getExerciseFamilyById(familyId),
-      challenge.id,
+      challenge.id + ':' + variantKey,
       100 + index,
     ),
   )
@@ -155,6 +175,31 @@ export function getWeeklyScenarios(
   challenge: WeeklyChallengeDefinition,
 ): WorkScenarioDefinition[] {
   return challenge.scenarioIds.map((id) => getWorkScenario(id))
+}
+
+export function createWeeklyScenarioRounds(
+  challenge: WeeklyChallengeDefinition,
+  variantKey = 'shared-preview',
+): WeeklyScenarioRound[] {
+  return challenge.scenarioIds.map((scenarioId, index) => {
+    const scenario = getWorkScenario(scenarioId)
+    const variantSeed = createSeed([
+      challenge.id,
+      'scenario-round',
+      variantKey,
+      index,
+    ])
+    const random = createSeededRandom(variantSeed)
+
+    return {
+      scenario,
+      variantSeed,
+      choiceOrder: shuffleWithRandom(
+        scenario.choices.map((choice) => choice.id),
+        random,
+      ),
+    }
+  })
 }
 
 export function scoreWeeklyChallenge({

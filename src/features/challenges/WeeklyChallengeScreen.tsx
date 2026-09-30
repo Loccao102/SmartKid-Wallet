@@ -14,8 +14,8 @@ import {
 import {
   createWeeklyChallenge,
   createWeeklyMathExercises,
+  createWeeklyScenarioRounds,
   getVietnamWeekEndsAt,
-  getWeeklyScenarios,
   scoreWeeklyChallenge,
   type WeeklyChallengeRunScore,
 } from '../../domain/weeklyChallenge'
@@ -25,6 +25,7 @@ import {
   type WeeklyLeaderboardEntry,
 } from '../../lib/weeklyChallengeRemote'
 import { playGameSfx } from '../../lib/audioEngine'
+import { getOrCreateWeeklyVariantKey } from '../../lib/weeklyVariantKey'
 import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { stalls } from '../../data/stalls'
 import type { WorkScenarioChoice } from '../../domain/types'
@@ -101,11 +102,19 @@ export function WeeklyChallengeScreen({ onBack }: { onBack: () => void }) {
   const activityResults = useProgressionStore((state) => state.activityResults)
 
   const challenge = useMemo(() => createWeeklyChallenge(), [])
+  const variantKey = useMemo(() => getOrCreateWeeklyVariantKey(), [])
   const exercises = useMemo(
-    () => createWeeklyMathExercises(challenge),
-    [challenge],
+    () => createWeeklyMathExercises(challenge, variantKey),
+    [challenge, variantKey],
   )
-  const scenarios = useMemo(() => getWeeklyScenarios(challenge), [challenge])
+  const scenarioRounds = useMemo(
+    () => createWeeklyScenarioRounds(challenge, variantKey),
+    [challenge, variantKey],
+  )
+  const scenarios = useMemo(
+    () => scenarioRounds.map((round) => round.scenario),
+    [scenarioRounds],
+  )
   const endsAt = useMemo(() => getVietnamWeekEndsAt(), [])
 
   const startedAtRef = useRef(Date.now())
@@ -150,7 +159,16 @@ export function WeeklyChallengeScreen({ onBack }: { onBack: () => void }) {
   const inMath = mathIndex < exercises.length
   const inScenario = !inMath && scenarioIndex < scenarios.length
   const exercise = inMath ? exercises[mathIndex] : null
-  const scenario = inScenario ? scenarios[scenarioIndex] : null
+  const scenarioRound = inScenario ? scenarioRounds[scenarioIndex] : null
+  const scenario = scenarioRound?.scenario ?? null
+  const orderedScenarioChoices =
+    scenario && scenarioRound
+      ? scenarioRound.choiceOrder
+          .map((choiceId) =>
+            scenario.choices.find((choice) => choice.id === choiceId),
+          )
+          .filter((choice): choice is WorkScenarioChoice => Boolean(choice))
+      : []
 
   const submitMath = () => {
     if (!exercise || !answer.trim() || feedback !== 'idle') return
@@ -289,7 +307,8 @@ export function WeeklyChallengeScreen({ onBack }: { onBack: () => void }) {
         <h1>Mở đủ 5 gian để thi đấu công bằng</h1>
         <p>
           Challenge tuần dùng cả 5 nhóm kiến thức SmartMart. Khi mọi gian đã
-          mở, tất cả người chơi sẽ nhận cùng một đề và cùng hai tình huống.
+          mở, tất cả người chơi nhận cùng cấu trúc và độ khó, nhưng dữ kiện số
+          được biến đổi để hạn chế học thuộc hoặc truyền đáp án.
         </p>
         <button type="button" className="adventure-button" onClick={onBack}>
           <ArrowLeft size={18} />
@@ -408,8 +427,8 @@ export function WeeklyChallengeScreen({ onBack }: { onBack: () => void }) {
         <div className="weekly-fairness">
           <ShieldCheck size={21} />
           <span>
-            <strong>Cùng đề, cùng seed</strong>
-            <small>Xu không mua retry trong chế độ thi đấu.</small>
+            <strong>Cùng blueprint, dữ kiện riêng</strong>
+            <small>Cùng độ khó · không truyền được đáp án số · xu không mua retry.</small>
           </span>
         </div>
       </header>
@@ -522,7 +541,7 @@ export function WeeklyChallengeScreen({ onBack }: { onBack: () => void }) {
           <h2>{scenario.title}</h2>
           <p className="weekly-scenario-description">{scenario.description}</p>
           <div className="scenario-options">
-            {scenario.choices.map((choice, index) => (
+            {orderedScenarioChoices.map((choice, index) => (
               <button
                 key={choice.id}
                 type="button"

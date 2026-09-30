@@ -6,8 +6,8 @@ describe('weekly challenge remote payload contract', () => {
     const challenge = createWeeklyChallenge(
       new Date('2026-09-30T03:00:00Z'),
     )
-    expect(challenge.id).toBe('smartmart-week-2026-09-28-v1')
-    expect(challenge.version).toBe(1)
+    expect(challenge.id).toBe('smartmart-week-2026-09-28-v2')
+    expect(challenge.version).toBe(2)
     expect(challenge.weekKey).toBe('2026-09-28')
   })
 })
