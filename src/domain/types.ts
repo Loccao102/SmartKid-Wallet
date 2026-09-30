@@ -263,6 +263,23 @@ export type WorkWorldFlag =
   | 'billing-dispute'
   | 'stale-promo-sign'
 
+export interface WorkStoryFollowUpChoice {
+  id: string
+  label: string
+  employeeRatingDelta: number
+  storeReputationDelta: number
+  customerSatisfactionDelta: number
+  feedback: string
+}
+
+export interface WorkStoryFollowUpDefinition {
+  id: string
+  delayCustomers: number
+  title: string
+  description: string
+  choices: WorkStoryFollowUpChoice[]
+}
+
 export interface WorkDeferredConsequenceDefinition {
   id: string
   trigger: 'after-customers' | 'shift-end'
@@ -279,6 +296,7 @@ export interface WorkWorldEffect {
   setFlags?: WorkWorldFlag[]
   clearFlags?: WorkWorldFlag[]
   deferredConsequences?: WorkDeferredConsequenceDefinition[]
+  followUps?: WorkStoryFollowUpDefinition[]
 }
 
 export interface WorkPendingConsequence
@@ -293,10 +311,26 @@ export interface WorkResolvedConsequence
   resolvedAtServedCustomers: number
 }
 
+export interface WorkPendingFollowUp extends WorkStoryFollowUpDefinition {
+  instanceId: string
+  scheduledAtServedCustomers: number
+  dueAtServedCustomers: number
+  sourceScenarioId: string
+  sourceChoiceId: string
+}
+
+export interface WorkResolvedFollowUp extends WorkPendingFollowUp {
+  resolvedAtServedCustomers: number
+  selectedChoiceId: string
+  feedback: string
+}
+
 export interface WorkWorldState {
   flags: WorkWorldFlag[]
   pendingConsequences: WorkPendingConsequence[]
   resolvedConsequences: WorkResolvedConsequence[]
+  pendingFollowUps: WorkPendingFollowUp[]
+  resolvedFollowUps: WorkResolvedFollowUp[]
 }
 
 export interface WorkShiftMetrics {
@@ -319,6 +353,7 @@ export interface WorkShiftCustomerProgress {
 export interface WorkShiftProgress {
   shiftId: string
   customerIndex: number
+  activeFollowUpInstanceId?: string
   customerProgress: Record<string, WorkShiftCustomerProgress>
   metrics: WorkShiftMetrics
   worldState: WorkWorldState
