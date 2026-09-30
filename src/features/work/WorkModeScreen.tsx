@@ -1,4 +1,4 @@
-import { WorkCounter, WorkResult } from './WorkPresentation'
+import { ManagerPlanScreen, WorkCounter, WorkResult } from './WorkPresentation'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowLeft,
@@ -29,6 +29,7 @@ import {
   getShiftResearchContext,
 } from '../../domain/researchEvents'
 import {
+  applyManagerPlan,
   applyMathAttempt,
   applyScenarioChoice,
   applyStoryFollowUpChoice,
@@ -43,6 +44,7 @@ import {
 } from '../../domain/workShiftEngine'
 import type {
   ResearchEvent,
+  WorkManagerPlanDefinition,
   WorkScenarioChoice,
   WorkStoryFollowUpChoice,
   WorkShiftDefinition,
@@ -267,6 +269,7 @@ export function WorkModeScreen({
                 ? shift.generationAttempt
                 : null,
             guidanceLevel: shift.guidanceLevel ?? 'guided',
+            managerMode: Boolean(shift.managerMode),
           },
         }),
       )
@@ -282,6 +285,34 @@ export function WorkModeScreen({
   useEffect(() => {
     stageStartedAtRef.current = nowMs()
   }, [shift.id, progress.customerIndex, stage])
+
+  if (shift.managerMode && !progress.managerPlanId) {
+    return (
+      <ManagerPlanScreen
+        shift={shift}
+        onBack={onBack}
+        onSelectPlan={(plan: WorkManagerPlanDefinition) => {
+          const nextProgress = applyManagerPlan(progress, plan)
+          setProgress(shift.id, nextProgress)
+          playGameSfx('click')
+
+          logResearchEvent({
+            eventType: 'scenario_choice',
+            choiceId: plan.id,
+            before: createResearchSnapshot(progress),
+            after: createResearchSnapshot(nextProgress),
+            metadata: {
+              phase: 'manager-plan',
+              managerPlanId: plan.id,
+              managerProtection: plan.protection,
+            },
+          })
+
+          stageStartedAtRef.current = nowMs()
+        }}
+      />
+    )
+  }
 
   if (progress.completed || !customer || !customerProgress) {
     return (
@@ -416,16 +447,22 @@ export function WorkModeScreen({
       scenarioChoiceId: choice.id,
     })
     const worldEffect = getWorkWorldEffect(scenario.id, choice.id)
+    const nextWorldState = applyWorkWorldEffect(
+      progress.worldState,
+      worldEffect,
+      progress.metrics.servedCustomers,
+      scenario.id,
+      choice.id,
+    )
+    const consumedProtection =
+      nextWorldState.consumedManagerProtections.length >
+      progress.worldState.consumedManagerProtections.length
+        ? nextWorldState.consumedManagerProtections.at(-1)
+        : undefined
     const nextProgress = {
       ...next,
       metrics: applyScenarioChoice(progress.metrics, choice),
-      worldState: applyWorkWorldEffect(
-        progress.worldState,
-        worldEffect,
-        progress.metrics.servedCustomers,
-        scenario.id,
-        choice.id,
-      ),
+      worldState: nextWorldState,
     }
 
     setProgress(shift.id, nextProgress)
@@ -449,6 +486,8 @@ export function WorkModeScreen({
         billDelta: choice.billDelta,
         scenarioVariantKey: customer.scenarioVariantKey ?? null,
         scenarioChoiceOrder: customer.scenarioChoiceOrder?.join(',') ?? null,
+        managerPlanId: progress.managerPlanId ?? null,
+        managerProtectionConsumed: consumedProtection ?? null,
       },
     })
 
@@ -490,6 +529,9 @@ export function WorkModeScreen({
           nextProgress.worldState.resolvedConsequences.length,
         resolvedStoryFollowUps:
           nextProgress.worldState.resolvedFollowUps.length,
+        managerPlanId: nextProgress.managerPlanId ?? null,
+        managerProtectionsConsumed:
+          nextProgress.worldState.consumedManagerProtections.join(','),
       },
     })
 
