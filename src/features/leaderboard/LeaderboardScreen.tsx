@@ -1,16 +1,191 @@
-import { useRef, useState } from 'react'
-import { Medal, ShieldCheck, Star, Target, Trophy } from 'lucide-react'
-import { gameAssets } from '../../assets/registry'
-import { demoStudentProfile, weeklyChallenge } from '../../data/studentDemo'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  ArrowRight,
+  Clock3,
+  Medal,
+  ShieldCheck,
+  Star,
+  Trophy,
+  UsersRound,
+} from 'lucide-react'
+import {
+  createWeeklyChallenge,
+  getVietnamWeekEndsAt,
+} from '../../domain/weeklyChallenge'
+import {
+  fetchWeeklyLeaderboard,
+  type WeeklyLeaderboardEntry,
+} from '../../lib/weeklyChallengeRemote'
 
-export function LeaderboardScreen() {
-  const currentRef = useRef<HTMLLIElement>(null)
-  const [showDetails, setShowDetails] = useState(false)
-  const podium = [weeklyChallenge.rows[1], weeklyChallenge.rows[0], weeklyChallenge.rows[2]]
-  return <section className="class-leaderboard"><header className="adventure-heading"><div><p className="eyebrow">CÙNG NHAU TIẾN BỘ</p><h1>Bảng xếp hạng lớp</h1><p>{weeklyChallenge.title} · Lớp {demoStudentProfile.className}</p></div><span className="sample-label">Dữ liệu minh họa</span></header>
-    <div className="class-podium">{podium.map(row => <article key={row.studentId} className={`class-podium-place place-${row.rank}`}><div className="podium-person"><img src={gameAssets.production.customers[(row.rank+1) % 6]} alt="" />{row.rank === 1 ? <Trophy size={30} /> : <Medal size={25} />}</div><h2>{row.name}</h2><p><Star size={18} />{row.points} điểm</p><div className="podium-step"><strong>{row.rank}</strong></div></article>)}</div>
-    <div className="leaderboard-tools"><button type="button" className="outline-button" onClick={() => { currentRef.current?.scrollIntoView({block:'center',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'}); currentRef.current?.focus() }}><Target size={19} />Vị trí của em</button><button type="button" className="quiet-button" aria-pressed={showDetails} onClick={() => setShowDetails(!showDetails)}>{showDetails ? 'Thu gọn chi tiết' : 'Xem độ chính xác'}</button></div>
-    <ol className="class-ranking" aria-label="Xếp hạng học sinh">{weeklyChallenge.rows.map(row => { const current = row.studentId === demoStudentProfile.id; return <li key={row.studentId} ref={current ? currentRef : undefined} tabIndex={current ? -1 : undefined} className={current ? 'current-student' : ''}><span className="ranking-position" aria-label={`Hạng ${row.rank}`}>{row.rank}</span><span className="ranking-avatar">{current ? <img src={gameAssets.production.student} alt="" /> : row.name.split(' ').at(-1)?.charAt(0)}</span><div className="ranking-name"><strong>{row.name}{current ? <em>Em</em> : null}</strong>{showDetails ? <span>{row.accuracy}% chính xác · {row.missions} nhiệm vụ</span> : null}</div><strong className="ranking-points"><Star size={17} />{row.points}<span className="sr-only">điểm</span></strong></li> })}</ol>
-    <aside className="ranking-note"><ShieldCheck size={25} /><div><strong>Học cùng nhau, tiến bộ cùng nhau</strong><p>Điểm thử thách ưu tiên độ chính xác và hoàn thành mục tiêu. Doanh thu, uy tín cửa hàng và mức hài lòng của khách không phải điểm học tập.</p></div></aside>
-  </section>
+function formatDuration(ms: number) {
+  const seconds = Math.max(0, Math.floor(ms / 1000))
+  return (
+    Math.floor(seconds / 60) +
+    ':' +
+    String(seconds % 60).padStart(2, '0')
+  )
+}
+
+function remainingLabel(endsAt: Date) {
+  const diff = Math.max(0, endsAt.getTime() - Date.now())
+  const days = Math.floor(diff / 86_400_000)
+  const hours = Math.floor((diff % 86_400_000) / 3_600_000)
+  return days > 0
+    ? 'Còn ' + days + ' ngày ' + hours + ' giờ'
+    : 'Còn ' + hours + ' giờ'
+}
+
+export function LeaderboardScreen({
+  onOpenWeeklyChallenge,
+}: {
+  onOpenWeeklyChallenge: () => void
+}) {
+  const challenge = useMemo(() => createWeeklyChallenge(), [])
+  const endsAt = useMemo(() => getVietnamWeekEndsAt(), [])
+  const [rows, setRows] = useState<WeeklyLeaderboardEntry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const load = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      setRows(await fetchWeeklyLeaderboard(challenge.id, 50))
+    } catch {
+      setError('Chưa tải được bảng xếp hạng online.')
+      setRows([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    void load()
+  }, [challenge.id])
+
+  const podium = rows.slice(0, 3)
+
+  return (
+    <section className="class-leaderboard weekly-leaderboard-page">
+      <header className="adventure-heading">
+        <div>
+          <p className="eyebrow">
+            <Trophy size={16} /> SMARTMART WEEKLY ARENA
+          </p>
+          <h1>Bảng xếp hạng tuần</h1>
+          <p>
+            {challenge.subtitle} · {remainingLabel(endsAt)}
+          </p>
+        </div>
+        <button
+          type="button"
+          className="adventure-button"
+          onClick={onOpenWeeklyChallenge}
+        >
+          Vào thi đấu
+          <ArrowRight size={18} />
+        </button>
+      </header>
+
+      <aside className="weekly-fair-play">
+        <ShieldCheck size={23} />
+        <div>
+          <strong>Cạnh tranh trên cùng điều kiện</strong>
+          <p>
+            Cùng tuần dùng cùng đề và cùng seed. Weekly Arena không cho dùng xu
+            để mua retry. Xếp hạng ưu tiên điểm cao hơn, sau đó mới xét thời
+            gian.
+          </p>
+        </div>
+      </aside>
+
+      {loading ? (
+        <div className="weekly-board-empty">Đang tải bảng tuần…</div>
+      ) : error ? (
+        <div className="weekly-board-empty">
+          <p>{error}</p>
+          <button type="button" className="outline-button" onClick={load}>
+            Thử tải lại
+          </button>
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="weekly-board-empty">
+          <UsersRound size={38} />
+          <h2>Chưa có lượt thi nào trong tuần này</h2>
+          <p>Người hoàn thành Weekly Arena đầu tiên sẽ mở bảng xếp hạng.</p>
+          <button
+            type="button"
+            className="adventure-button"
+            onClick={onOpenWeeklyChallenge}
+          >
+            Thi lượt đầu tiên
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      ) : (
+        <>
+          <div className="class-podium weekly-podium">
+            {podium.map((row, index) => (
+              <article
+                key={row.playerCode}
+                className={'class-podium-place place-' + (index + 1)}
+              >
+                <div className="podium-person weekly-code-avatar">
+                  {index === 0 ? <Trophy size={30} /> : <Medal size={25} />}
+                </div>
+                <h2>{row.playerCode}</h2>
+                <p>
+                  <Star size={18} fill="currentColor" />
+                  {row.bestStars}/5 · {Math.round(row.bestScore)} điểm
+                </p>
+                <div className="podium-step">
+                  <strong>{index + 1}</strong>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <ol className="class-ranking weekly-ranking" aria-label="Xếp hạng tuần">
+            {rows.map((row) => (
+              <li key={row.playerCode}>
+                <span className="ranking-position" aria-label={'Hạng ' + row.rank}>
+                  {row.rank}
+                </span>
+                <span className="ranking-avatar">
+                  {row.playerCode.slice(-2)}
+                </span>
+                <div className="ranking-name">
+                  <strong>{row.playerCode}</strong>
+                  <span>
+                    {row.bestFirstTryCorrect}/6 đúng lần đầu · {row.attempts}{' '}
+                    lượt thi
+                  </span>
+                </div>
+                <strong className="ranking-points">
+                  <Star size={17} fill="currentColor" />
+                  {Math.round(row.bestScore)}
+                </strong>
+                <span className="weekly-rank-time">
+                  <Clock3 size={15} />
+                  {formatDuration(row.bestElapsedMs)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+
+      <aside className="ranking-note">
+        <ShieldCheck size={25} />
+        <div>
+          <strong>Không đưa tên thật lên bảng công khai</strong>
+          <p>
+            Giai đoạn hiện tại chỉ hiển thị mã người chơi ẩn danh. Khi có hệ
+            lớp/giáo viên, tên hiển thị trong lớp sẽ được xử lý ở phạm vi riêng,
+            không biến leaderboard thành danh sách công khai trẻ em.
+          </p>
+        </div>
+      </aside>
+    </section>
+  )
 }
