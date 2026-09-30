@@ -1614,3 +1614,245 @@
     color: white;
   }
 }
+
+
+/* Class-wide overview: assignment + game progress + student identity */
+.teacher-class-roster-card {
+  overflow: hidden;
+}
+
+.teacher-roster-heading {
+  align-items: end;
+}
+
+.teacher-roster-assignment-picker {
+  min-width: min(330px, 100%);
+  display: grid;
+  gap: 6px;
+  color: #70817a;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.teacher-roster-assignment-picker select {
+  min-height: 43px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #cfddd6;
+  border-radius: 11px;
+  outline: 0;
+  background: white;
+  color: var(--teacher-ink);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.teacher-roster-assignment-picker select:focus {
+  border-color: #72a392;
+  box-shadow: 0 0 0 4px rgba(47,111,93,.1);
+}
+
+.teacher-roster-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 15px;
+}
+
+.teacher-roster-kpis > div {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #e6ece8;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f8faf9, #f2f6f4);
+}
+
+.teacher-roster-kpis span,
+.teacher-roster-kpis strong {
+  display: block;
+}
+
+.teacher-roster-kpis span {
+  color: #7d8b85;
+  font-size: 8px;
+  font-weight: 780;
+}
+
+.teacher-roster-kpis strong {
+  margin-top: 4px;
+  color: #31584c;
+  font-size: 17px;
+  letter-spacing: -.03em;
+}
+
+.teacher-roster-table-wrap {
+  border: 1px solid #e5ece8;
+  border-radius: 13px;
+}
+
+.teacher-roster-table {
+  min-width: 1120px;
+}
+
+.teacher-roster-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f7f9f8;
+}
+
+.teacher-roster-table td {
+  height: 64px;
+}
+
+.teacher-roster-student {
+  min-width: 210px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.teacher-roster-student > span {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: #e4f0eb;
+  color: #2f6f5d;
+  font-weight: 900;
+}
+
+.teacher-roster-student > div {
+  min-width: 0;
+}
+
+.teacher-roster-student strong,
+.teacher-roster-student small {
+  display: block;
+}
+
+.teacher-roster-student strong {
+  overflow: hidden;
+  color: var(--teacher-ink);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-roster-student small {
+  max-width: 210px;
+  margin-top: 2px;
+  overflow: hidden;
+  color: #8a9691;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacher-roster-score,
+.teacher-roster-progress,
+.teacher-roster-mastery {
+  display: grid;
+  gap: 3px;
+}
+
+.teacher-roster-score strong {
+  color: #2f6f5d;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.teacher-roster-score span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #b17f25;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.teacher-roster-progress strong {
+  color: #405e54;
+  font-size: 10px;
+}
+
+.teacher-roster-progress span,
+.teacher-roster-sync,
+.teacher-roster-muted {
+  color: #85918c;
+  font-size: 8px;
+  line-height: 1.35;
+}
+
+.teacher-roster-mastery {
+  min-width: 95px;
+}
+
+.teacher-roster-mastery strong {
+  color: #405e54;
+  font-size: 10px;
+}
+
+.teacher-roster-mastery progress {
+  width: 92px;
+  height: 6px;
+  accent-color: var(--teacher-primary);
+}
+
+.teacher-roster-open {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: 1px solid #d8e3dd;
+  border-radius: 8px;
+  background: white;
+  color: #45695d;
+  font: inherit;
+  font-size: 8px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.teacher-roster-open:hover {
+  border-color: #8aafa0;
+  background: #edf5f1;
+}
+
+.teacher-roster-empty {
+  padding: 34px 16px;
+  border: 1px dashed #cfddd6;
+  border-radius: 13px;
+  color: #83918b;
+  font-size: 10px;
+  text-align: center;
+}
+
+@media (max-width: 1180px) {
+  .teacher-roster-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .teacher-roster-heading {
+    align-items: stretch;
+  }
+
+  .teacher-roster-assignment-picker {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .teacher-roster-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+}
