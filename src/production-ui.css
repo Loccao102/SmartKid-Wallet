@@ -2635,3 +2635,110 @@ body {
 .shelf-product.is-unavailable .quantity-control button:last-child {
   opacity: .45;
 }
+
+
+/* === Adaptive mastery profile === */
+.passport-mastery {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid #dce5d6;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(239, 198, 93, .16), transparent 16rem),
+    #fffdf6;
+}
+
+.passport-mastery > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.passport-mastery h2 {
+  margin: 3px 0 6px;
+}
+
+.passport-mastery header p:last-child {
+  margin: 0;
+  max-width: 720px;
+  color: #68796d;
+  line-height: 1.5;
+}
+
+.passport-mastery > header > svg {
+  flex: 0 0 auto;
+  padding: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #e7f0df;
+  color: #257259;
+}
+
+.mastery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.mastery-grid article {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 1px solid #e0e6da;
+  border-radius: 15px;
+  background: #f8f8ef;
+}
+
+.mastery-grid article > span {
+  color: #607368;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mastery-grid article > strong {
+  color: #2b6f57;
+  font-size: 16px;
+}
+
+.mastery-grid article small {
+  color: #738078;
+  line-height: 1.4;
+}
+
+.mastery-empty {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 16px;
+  padding: 15px;
+  border-radius: 14px;
+  background: #f5f1dc;
+  color: #6b633f;
+}
+
+.mastery-empty p,
+.mastery-note {
+  margin: 0;
+}
+
+.mastery-note {
+  margin-top: 14px;
+  color: #758078;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .mastery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .mastery-grid {
+    grid-template-columns: 1fr;
+  }
+}
