@@ -274,6 +274,7 @@ export interface WorkStoryFollowUpChoice {
 
 export interface WorkStoryFollowUpDefinition {
   id: string
+  priority?: 1 | 2 | 3
   delayCustomers: number
   title: string
   description: string
@@ -331,6 +332,7 @@ export interface WorkWorldState {
   resolvedConsequences: WorkResolvedConsequence[]
   pendingFollowUps: WorkPendingFollowUp[]
   resolvedFollowUps: WorkResolvedFollowUp[]
+  lastFollowUpResolvedAtServedCustomers?: number
 }
 
 export interface WorkShiftMetrics {

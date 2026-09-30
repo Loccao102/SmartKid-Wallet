@@ -42,6 +42,8 @@ export function createResearchSnapshot(
         ...item,
         choices: item.choices.map((choice) => ({ ...choice })),
       })),
+      lastFollowUpResolvedAtServedCustomers:
+        progress.worldState.lastFollowUpResolvedAtServedCustomers,
     },
   }
 }
