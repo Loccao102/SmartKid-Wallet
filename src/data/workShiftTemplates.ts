@@ -15,6 +15,7 @@ export const traineeShiftTemplate: WorkShiftTemplateDefinition = {
   title: 'Ca làm việc 01',
   subtitle: 'Phục vụ 3 khách đầu tiên với dữ kiện thay đổi sau mỗi lượt chơi.',
   roleTitle: 'Nhân viên tập sự',
+  guidanceLevel: 'guided',
   customerCount: 3,
   scenarioCount: 2,
   minScenarioDifficulty: 1,
@@ -31,6 +32,7 @@ export const advancedShiftTemplate: WorkShiftTemplateDefinition = {
   title: 'Ca làm việc 02',
   subtitle: 'Quầy đông khách: phục vụ 6 khách với các tình huống được sinh theo seed.',
   roleTitle: 'Nhân viên tập sự',
+  guidanceLevel: 'light',
   customerCount: 6,
   scenarioCount: 4,
   minScenarioDifficulty: 1,
@@ -48,6 +50,7 @@ export const expertShiftTemplate: WorkShiftTemplateDefinition = {
   subtitle:
     '8 khách, 5 tình huống và cả các sự cố khó hơn của một ca SmartMart đông người.',
   roleTitle: 'Thu ngân SmartMart',
+  guidanceLevel: 'implicit',
   customerCount: 8,
   scenarioCount: 5,
   minScenarioDifficulty: 1,
