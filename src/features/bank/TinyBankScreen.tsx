@@ -371,12 +371,17 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
   }
 
   const finishLesson = (lessonId: TinyBankLessonId, stars: number) => {
-    completeLesson(lessonId, stars)
+    const passed = lessonId !== 'four-week-mission' || stars >= 3
     const lesson = tinyBankLessons.find((item) => item.id === lessonId)!
-    awardXpOnce('tiny-bank:' + lessonId, lesson.xpReward)
+
     recordActivityResult('tiny-bank:' + lessonId + ':v1', stars, stars * 20)
 
-    if (lessonId === 'four-week-mission' && stars >= 3) {
+    if (!passed) return
+
+    completeLesson(lessonId, stars)
+    awardXpOnce('tiny-bank:' + lessonId, lesson.xpReward)
+
+    if (lessonId === 'four-week-mission') {
       completeWorldChapter('tiny-bank')
       awardXpOnce('tiny-bank:chapter:v1', 80)
       claimChallengeReward('tiny-bank:chapter:v1', 80)
