@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   BriefcaseBusiness,
+  Coins,
   Compass,
   Home,
   Map,
   Star,
+  Settings2,
   Target,
   Trophy,
   User,
@@ -15,6 +17,7 @@ import { gameAssets } from './assets/registry'
 import { demoStudentProfile as student } from './data/studentDemo'
 import { traineeShift } from './data/workShift'
 import { getWorkShiftById } from './data/workShiftInstances'
+import { xpNeededForNextLevel } from './domain/progression'
 import type { ProductStallId } from './domain/types'
 import { HomeScreen } from './features/home/HomeScreen'
 import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
@@ -22,10 +25,13 @@ import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionSc
 import { MissionsScreen } from './features/missions/MissionsScreen'
 import { ProfileScreen } from './features/profile/ProfileScreen'
 import { ResearchSyncBridge } from './features/research/ResearchSyncBridge'
+import { AudioExperience } from './features/system/AudioExperience'
+import { AudioSettingsModal } from './features/system/AudioSettingsModal'
 import { FeatureErrorBoundary } from './features/system/FeatureErrorBoundary'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
+import { useProgressionStore } from './store/progression'
 
 type StudentPage =
   | 'home'
@@ -50,6 +56,11 @@ const navItems: Array<{
 
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
+  const [audioSettingsOpen, setAudioSettingsOpen] = useState(false)
+  const level = useProgressionStore((state) => state.level)
+  const levelXp = useProgressionStore((state) => state.levelXp)
+  const coins = useProgressionStore((state) => state.coins)
+  const nextLevelXp = xpNeededForNextLevel(level)
   const [missionStall, setMissionStall] = useState<ProductStallId>('produce')
   const openMission = (stall: ProductStallId = 'produce') => { setMissionStall(stall); setPage('mission-class-party') }
   const [activeWorkShiftId, setActiveWorkShiftId] = useState(traineeShift.id)
@@ -76,6 +87,7 @@ export function App() {
       className={`production-shell ${working ? 'mode-work' : 'mode-learning'} ${page === 'mission-class-party' ? 'is-shopping' : ''}`}
     >
       <ResearchSyncBridge />
+      <AudioExperience />
       <a href="#student-content" className="skip-link">
         Đến nội dung chính
       </a>
@@ -110,12 +122,21 @@ export function App() {
             </button>
           ))}
         </nav>
-        <button
-          type="button"
-          className="game-profile"
-          onClick={() => setPage('profile')}
-          aria-label={`Hồ sơ ${student.name}`}
-        >
+        <div className="game-header-actions">
+          <button
+            type="button"
+            className="audio-settings-trigger"
+            onClick={() => setAudioSettingsOpen(true)}
+            aria-label="Cài đặt âm thanh"
+          >
+            <Settings2 size={21} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="game-profile"
+            onClick={() => setPage('profile')}
+            aria-label={`Hồ sơ ${student.name}`}
+          >
           <span className="student-portrait">
             <img src={gameAssets.production.student} alt="" />
           </span>
@@ -123,7 +144,8 @@ export function App() {
             <strong>{student.name}</strong>
             <small>Lớp {student.className}</small>
           </span>
-        </button>
+          </button>
+        </div>
       </header>
       <div className="game-status-bar">
         <span>
@@ -136,18 +158,24 @@ export function App() {
             ? 'Ca làm tại SmartMart'
             : 'Một hành trình nhỏ, thật nhiều điều hay'}
         </span>
-        <span className="game-xp">
-          <Star size={17} aria-hidden="true" />
-          <strong>Cấp {student.level}</strong>
-          <progress
-            value={student.xp}
-            max={student.nextLevelXp}
-            aria-label={`${student.xp} trên ${student.nextLevelXp} XP`}
-          />
-          <span>
-            {student.xp}/{student.nextLevelXp} XP
+        <div className="game-economy">
+          <span className="game-coins">
+            <Coins size={17} aria-hidden="true" />
+            <strong>{coins.toLocaleString('vi-VN')} xu</strong>
           </span>
-        </span>
+          <span className="game-xp">
+            <Star size={17} aria-hidden="true" />
+            <strong>Cấp {level}</strong>
+            <progress
+              value={levelXp}
+              max={nextLevelXp}
+              aria-label={`${levelXp} trên ${nextLevelXp} XP`}
+            />
+            <span>
+              {levelXp}/{nextLevelXp} XP
+            </span>
+          </span>
+        </div>
       </div>
       <main
         id="student-content"
@@ -191,6 +219,9 @@ export function App() {
           )}
         </FeatureErrorBoundary>
       </main>
+      {audioSettingsOpen ? (
+        <AudioSettingsModal onClose={() => setAudioSettingsOpen(false)} />
+      ) : null}
       <footer className="game-footer">
         <span>SmartKid Wallet</span>
         <span>Học từng chút · Lớn mỗi ngày</span>
