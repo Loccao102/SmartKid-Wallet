@@ -25,6 +25,10 @@ import {
   UsersRound,
   X,
 } from 'lucide-react'
+import {
+  bestAttemptsForAssignment,
+  rankClassAssignment,
+} from '../domain/classroomAnalytics'
 import type {
   AssignmentAttemptRow,
   ClassroomRow,
@@ -124,26 +128,6 @@ function createTempPassword() {
   const bytes = new Uint32Array(10)
   crypto.getRandomValues(bytes)
   return 'Sk!' + Array.from(bytes, (value) => chars[value % chars.length]).join('')
-}
-
-function bestAttemptsForAssignment(
-  assignmentId: string,
-  attempts: AssignmentAttemptRow[],
-) {
-  const best = new Map<string, AssignmentAttemptRow>()
-  for (const attempt of attempts) {
-    if (attempt.assignment_id !== assignmentId) continue
-    const current = best.get(attempt.student_id)
-    if (
-      !current ||
-      Number(attempt.score) > Number(current.score) ||
-      (Number(attempt.score) === Number(current.score) &&
-        attempt.elapsed_ms < current.elapsed_ms)
-    ) {
-      best.set(attempt.student_id, attempt)
-    }
-  }
-  return best
 }
 
 function TeacherAuth({ onReady }: { onReady: () => void }) {
@@ -1099,18 +1083,9 @@ function LeaderboardPage({
     ? bestAttemptsForAssignment(assignment.assignment_id, workspace.attempts)
     : new Map<string, AssignmentAttemptRow>()
 
-  const rows = students
-    .map((student) => ({
-      student,
-      attempt: best.get(student.auth_user_id),
-    }))
-    .sort((a, b) => {
-      if (!a.attempt && !b.attempt) return a.student.display_name.localeCompare(b.student.display_name)
-      if (!a.attempt) return 1
-      if (!b.attempt) return -1
-      const scoreDiff = Number(b.attempt.score) - Number(a.attempt.score)
-      return scoreDiff || a.attempt.elapsed_ms - b.attempt.elapsed_ms
-    })
+  const rows = assignment
+    ? rankClassAssignment(assignment.assignment_id, students, workspace.attempts)
+    : []
 
   return (
     <div className="teacher-page-stack">
