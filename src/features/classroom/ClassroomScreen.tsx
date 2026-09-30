@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
+  CalendarDays,
   Check,
   Clock3,
   GraduationCap,
@@ -331,7 +332,6 @@ function ClassAssignmentPlay({
                 onClick={() => setSelectedChoice(choice)}
               >
                 <strong>{choice.label}</strong>
-                <span>{choice.description}</span>
                 <ArrowRight size={17} />
               </button>
             ))}
