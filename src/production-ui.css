@@ -2169,3 +2169,85 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* === Mission clue / soft trade-off === */
+
+.mission-clue {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 14px 0 18px;
+  padding: 14px 16px;
+  border: 1px solid #e4d798;
+  border-radius: 16px;
+  background: #fff7cf;
+  color: #645424;
+  animation: unlock-arrive .35s ease-out;
+}
+
+.mission-clue svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #ad8122;
+}
+
+.mission-clue strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.mission-clue p {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.mission-soft-reflection {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 16px;
+  background: #f6f6ec;
+}
+
+.mission-soft-reflection h2 {
+  margin: 0 0 9px;
+  font-size: 17px;
+}
+
+.mission-soft-reflection article {
+  display: flex;
+  gap: 9px;
+  padding: 10px 0;
+  border-top: 1px solid #e1e5d9;
+  color: #6d7569;
+}
+
+.mission-soft-reflection article:first-of-type {
+  border-top: 0;
+}
+
+.mission-soft-reflection article svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #9d8b65;
+}
+
+.mission-soft-reflection article.is-achieved svg {
+  color: #378160;
+}
+
+.mission-soft-reflection strong,
+.mission-soft-reflection span {
+  display: block;
+}
+
+.mission-soft-reflection p {
+  margin: 4px 0;
+  line-height: 1.45;
+}
+
+.mission-soft-reflection span {
+  font-size: 12px;
+  color: #778176;
+}
