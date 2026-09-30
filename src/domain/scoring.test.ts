@@ -34,6 +34,9 @@ describe('hidden scoring', () => {
           supplies: 0,
         },
         reasons: [],
+        softGoalResults: [
+          { id: 'class-party-variety', achieved: true },
+        ],
       },
       1,
       240_000,
