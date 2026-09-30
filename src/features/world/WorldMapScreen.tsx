@@ -9,6 +9,7 @@ import {
 import { gameAssets } from '../../assets/registry'
 import { worldMaps } from '../../data/worldMaps'
 import { stalls } from '../../data/stalls'
+import { resolveWorldUnlockState } from '../../core/worldChapter/unlock'
 import type { MapId } from '../../domain/types'
 import { useProgressionStore } from '../../store/progression'
 
@@ -63,19 +64,14 @@ export function WorldMapScreen({
                 className="destination-art"
               />
               {(() => {
-                const levelReady = level >= map.unlockLevel
-                const missionReady =
-                  !map.prerequisiteMissionId ||
-                  completedMissionIds.includes(map.prerequisiteMissionId)
-                const chapterReady =
-                  !map.prerequisiteMapId ||
-                  completedWorldChapterIds.includes(map.prerequisiteMapId)
-                const requirementsReady =
-                  levelReady && missionReady && chapterReady
-                const playable = map.status === 'available' && requirementsReady
+                const unlock = resolveWorldUnlockState(map, {
+                  level,
+                  completedMissionIds,
+                  completedWorldChapterIds,
+                })
                 const Icon = map.id === 'smartmart' ? ShoppingCart : Landmark
 
-                if (playable) {
+                if (unlock.playable) {
                   return (
                     <>
                       <button
@@ -112,17 +108,14 @@ export function WorldMapScreen({
                     <h2
                       className={
                         'destination-sign ' +
-                        (requirementsReady ? 'is-ready-next' : '')
+                        (unlock.requirementsReady ? 'is-ready-next' : '')
                       }
                     >
                       <LockKeyhole size={18} aria-hidden="true" />
                       {map.name}
                     </h2>
                     <span className="destination-note">
-                      {requirementsReady
-                        ? 'Đã đủ điều kiện · chương đang được phát triển'
-                        : map.unlockHint ??
-                          'Mở ở Cấp ' + map.unlockLevel}
+                      {unlock.reason}
                     </span>
                   </>
                 )

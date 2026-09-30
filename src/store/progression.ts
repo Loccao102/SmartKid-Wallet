@@ -42,6 +42,7 @@ interface ProgressionState {
   earnCoins: (amount: number) => void
   spendCoins: (amount: number) => boolean
   claimChallengeReward: (challengeId: string, amount: number) => boolean
+  awardCoinsOnce: (rewardKey: string, amount: number) => boolean
   recordActivityResult: (
     activityId: string,
     stars: number,
@@ -165,6 +166,19 @@ export const useProgressionStore = create<ProgressionState>()(
         set({
           coins: state.coins + Math.max(0, Math.round(amount)),
           claimedChallengeIds: [...state.claimedChallengeIds, challengeId],
+        })
+        return true
+      },
+
+      awardCoinsOnce: (rewardKey, amount) => {
+        const state = get()
+        if (state.claimedChallengeIds.includes(rewardKey)) return false
+        set({
+          coins: state.coins + Math.max(0, Math.round(amount)),
+          claimedChallengeIds: [
+            ...state.claimedChallengeIds,
+            rewardKey,
+          ],
         })
         return true
       },

@@ -1,25 +1,24 @@
+import {
+  createSeededRng,
+  pickSeededInt,
+  seededShuffle,
+} from '../core/worldChapter/random'
+import type {
+  WorldChapterDefinition,
+  WorldChapterLessonDefinition,
+  WorldChapterQuestion,
+} from '../core/worldChapter/types'
+
 export type RestaurantLessonId =
   | 'share-table'
   | 'bill-counter'
   | 'zero-waste'
   | 'dinner-rush'
 
-export interface RestaurantLessonDefinition {
-  id: RestaurantLessonId
-  title: string
-  subtitle: string
-  description: string
-  skillLabel: string
-  xpReward: number
-}
+export interface RestaurantLessonDefinition
+  extends WorldChapterLessonDefinition<RestaurantLessonId> {}
 
-export interface RestaurantQuestion {
-  id: string
-  prompt: string
-  answer: number
-  unit: string
-  hint: string
-}
+export type RestaurantQuestion = WorldChapterQuestion
 
 export interface RestaurantRushChoice {
   id: string
@@ -84,41 +83,27 @@ export const restaurantLessons: RestaurantLessonDefinition[] = [
   },
 ]
 
-function createRng(seed: number) {
-  let state = seed >>> 0
-  return () => {
-    state += 0x6d2b79f5
-    let t = state
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function pickInt(rng: () => number, min: number, max: number, step = 1) {
-  const count = Math.floor((max - min) / step) + 1
-  return min + Math.floor(rng() * count) * step
-}
-
-function shuffle<T>(items: T[], rng: () => number) {
-  const result = [...items]
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swap = Math.floor(rng() * (index + 1))
-    ;[result[index], result[swap]] = [result[swap], result[index]]
-  }
-  return result
+export const happyRestaurantChapter: WorldChapterDefinition<RestaurantLessonId> = {
+  mapId: 'happy-restaurant',
+  version: 1,
+  lessonOrder: ['share-table', 'bill-counter', 'zero-waste', 'dinner-rush'],
+  finalLessonId: 'dinner-rush',
+  finalMinStars: 3,
+  seedBase: 20261001,
+  chapterXpReward: 90,
+  chapterCoinReward: 90,
 }
 
 export function createRestaurantQuiz(
   lessonId: Exclude<RestaurantLessonId, 'dinner-rush'>,
   seed: number,
 ): RestaurantQuestion[] {
-  const rng = createRng(seed)
+  const rng = createSeededRng(seed)
 
   if (lessonId === 'share-table') {
     return Array.from({ length: 3 }, (_, index) => {
-      const people = pickInt(rng, 4, 8)
-      const each = pickInt(rng, 2, 5)
+      const people = pickSeededInt(rng, 4, 8)
+      const each = pickSeededInt(rng, 2, 5)
       const total = people * each
       return {
         id: `share-${seed}-${index}`,
@@ -138,10 +123,10 @@ export function createRestaurantQuiz(
 
   if (lessonId === 'bill-counter') {
     return Array.from({ length: 3 }, (_, index) => {
-      const priceA = pickInt(rng, 20_000, 45_000, 5_000)
-      const qtyA = pickInt(rng, 2, 4)
-      const priceB = pickInt(rng, 15_000, 35_000, 5_000)
-      const qtyB = pickInt(rng, 1, 3)
+      const priceA = pickSeededInt(rng, 20_000, 45_000, 5_000)
+      const qtyA = pickSeededInt(rng, 2, 4)
+      const priceB = pickSeededInt(rng, 15_000, 35_000, 5_000)
+      const qtyB = pickSeededInt(rng, 1, 3)
       const answer = priceA * qtyA + priceB * qtyB
       return {
         id: `bill-${seed}-${index}`,
@@ -154,8 +139,8 @@ export function createRestaurantQuiz(
   }
 
   return Array.from({ length: 3 }, (_, index) => {
-    const people = pickInt(rng, 4, 10)
-    const gramsEach = pickInt(rng, 100, 250, 25)
+    const people = pickSeededInt(rng, 4, 10)
+    const gramsEach = pickSeededInt(rng, 100, 250, 25)
     const total = people * gramsEach
     return {
       id: `waste-${seed}-${index}`,
@@ -168,8 +153,8 @@ export function createRestaurantQuiz(
 }
 
 export function createRestaurantRush(seed: number): RestaurantRushRun {
-  const rng = createRng(seed)
-  const baseRevenue = pickInt(rng, 520_000, 620_000, 10_000)
+  const rng = createSeededRng(seed)
+  const baseRevenue = pickSeededInt(rng, 520_000, 620_000, 10_000)
 
   const rounds: RestaurantRushRound[] = [
     {
@@ -327,7 +312,7 @@ export function createRestaurantRush(seed: number): RestaurantRushRun {
     targetRevenue: baseRevenue,
     rounds: rounds.map((round) => ({
       ...round,
-      choices: shuffle(round.choices, rng),
+      choices: seededShuffle(round.choices, rng),
     })),
   }
 }

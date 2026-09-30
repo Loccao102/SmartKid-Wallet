@@ -199,4 +199,14 @@ Không gán skill không liên quan vào stall.
 - Audio: docs/AUDIO_SYSTEM.md
 - SmartMart depth: docs/SMARTMART_DEPTH.md
 - Character/avatar system: docs/CHARACTER_SYSTEM.md
+- World/map extension architecture: docs/WORLD_CHAPTER_CORE.md
 - Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
+
+
+## 18. World Chapter Core
+
+- Map mới không được tự tạo lại progress store, RNG, quiz runner, reward flow hoặc unlock resolver.
+- Dùng `src/core/worldChapter/*` và `useWorldChapterController`.
+- Procedural math dùng `WorldChapterQuiz`.
+- Mission/simulation đặc thù là extension point của từng map và được phép khác hoàn toàn.
+- Xem `docs/WORLD_CHAPTER_CORE.md` trước khi thêm world/map mới.

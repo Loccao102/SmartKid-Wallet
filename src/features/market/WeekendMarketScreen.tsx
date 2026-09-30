@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,7 +11,6 @@ import {
   Scale,
   ShoppingBasket,
   Sparkles,
-  Star,
   Store,
   Trash2,
   UsersRound,
@@ -21,12 +20,17 @@ import {
   createMarketDay,
   createWeekendMarketQuiz,
   scoreMarketDay,
+  weekendMarketChapter,
   weekendMarketLessons,
   type MarketDayRun,
   type WeekendMarketLessonId,
 } from '../../data/weekendMarket'
-import { useProgressionStore } from '../../store/progression'
 import { useWeekendMarketProgressStore } from '../../store/weekendMarketProgress'
+import {
+  WorldChapterQuiz,
+  WorldChapterStars,
+} from '../world/WorldChapterQuiz'
+import { useWorldChapterController } from '../world/useWorldChapterController'
 
 const money = new Intl.NumberFormat('vi-VN')
 
@@ -36,151 +40,6 @@ const lessonIcons = {
   'fair-bargain': HandCoins,
   'market-day': Store,
 } satisfies Record<WeekendMarketLessonId, typeof Store>
-
-function Stars({ value }: { value: number }) {
-  return (
-    <span className="market-stars" aria-label={value + ' trên 5 sao'}>
-      {Array.from({ length: 5 }, (_, index) => (
-        <Star
-          key={index}
-          size={17}
-          fill={index < value ? 'currentColor' : 'none'}
-          aria-hidden="true"
-        />
-      ))}
-    </span>
-  )
-}
-
-function MarketQuiz({
-  lessonId,
-  seed,
-  onExit,
-  onComplete,
-}: {
-  lessonId: Exclude<WeekendMarketLessonId, 'market-day'>
-  seed: number
-  onExit: () => void
-  onComplete: (stars: number) => void
-}) {
-  const questions = useMemo(
-    () => createWeekendMarketQuiz(lessonId, seed),
-    [lessonId, seed],
-  )
-  const lesson = weekendMarketLessons.find((item) => item.id === lessonId)!
-  const [index, setIndex] = useState(0)
-  const [answer, setAnswer] = useState('')
-  const [mistakes, setMistakes] = useState(0)
-  const [feedback, setFeedback] = useState<string | null>(null)
-  const [finished, setFinished] = useState(false)
-  const question = questions[index]
-
-  const submit = () => {
-    const parsed = Number(answer.replace(/[.\s,]/g, ''))
-    if (!Number.isFinite(parsed)) return
-
-    if (parsed !== question.answer) {
-      setMistakes((current) => current + 1)
-      setFeedback(question.hint)
-      setAnswer('')
-      return
-    }
-
-    if (index < questions.length - 1) {
-      setFeedback('Chuẩn rồi! Sang lượt tính tiếp theo nhé.')
-      window.setTimeout(() => {
-        setIndex((current) => current + 1)
-        setAnswer('')
-        setFeedback(null)
-      }, 450)
-      return
-    }
-
-    const stars =
-      mistakes === 0 ? 5 : mistakes <= 2 ? 4 : mistakes <= 4 ? 3 : 2
-    setFinished(true)
-    onComplete(stars)
-  }
-
-  if (finished) {
-    const stars =
-      mistakes === 0 ? 5 : mistakes <= 2 ? 4 : mistakes <= 4 ? 3 : 2
-    return (
-      <section className="market-play market-finish">
-        <span className="market-finish-icon">
-          <Check size={34} />
-        </span>
-        <p className="eyebrow">HOÀN THÀNH BÀI LUYỆN</p>
-        <h2>{lesson.title}</h2>
-        <Stars value={stars} />
-        <p>
-          Lượt sau số liệu sẽ đổi, nên em phải hiểu cách tính chứ không thể nhớ
-          đáp án cũ.
-        </p>
-        <button type="button" className="adventure-button" onClick={onExit}>
-          Về khu chợ <ArrowRight size={18} />
-        </button>
-      </section>
-    )
-  }
-
-  return (
-    <section className="market-play">
-      <header className="market-play-heading">
-        <button type="button" className="quiet-button" onClick={onExit}>
-          <ArrowLeft size={18} /> Thoát bài
-        </button>
-        <span>
-          Bài {index + 1}/{questions.length}
-        </span>
-      </header>
-
-      <div className="market-question-card">
-        <span className="market-question-icon">
-          <ShoppingBasket size={28} />
-        </span>
-        <p className="eyebrow">{lesson.skillLabel}</p>
-        <h2>{question.prompt}</h2>
-
-        <label htmlFor="market-answer">Kết quả của em</label>
-        <div className="market-answer">
-          <input
-            id="market-answer"
-            inputMode="numeric"
-            value={answer}
-            onChange={(event) => setAnswer(event.target.value)}
-            placeholder="Nhập kết quả"
-            autoFocus
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') submit()
-            }}
-          />
-          <span>{question.unit}</span>
-        </div>
-
-        {feedback ? (
-          <div className="market-hint" role="status">
-            <Sparkles size={17} />
-            <span>{feedback}</span>
-          </div>
-        ) : (
-          <p className="market-tip">
-            So sánh theo cùng một đơn vị trước khi quyết định.
-          </p>
-        )}
-
-        <button
-          type="button"
-          className="adventure-button market-submit"
-          disabled={!answer.trim()}
-          onClick={submit}
-        >
-          Kiểm tra <ArrowRight size={18} />
-        </button>
-      </div>
-    </section>
-  )
-}
 
 function MarketDay({
   run,
@@ -231,7 +90,7 @@ function MarketDay({
         </span>
         <p className="eyebrow">KẾT THÚC BUỔI CHỢ</p>
         <h2>{passed ? 'Quầy hàng kết thúc một ngày đẹp!' : 'Thử điều hành quầy theo cách khác'}</h2>
-        <Stars value={stars} />
+        <WorldChapterStars value={stars} className="market-stars" />
 
         <div className="market-result-grid">
           <div>
@@ -331,78 +190,45 @@ function MarketDay({
 }
 
 export function WeekendMarketScreen({ onBack }: { onBack: () => void }) {
-  const completedLessonIds = useWeekendMarketProgressStore(
-    (state) => state.completedLessonIds,
-  )
-  const bestStarsByLessonId = useWeekendMarketProgressStore(
-    (state) => state.bestStarsByLessonId,
-  )
-  const nextRun = useWeekendMarketProgressStore((state) => state.nextRun)
-  const completeLesson = useWeekendMarketProgressStore(
-    (state) => state.completeLesson,
-  )
-
-  const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
-  const claimChallengeReward = useProgressionStore(
-    (state) => state.claimChallengeReward,
-  )
-  const recordActivityResult = useProgressionStore(
-    (state) => state.recordActivityResult,
-  )
-  const completeWorldChapter = useProgressionStore(
-    (state) => state.completeWorldChapter,
-  )
-  const completedWorldChapterIds = useProgressionStore(
-    (state) => state.completedWorldChapterIds,
-  )
-
-  const [activeLessonId, setActiveLessonId] =
-    useState<WeekendMarketLessonId | null>(null)
-  const [runSeed, setRunSeed] = useState(1)
-
-  const chapterCompleted =
-    completedWorldChapterIds.includes('weekend-market')
-  const coreCompleted = weekendMarketLessons
-    .slice(0, 3)
-    .every((lesson) => completedLessonIds.includes(lesson.id))
-
-  const startLesson = (lessonId: WeekendMarketLessonId) => {
-    const run = nextRun(lessonId)
-    const lessonIndex = weekendMarketLessons.findIndex(
-      (item) => item.id === lessonId,
-    )
-    setRunSeed(20261002 + run * 8209 + lessonIndex * 32771)
-    setActiveLessonId(lessonId)
-  }
-
-  const finishLesson = (lessonId: WeekendMarketLessonId, stars: number) => {
-    const passed = lessonId !== 'market-day' || stars >= 3
-    const lesson = weekendMarketLessons.find((item) => item.id === lessonId)!
-
-    recordActivityResult(
-      'weekend-market:' + lessonId + ':v1',
-      stars,
-      stars * 20,
-    )
-
-    if (!passed) return
-
-    completeLesson(lessonId, stars)
-    awardXpOnce('weekend-market:' + lessonId, lesson.xpReward)
-
-    if (lessonId === 'market-day') {
-      completeWorldChapter('weekend-market')
-      awardXpOnce('weekend-market:chapter:v1', 100)
-      claimChallengeReward('weekend-market:chapter:v1', 100)
-    }
-  }
+  const {
+    activeLessonId,
+    setActiveLessonId,
+    runSeed,
+    chapterCompleted,
+    completedLessonIds,
+    bestStarsByLessonId,
+    startLesson,
+    finishLesson,
+    isLessonUnlocked,
+  } = useWorldChapterController({
+    chapter: weekendMarketChapter,
+    lessons: weekendMarketLessons,
+    progressStore: useWeekendMarketProgressStore,
+  })
 
   if (activeLessonId && activeLessonId !== 'market-day') {
+    const lesson = weekendMarketLessons.find((item) => item.id === activeLessonId)!
+
     return (
-      <MarketQuiz
+      <WorldChapterQuiz
         key={activeLessonId + ':' + runSeed}
-        lessonId={activeLessonId}
-        seed={runSeed}
+        theme="market"
+        lessonTitle={lesson.title}
+        skillLabel={lesson.skillLabel}
+        questions={createWeekendMarketQuiz(activeLessonId, runSeed)}
+        icon={ShoppingBasket}
+        copy={{
+          exitLabel: 'Thoát bài',
+          counterLabel: 'Bài',
+          inputLabel: 'Kết quả của em',
+          inputPlaceholder: 'Nhập kết quả',
+          idleTip: 'So sánh theo cùng một đơn vị trước khi quyết định.',
+          correctFeedback: 'Chuẩn rồi! Sang lượt tính tiếp theo nhé.',
+          completeEyebrow: 'HOÀN THÀNH BÀI LUYỆN',
+          completeDescription:
+            'Lượt sau số liệu sẽ đổi, nên em phải hiểu cách tính chứ không thể nhớ đáp án cũ.',
+          backLabel: 'Về khu chợ',
+        }}
         onExit={() => setActiveLessonId(null)}
         onComplete={(stars) => finishLesson(activeLessonId, stars)}
       />
@@ -464,12 +290,7 @@ export function WeekendMarketScreen({ onBack }: { onBack: () => void }) {
       <div className="market-room-grid">
         {weekendMarketLessons.map((lesson, index) => {
           const Icon = lessonIcons[lesson.id]
-          const previous = weekendMarketLessons[index - 1]
-          const unlocked =
-            index === 0 ||
-            (lesson.id === 'market-day'
-              ? coreCompleted
-              : Boolean(previous && completedLessonIds.includes(previous.id)))
+          const unlocked = isLessonUnlocked(lesson.id)
           const completed = completedLessonIds.includes(lesson.id)
           const stars = bestStarsByLessonId[lesson.id] ?? 0
 
@@ -492,7 +313,7 @@ export function WeekendMarketScreen({ onBack }: { onBack: () => void }) {
                 <h2>{lesson.title}</h2>
                 <span>{lesson.skillLabel}</span>
               </div>
-              {stars ? <Stars value={stars} /> : null}
+              {stars ? <WorldChapterStars value={stars} className="market-stars" /> : null}
               <button
                 type="button"
                 disabled={!unlocked}

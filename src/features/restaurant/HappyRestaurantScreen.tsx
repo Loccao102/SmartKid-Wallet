@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,7 +11,6 @@ import {
   RotateCcw,
   Scale,
   Sparkles,
-  Star,
   Trash2,
   UsersRound,
 } from 'lucide-react'
@@ -19,13 +18,18 @@ import { gameAssets } from '../../assets/registry'
 import {
   createRestaurantQuiz,
   createRestaurantRush,
+  happyRestaurantChapter,
   restaurantLessons,
   scoreRestaurantRush,
   type RestaurantLessonId,
   type RestaurantRushRun,
 } from '../../data/happyRestaurant'
-import { useProgressionStore } from '../../store/progression'
 import { useRestaurantProgressStore } from '../../store/restaurantProgress'
+import {
+  WorldChapterQuiz,
+  WorldChapterStars,
+} from '../world/WorldChapterQuiz'
+import { useWorldChapterController } from '../world/useWorldChapterController'
 
 const money = new Intl.NumberFormat('vi-VN')
 
@@ -35,151 +39,6 @@ const lessonIcons = {
   'zero-waste': Scale,
   'dinner-rush': ChefHat,
 } satisfies Record<RestaurantLessonId, typeof ChefHat>
-
-function Stars({ value }: { value: number }) {
-  return (
-    <span className="restaurant-stars" aria-label={value + ' trên 5 sao'}>
-      {Array.from({ length: 5 }, (_, index) => (
-        <Star
-          key={index}
-          size={17}
-          fill={index < value ? 'currentColor' : 'none'}
-          aria-hidden="true"
-        />
-      ))}
-    </span>
-  )
-}
-
-function RestaurantQuiz({
-  lessonId,
-  seed,
-  onExit,
-  onComplete,
-}: {
-  lessonId: Exclude<RestaurantLessonId, 'dinner-rush'>
-  seed: number
-  onExit: () => void
-  onComplete: (stars: number) => void
-}) {
-  const questions = useMemo(
-    () => createRestaurantQuiz(lessonId, seed),
-    [lessonId, seed],
-  )
-  const lesson = restaurantLessons.find((item) => item.id === lessonId)!
-  const [index, setIndex] = useState(0)
-  const [answer, setAnswer] = useState('')
-  const [mistakes, setMistakes] = useState(0)
-  const [feedback, setFeedback] = useState<string | null>(null)
-  const [finished, setFinished] = useState(false)
-  const question = questions[index]
-
-  const submit = () => {
-    const parsed = Number(answer.replace(/[.\s,]/g, ''))
-    if (!Number.isFinite(parsed)) return
-
-    if (parsed !== question.answer) {
-      setMistakes((current) => current + 1)
-      setFeedback(question.hint)
-      setAnswer('')
-      return
-    }
-
-    if (index < questions.length - 1) {
-      setFeedback('Đúng rồi! Bếp chuyển sang tình huống tiếp theo.')
-      window.setTimeout(() => {
-        setIndex((current) => current + 1)
-        setAnswer('')
-        setFeedback(null)
-      }, 450)
-      return
-    }
-
-    const stars =
-      mistakes === 0 ? 5 : mistakes <= 2 ? 4 : mistakes <= 4 ? 3 : 2
-    setFinished(true)
-    onComplete(stars)
-  }
-
-  if (finished) {
-    const stars =
-      mistakes === 0 ? 5 : mistakes <= 2 ? 4 : mistakes <= 4 ? 3 : 2
-    return (
-      <section className="restaurant-play restaurant-finish">
-        <span className="restaurant-finish-icon">
-          <Check size={34} />
-        </span>
-        <p className="eyebrow">HOÀN THÀNH BÀI LUYỆN</p>
-        <h2>{lesson.title}</h2>
-        <Stars value={stars} />
-        <p>
-          Lượt chơi sau sẽ đổi số liệu để em luyện cách tính chứ không học thuộc
-          đáp án.
-        </p>
-        <button type="button" className="adventure-button" onClick={onExit}>
-          Về sảnh nhà hàng <ArrowRight size={18} />
-        </button>
-      </section>
-    )
-  }
-
-  return (
-    <section className="restaurant-play">
-      <header className="restaurant-play-heading">
-        <button type="button" className="quiet-button" onClick={onExit}>
-          <ArrowLeft size={18} /> Thoát bài
-        </button>
-        <span>
-          Tình huống {index + 1}/{questions.length}
-        </span>
-      </header>
-
-      <div className="restaurant-question-card">
-        <span className="restaurant-question-icon">
-          <CookingPot size={28} />
-        </span>
-        <p className="eyebrow">{lesson.skillLabel}</p>
-        <h2>{question.prompt}</h2>
-
-        <label htmlFor="restaurant-answer">Câu trả lời của em</label>
-        <div className="restaurant-answer">
-          <input
-            id="restaurant-answer"
-            inputMode="numeric"
-            value={answer}
-            onChange={(event) => setAnswer(event.target.value)}
-            placeholder="Nhập kết quả"
-            autoFocus
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') submit()
-            }}
-          />
-          <span>{question.unit}</span>
-        </div>
-
-        {feedback ? (
-          <div className="restaurant-hint" role="status">
-            <Sparkles size={17} />
-            <span>{feedback}</span>
-          </div>
-        ) : (
-          <p className="restaurant-tip">
-            Tính chậm mà chắc. Bếp cần đúng số lượng hơn là đoán thật nhanh.
-          </p>
-        )}
-
-        <button
-          type="button"
-          className="adventure-button restaurant-submit"
-          disabled={!answer.trim()}
-          onClick={submit}
-        >
-          Kiểm tra <ArrowRight size={18} />
-        </button>
-      </div>
-    </section>
-  )
-}
 
 function DinnerRush({
   run,
@@ -242,7 +101,7 @@ function DinnerRush({
         </span>
         <p className="eyebrow">KẾT CA GIỜ CAO ĐIỂM</p>
         <h2>{passed ? 'Nhà hàng đã vượt qua ca đông!' : 'Ca này còn hơi chao đảo'}</h2>
-        <Stars value={stars} />
+        <WorldChapterStars value={stars} className="restaurant-stars" />
 
         <div className="restaurant-result-grid">
           <div>
@@ -342,74 +201,46 @@ function DinnerRush({
 }
 
 export function HappyRestaurantScreen({ onBack }: { onBack: () => void }) {
-  const completedLessonIds = useRestaurantProgressStore(
-    (state) => state.completedLessonIds,
-  )
-  const bestStarsByLessonId = useRestaurantProgressStore(
-    (state) => state.bestStarsByLessonId,
-  )
-  const nextRun = useRestaurantProgressStore((state) => state.nextRun)
-  const completeLesson = useRestaurantProgressStore((state) => state.completeLesson)
-
-  const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
-  const claimChallengeReward = useProgressionStore(
-    (state) => state.claimChallengeReward,
-  )
-  const recordActivityResult = useProgressionStore(
-    (state) => state.recordActivityResult,
-  )
-  const completeWorldChapter = useProgressionStore(
-    (state) => state.completeWorldChapter,
-  )
-  const completedWorldChapterIds = useProgressionStore(
-    (state) => state.completedWorldChapterIds,
-  )
-
-  const [activeLessonId, setActiveLessonId] =
-    useState<RestaurantLessonId | null>(null)
-  const [runSeed, setRunSeed] = useState(1)
-
-  const chapterCompleted =
-    completedWorldChapterIds.includes('happy-restaurant')
-  const coreCompleted = restaurantLessons
-    .slice(0, 3)
-    .every((lesson) => completedLessonIds.includes(lesson.id))
-
-  const startLesson = (lessonId: RestaurantLessonId) => {
-    const run = nextRun(lessonId)
-    const lessonIndex = restaurantLessons.findIndex((item) => item.id === lessonId)
-    setRunSeed(20261001 + run * 8191 + lessonIndex * 65537)
-    setActiveLessonId(lessonId)
-  }
-
-  const finishLesson = (lessonId: RestaurantLessonId, stars: number) => {
-    const passed = lessonId !== 'dinner-rush' || stars >= 3
-    const lesson = restaurantLessons.find((item) => item.id === lessonId)!
-
-    recordActivityResult(
-      'happy-restaurant:' + lessonId + ':v1',
-      stars,
-      stars * 20,
-    )
-
-    if (!passed) return
-
-    completeLesson(lessonId, stars)
-    awardXpOnce('happy-restaurant:' + lessonId, lesson.xpReward)
-
-    if (lessonId === 'dinner-rush') {
-      completeWorldChapter('happy-restaurant')
-      awardXpOnce('happy-restaurant:chapter:v1', 90)
-      claimChallengeReward('happy-restaurant:chapter:v1', 90)
-    }
-  }
+  const {
+    activeLessonId,
+    setActiveLessonId,
+    runSeed,
+    chapterCompleted,
+    completedLessonIds,
+    bestStarsByLessonId,
+    startLesson,
+    finishLesson,
+    isLessonUnlocked,
+  } = useWorldChapterController({
+    chapter: happyRestaurantChapter,
+    lessons: restaurantLessons,
+    progressStore: useRestaurantProgressStore,
+  })
 
   if (activeLessonId && activeLessonId !== 'dinner-rush') {
+    const lesson = restaurantLessons.find((item) => item.id === activeLessonId)!
+
     return (
-      <RestaurantQuiz
+      <WorldChapterQuiz
         key={activeLessonId + ':' + runSeed}
-        lessonId={activeLessonId}
-        seed={runSeed}
+        theme="restaurant"
+        lessonTitle={lesson.title}
+        skillLabel={lesson.skillLabel}
+        questions={createRestaurantQuiz(activeLessonId, runSeed)}
+        icon={CookingPot}
+        copy={{
+          exitLabel: 'Thoát bài',
+          counterLabel: 'Tình huống',
+          inputLabel: 'Câu trả lời của em',
+          inputPlaceholder: 'Nhập kết quả',
+          idleTip:
+            'Tính chậm mà chắc. Bếp cần đúng số lượng hơn là đoán thật nhanh.',
+          correctFeedback: 'Đúng rồi! Bếp chuyển sang tình huống tiếp theo.',
+          completeEyebrow: 'HOÀN THÀNH BÀI LUYỆN',
+          completeDescription:
+            'Lượt chơi sau sẽ đổi số liệu để em luyện cách tính chứ không học thuộc đáp án.',
+          backLabel: 'Về sảnh nhà hàng',
+        }}
         onExit={() => setActiveLessonId(null)}
         onComplete={(stars) => finishLesson(activeLessonId, stars)}
       />
@@ -471,12 +302,7 @@ export function HappyRestaurantScreen({ onBack }: { onBack: () => void }) {
       <div className="restaurant-room-grid">
         {restaurantLessons.map((lesson, index) => {
           const Icon = lessonIcons[lesson.id]
-          const previous = restaurantLessons[index - 1]
-          const unlocked =
-            index === 0 ||
-            (lesson.id === 'dinner-rush'
-              ? coreCompleted
-              : Boolean(previous && completedLessonIds.includes(previous.id)))
+          const unlocked = isLessonUnlocked(lesson.id)
           const completed = completedLessonIds.includes(lesson.id)
           const stars = bestStarsByLessonId[lesson.id] ?? 0
 
@@ -499,7 +325,7 @@ export function HappyRestaurantScreen({ onBack }: { onBack: () => void }) {
                 <h2>{lesson.title}</h2>
                 <span>{lesson.skillLabel}</span>
               </div>
-              {stars ? <Stars value={stars} /> : null}
+              {stars ? <WorldChapterStars value={stars} className="restaurant-stars" /> : null}
               <button
                 type="button"
                 disabled={!unlocked}

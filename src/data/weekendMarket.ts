@@ -1,25 +1,24 @@
+import {
+  createSeededRng,
+  pickSeededInt,
+  seededShuffle,
+} from '../core/worldChapter/random'
+import type {
+  WorldChapterDefinition,
+  WorldChapterLessonDefinition,
+  WorldChapterQuestion,
+} from '../core/worldChapter/types'
+
 export type WeekendMarketLessonId =
   | 'unit-price'
   | 'profit-loss'
   | 'fair-bargain'
   | 'market-day'
 
-export interface WeekendMarketLessonDefinition {
-  id: WeekendMarketLessonId
-  title: string
-  subtitle: string
-  description: string
-  skillLabel: string
-  xpReward: number
-}
+export interface WeekendMarketLessonDefinition
+  extends WorldChapterLessonDefinition<WeekendMarketLessonId> {}
 
-export interface WeekendMarketQuestion {
-  id: string
-  prompt: string
-  answer: number
-  unit: string
-  hint: string
-}
+export type WeekendMarketQuestion = WorldChapterQuestion
 
 export interface MarketDayChoice {
   id: string
@@ -85,41 +84,27 @@ export const weekendMarketLessons: WeekendMarketLessonDefinition[] = [
   },
 ]
 
-function createRng(seed: number) {
-  let state = seed >>> 0
-  return () => {
-    state += 0x6d2b79f5
-    let t = state
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
-function pickInt(rng: () => number, min: number, max: number, step = 1) {
-  const count = Math.floor((max - min) / step) + 1
-  return min + Math.floor(rng() * count) * step
-}
-
-function shuffle<T>(items: T[], rng: () => number) {
-  const result = [...items]
-  for (let index = result.length - 1; index > 0; index -= 1) {
-    const swap = Math.floor(rng() * (index + 1))
-    ;[result[index], result[swap]] = [result[swap], result[index]]
-  }
-  return result
+export const weekendMarketChapter: WorldChapterDefinition<WeekendMarketLessonId> = {
+  mapId: 'weekend-market',
+  version: 1,
+  lessonOrder: ['unit-price', 'profit-loss', 'fair-bargain', 'market-day'],
+  finalLessonId: 'market-day',
+  finalMinStars: 3,
+  seedBase: 20261002,
+  chapterXpReward: 100,
+  chapterCoinReward: 100,
 }
 
 export function createWeekendMarketQuiz(
   lessonId: Exclude<WeekendMarketLessonId, 'market-day'>,
   seed: number,
 ): WeekendMarketQuestion[] {
-  const rng = createRng(seed)
+  const rng = createSeededRng(seed)
 
   if (lessonId === 'unit-price') {
     return Array.from({ length: 3 }, (_, index) => {
-      const units = pickInt(rng, 2, 5)
-      const unitPrice = pickInt(rng, 8_000, 20_000, 1_000)
+      const units = pickSeededInt(rng, 2, 5)
+      const unitPrice = pickSeededInt(rng, 8_000, 20_000, 1_000)
       const total = units * unitPrice
       return {
         id: `unit-${seed}-${index}`,
@@ -136,9 +121,9 @@ export function createWeekendMarketQuiz(
 
   if (lessonId === 'profit-loss') {
     return Array.from({ length: 3 }, (_, index) => {
-      const qty = pickInt(rng, 5, 10)
-      const cost = pickInt(rng, 10_000, 20_000, 2_000)
-      const sell = cost + pickInt(rng, 3_000, 8_000, 1_000)
+      const qty = pickSeededInt(rng, 5, 10)
+      const cost = pickSeededInt(rng, 10_000, 20_000, 2_000)
+      const sell = cost + pickSeededInt(rng, 3_000, 8_000, 1_000)
       const profit = qty * (sell - cost)
       return {
         id: `profit-${seed}-${index}`,
@@ -152,7 +137,7 @@ export function createWeekendMarketQuiz(
 
   const rates = [10, 20, 25]
   return Array.from({ length: 3 }, (_, index) => {
-    const price = pickInt(rng, 80_000, 200_000, 20_000)
+    const price = pickSeededInt(rng, 80_000, 200_000, 20_000)
     const rate = rates[index]
     const discount = Math.round((price * rate) / 100)
     return {
@@ -171,8 +156,8 @@ export function createWeekendMarketQuiz(
 }
 
 export function createMarketDay(seed: number): MarketDayRun {
-  const rng = createRng(seed)
-  const targetCash = pickInt(rng, 420_000, 500_000, 10_000)
+  const rng = createSeededRng(seed)
+  const targetCash = pickSeededInt(rng, 420_000, 500_000, 10_000)
   const startingStock = 18
 
   const rounds: MarketDayRound[] = [
@@ -332,7 +317,7 @@ export function createMarketDay(seed: number): MarketDayRun {
     startingStock,
     rounds: rounds.map((round) => ({
       ...round,
-      choices: shuffle(round.choices, rng),
+      choices: seededShuffle(round.choices, rng),
     })),
   }
 }
