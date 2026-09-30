@@ -64,8 +64,8 @@ describe('work shift engine', () => {
     expect(settled.servedCustomers).toBe(1)
   })
 
-  it('keeps a valid ten-template scenario bank', () => {
-    expect(workScenarios).toHaveLength(10)
+  it('keeps a valid expanded scenario bank', () => {
+    expect(workScenarios).toHaveLength(16)
 
     const ids = workScenarios.map((scenario) => scenario.id)
     expect(new Set(ids).size).toBe(ids.length)
