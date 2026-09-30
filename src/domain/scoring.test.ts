@@ -37,6 +37,10 @@ describe('hidden scoring', () => {
         softGoalResults: [
           { id: 'class-party-variety', achieved: true },
         ],
+        activeEventIds: [],
+        effectivePeople: 20,
+        effectiveBudget: 500000,
+        unavailableProductIds: [],
       },
       1,
       240_000,
