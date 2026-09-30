@@ -213,11 +213,14 @@ export interface WorkCustomerDefinition {
   scenarioChoiceOrder?: string[]
 }
 
+export type WorkGuidanceLevel = 'guided' | 'light' | 'implicit'
+
 export interface WorkShiftDefinition {
   id: string
   title: string
   subtitle: string
   roleTitle: string
+  guidanceLevel?: WorkGuidanceLevel
   customers: WorkCustomerDefinition[]
   startingEmployeeRating: number
   startingStoreReputation: number
@@ -230,6 +233,7 @@ export interface WorkShiftTemplateDefinition {
   title: string
   subtitle: string
   roleTitle: string
+  guidanceLevel: WorkGuidanceLevel
   customerCount: number
   scenarioCount: number
   minScenarioDifficulty: 1 | 2 | 3
