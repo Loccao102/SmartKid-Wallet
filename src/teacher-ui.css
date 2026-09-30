@@ -1561,3 +1561,56 @@
     width: 100%;
   }
 }
+
+
+.teacher-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .teacher-mobile-header > div {
+    display: flex;
+    gap: 6px;
+  }
+
+  .teacher-mobile-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    margin: 0 -14px 16px;
+    padding: 8px 14px 10px;
+    border-bottom: 1px solid var(--teacher-border);
+    background: rgba(244, 247, 245, .96);
+    backdrop-filter: blur(12px);
+    scrollbar-width: none;
+  }
+
+  .teacher-mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .teacher-mobile-nav button {
+    flex: 0 0 auto;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border: 1px solid var(--teacher-border);
+    border-radius: 11px;
+    background: white;
+    color: #63766f;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 820;
+  }
+
+  .teacher-mobile-nav button.is-active {
+    border-color: #79a392;
+    background: var(--teacher-primary);
+    color: white;
+  }
+}
