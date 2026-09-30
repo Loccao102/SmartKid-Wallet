@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
+import { getWorkManagerPlan } from '../data/workManagerPlans'
 import { getWorkScenario, traineeShift, workScenarios } from '../data/workShift'
 import {
   getWorkWorldEffect,
   workWorldEffects,
 } from '../data/workWorldEffects'
 import {
+  applyManagerPlan,
   applyMathAttempt,
   applyScenarioChoice,
   applyStoryFollowUpChoice,
@@ -13,6 +15,7 @@ import {
   calculateChange,
   calculateEffectiveTotal,
   createInitialShiftMetrics,
+  createInitialWorkShiftProgress,
   createInitialWorkWorldState,
   getDueStoryFollowUp,
   resolveDueConsequences,
@@ -352,6 +355,69 @@ describe('work shift engine', () => {
 
     expect(getDueStoryFollowUp(resolved.worldState, 2)).toBeUndefined()
     expect(getDueStoryFollowUp(resolved.worldState, 3)).toBeDefined()
+  })
+
+
+  it('manager plan grants one protection and applies its opening trade-off', () => {
+    const progress = createInitialWorkShiftProgress(traineeShift)
+    const plan = getWorkManagerPlan('customer-care')
+    const planned = applyManagerPlan(progress, plan)
+
+    expect(planned.managerPlanId).toBe(plan.id)
+    expect(planned.worldState.managerProtections).toEqual(['service'])
+    expect(planned.metrics.customerSatisfaction).toBeGreaterThan(
+      progress.metrics.customerSatisfaction,
+    )
+  })
+
+  it('manager protection absorbs the first matching downstream incident', () => {
+    const progress = createInitialWorkShiftProgress(traineeShift)
+    const planned = applyManagerPlan(
+      progress,
+      getWorkManagerPlan('checkout-support'),
+    )
+    const scenario = getWorkScenario('SCENARIO_EXTRA_CASH')
+    const choice = scenario.choices.find(
+      (item) => item.id === 'keep-extra-cash',
+    )!
+    const effect = getWorkWorldEffect(scenario.id, choice.id)!
+    const protectedWorld = applyWorkWorldEffect(
+      planned.worldState,
+      effect,
+      1,
+      scenario.id,
+      choice.id,
+    )
+
+    expect(protectedWorld.managerProtections).toEqual([])
+    expect(protectedWorld.consumedManagerProtections).toEqual(['operations'])
+    expect(protectedWorld.flags).not.toContain('cash-discrepancy')
+    expect(protectedWorld.pendingConsequences).toHaveLength(0)
+  })
+
+  it('manager protection does not absorb unrelated incident categories', () => {
+    const progress = createInitialWorkShiftProgress(traineeShift)
+    const planned = applyManagerPlan(
+      progress,
+      getWorkManagerPlan('customer-care'),
+    )
+    const scenario = getWorkScenario('SCENARIO_EXTRA_CASH')
+    const choice = scenario.choices.find(
+      (item) => item.id === 'keep-extra-cash',
+    )!
+    const effect = getWorkWorldEffect(scenario.id, choice.id)!
+    const world = applyWorkWorldEffect(
+      planned.worldState,
+      effect,
+      1,
+      scenario.id,
+      choice.id,
+    )
+
+    expect(world.managerProtections).toEqual(['service'])
+    expect(world.consumedManagerProtections).toEqual([])
+    expect(world.flags).toContain('cash-discrepancy')
+    expect(world.pendingConsequences).toHaveLength(1)
   })
 
 })
