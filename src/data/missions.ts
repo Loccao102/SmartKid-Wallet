@@ -27,6 +27,17 @@ export const missions: MissionDefinition[] = [
         target: 5,
       },
     ],
+    dynamicEvents: [
+      {
+        id: 'class-party-four-more',
+        title: 'Có thêm 4 bạn tham gia',
+        description:
+          'Cô vừa báo có thêm 4 bạn ghé liên hoan. Ngân sách không đổi, nhưng giỏ hàng cần đủ cho 24 bạn.',
+        revealAfterItems: 4,
+        kind: 'people-adjustment',
+        peopleDelta: 4,
+      },
+    ],
     teacherChallenge: {
       id: 'teacher-five-star-class-party',
       requiredStars: 5,
@@ -61,6 +72,17 @@ export const missions: MissionDefinition[] = [
         productIds: ['food-yogurt-pack', 'drinks-milk-pack'],
       },
     ],
+    dynamicEvents: [
+      {
+        id: 'picnic-juice-sold-out',
+        title: 'Nước ép vừa hết hàng',
+        description:
+          'Nhân viên báo lốc nước ép vừa hết. Nếu đã chọn món này, em cần đổi sang đồ uống khác.',
+        revealAfterItems: 4,
+        kind: 'product-unavailable',
+        productIds: ['drinks-juice-pack'],
+      },
+    ],
   },
   {
     id: 'mission-smart-basket-01',
@@ -89,6 +111,17 @@ export const missions: MissionDefinition[] = [
         productIds: ['supplies-paper-cups'],
       },
     ],
+    dynamicEvents: [
+      {
+        id: 'smart-basket-budget-cut',
+        title: 'Ngân sách giảm 30.000đ',
+        description:
+          'Gia đình vừa nhắn cần giữ lại thêm tiền cho việc khác. Ngân sách mua sắm giảm 30.000đ.',
+        revealAfterItems: 3,
+        kind: 'budget-adjustment',
+        budgetDelta: -30000,
+      },
+    ],
   },
   {
     id: 'mission-promo-planner-01',
@@ -115,6 +148,17 @@ export const missions: MissionDefinition[] = [
         revealAfterItems: 3,
         kind: 'min-distinct-products',
         target: 6,
+      },
+    ],
+    dynamicEvents: [
+      {
+        id: 'promo-sandwich-sold-out',
+        title: 'Hộp sandwich tạm hết',
+        description:
+          'Khuyến mãi khiến hộp sandwich vừa bán hết. Em cần điều chỉnh giỏ nếu đang chọn món này.',
+        revealAfterItems: 5,
+        kind: 'product-unavailable',
+        productIds: ['food-sandwich-box'],
       },
     ],
   },
