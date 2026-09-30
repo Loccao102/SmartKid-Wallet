@@ -15,22 +15,10 @@ export type TinyBankLessonId =
   | 'growth-bonus'
   | 'four-week-mission'
 
-export interface TinyBankLessonDefinition {
-  id: TinyBankLessonId
-  title: string
-  subtitle: string
-  description: string
-  skillLabel: string
-  xpReward: number
-}
+export interface TinyBankLessonDefinition
+  extends WorldChapterLessonDefinition<TinyBankLessonId> {}
 
-export interface TinyBankQuestion {
-  id: string
-  prompt: string
-  answer: number
-  unit: string
-  hint: string
-}
+export type TinyBankQuestion = WorldChapterQuestion
 
 export interface TinyBankMissionChoice {
   id: string
