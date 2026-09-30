@@ -1,5 +1,5 @@
 import { traineeShift } from './workShift'
-import { advancedShiftTemplate } from './workShiftTemplates'
+import { advancedShiftTemplate, expertShiftTemplate } from './workShiftTemplates'
 import { generateWorkShiftInstance } from '../domain/workShiftGenerator'
 import type { WorkShiftDefinition } from '../domain/types'
 
@@ -11,9 +11,16 @@ export const advancedShift = generateWorkShiftInstance(
   0,
 )
 
+export const expertShift = generateWorkShiftInstance(
+  expertShiftTemplate,
+  demoWorkStudentKey,
+  0,
+)
+
 export const workShiftInstances: WorkShiftDefinition[] = [
   traineeShift,
   advancedShift,
+  expertShift,
 ]
 
 export function getWorkShiftById(id: string) {
