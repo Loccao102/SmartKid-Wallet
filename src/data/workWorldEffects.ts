@@ -193,6 +193,147 @@ const effects: Record<string, WorkWorldEffect> = {
   'SCENARIO_PROMO_SIGN_MISSING:remove-sign-only': {
     clearFlags: ['stale-promo-sign'],
   },
+
+  'SCENARIO_RETURN_NO_RECEIPT:check-purchase-history': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_RETURN_NO_RECEIPT:manager-store-credit': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_RETURN_NO_RECEIPT:refuse-immediately': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'return-policy-complaint',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách quay lại hỏi quản lý về chính sách đổi trả',
+        description:
+          'Khách cho biết họ vẫn muốn cửa hàng kiểm tra lịch sử mua thay vì từ chối ngay tại quầy.',
+        employeeRatingDelta: -0.08,
+        storeReputationDelta: -0.14,
+        customerSatisfactionDelta: -0.12,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_DAMAGED_EGGS:replace-carton': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_DAMAGED_EGGS:remove-and-let-customer-decide': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_DAMAGED_EGGS:bag-damaged-eggs': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'damaged-eggs-return',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách phát hiện trứng nứt sau khi rời quầy',
+        description:
+          'Khách quay lại vì hộp trứng có sản phẩm bị nứt và cần đổi hàng, làm quầy phải xử lý lại giao dịch.',
+        employeeRatingDelta: -0.12,
+        storeReputationDelta: -0.18,
+        customerSatisfactionDelta: -0.16,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_QUEUE_PRIORITY:ask-queue-consent': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_QUEUE_PRIORITY:call-support-counter': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_QUEUE_PRIORITY:ignore-request': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'queue-service-feedback',
+        trigger: 'shift-end',
+        title: 'Cuối ca có phản hồi về cách hỗ trợ khách tại hàng chờ',
+        description:
+          'Một khách ghi nhận rằng yêu cầu hỗ trợ ở hàng chờ đã bị từ chối mà không được giải thích.',
+        employeeRatingDelta: -0.08,
+        storeReputationDelta: -0.12,
+        customerSatisfactionDelta: -0.08,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_UNIT_PRICE_COMPARISON:explain-unit-price': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_UNIT_PRICE_COMPARISON:recommend-cheaper-unit': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_UNIT_PRICE_COMPARISON:push-promo-pack': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'unit-price-followup',
+        trigger: 'after-customers',
+        delayCustomers: 1,
+        title: 'Khách kiểm tra lại đơn giá sau khi mua',
+        description:
+          'Khách nhận ra gói có biển khuyến mãi không phải phương án rẻ nhất theo đơn vị và quay lại hỏi cách tư vấn tại quầy.',
+        employeeRatingDelta: -0.08,
+        storeReputationDelta: -0.15,
+        customerSatisfactionDelta: -0.12,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_FROZEN_ITEM_LEFT_OUT:quarantine-and-replace': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_FROZEN_ITEM_LEFT_OUT:hold-for-manager': {
+    clearFlags: ['complaint-risk'],
+  },
+  'SCENARIO_FROZEN_ITEM_LEFT_OUT:put-back-freezer': {
+    setFlags: ['complaint-risk'],
+    deferredConsequences: [
+      {
+        id: 'frozen-quality-incident',
+        trigger: 'shift-end',
+        title: 'Cuối ca phát hiện sản phẩm đông lạnh cần kiểm tra chất lượng',
+        description:
+          'Sản phẩm từng để ngoài lâu đã quay lại kệ, khiến cửa hàng phải rà soát lô hàng và quy trình bảo quản.',
+        employeeRatingDelta: -0.2,
+        storeReputationDelta: -0.3,
+        customerSatisfactionDelta: -0.12,
+        clearFlags: ['complaint-risk'],
+      },
+    ],
+  },
+
+  'SCENARIO_COUPON_STACKING:compare-coupons': {
+    clearFlags: ['cash-discrepancy'],
+  },
+  'SCENARIO_COUPON_STACKING:let-customer-choose-coupon': {
+    clearFlags: ['cash-discrepancy'],
+  },
+  'SCENARIO_COUPON_STACKING:stack-both-coupons': {
+    setFlags: ['cash-discrepancy'],
+    deferredConsequences: [
+      {
+        id: 'coupon-stack-audit',
+        trigger: 'shift-end',
+        title: 'Đối soát phát hiện hai coupon bị cộng dồn',
+        description:
+          'Cuối ca, hệ thống khuyến mãi phát hiện một hóa đơn áp dụng hai coupon dù chương trình chỉ cho phép dùng một.',
+        employeeRatingDelta: -0.16,
+        storeReputationDelta: -0.16,
+        customerSatisfactionDelta: 0,
+        clearFlags: ['cash-discrepancy'],
+      },
+    ],
+  },
 }
 
 export function getWorkWorldEffect(
