@@ -1,5 +1,12 @@
-import { useState, type ComponentType } from 'react'
-import { ArrowLeft, ArrowRight, Check, Sparkles, Star } from 'lucide-react'
+import { useState } from 'react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Sparkles,
+  Star,
+  type LucideIcon,
+} from 'lucide-react'
 import { scoreProceduralQuiz } from '../../core/worldChapter/runtime'
 import type { WorldChapterQuestion } from '../../core/worldChapter/types'
 
@@ -55,7 +62,7 @@ export function WorldChapterQuiz({
   lessonTitle: string
   skillLabel: string
   questions: WorldChapterQuestion[]
-  icon: ComponentType<{ size?: number; 'aria-hidden'?: boolean }>
+  icon: LucideIcon
   copy: WorldChapterQuizCopy
   onExit: () => void
   onComplete: (stars: number) => void
