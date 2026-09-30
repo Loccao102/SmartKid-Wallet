@@ -110,6 +110,96 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_challenge_attempts: {
+        Row: {
+          attempt_id: string
+          auth_user_id: string
+          challenge_id: string
+          challenge_version: number
+          completed_at: string
+          created_at: string
+          decision_quality: number
+          elapsed_ms: number
+          first_try_correct: number
+          math_attempts: number
+          score: number
+          stars: number
+          total_questions: number
+          week_key: string
+        }
+        Insert: {
+          attempt_id?: string
+          auth_user_id?: string
+          challenge_id: string
+          challenge_version: number
+          completed_at?: string
+          created_at?: string
+          decision_quality: number
+          elapsed_ms: number
+          first_try_correct: number
+          math_attempts: number
+          score: number
+          stars: number
+          total_questions: number
+          week_key: string
+        }
+        Update: {
+          attempt_id?: string
+          auth_user_id?: string
+          challenge_id?: string
+          challenge_version?: number
+          completed_at?: string
+          created_at?: string
+          decision_quality?: number
+          elapsed_ms?: number
+          first_try_correct?: number
+          math_attempts?: number
+          score?: number
+          stars?: number
+          total_questions?: number
+          week_key?: string
+        }
+        Relationships: []
+      }
+      weekly_challenge_leaderboard: {
+        Row: {
+          attempts: number
+          best_elapsed_ms: number
+          best_first_try_correct: number
+          best_score: number
+          best_stars: number
+          challenge_id: string
+          challenge_version: number
+          player_code: string
+          updated_at: string
+          week_key: string
+        }
+        Insert: {
+          attempts?: number
+          best_elapsed_ms: number
+          best_first_try_correct: number
+          best_score: number
+          best_stars: number
+          challenge_id: string
+          challenge_version: number
+          player_code: string
+          updated_at?: string
+          week_key: string
+        }
+        Update: {
+          attempts?: number
+          best_elapsed_ms?: number
+          best_first_try_correct?: number
+          best_score?: number
+          best_stars?: number
+          challenge_id?: string
+          challenge_version?: number
+          player_code?: string
+          updated_at?: string
+          week_key?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
