@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Check, Lightbulb, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, Check, Coins, Lightbulb, RotateCcw, X } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
 import { getExerciseFamilyById } from '../../data/exerciseFamilies'
+import { exerciseXp, retryCost } from '../../domain/progression'
 import type { ExerciseInstance, StallDefinition } from '../../domain/types'
+import { playGameSfx } from '../../lib/audioEngine'
+import { useProgressionStore } from '../../store/progression'
 
 export function ExerciseDialog({
   stall,
@@ -28,7 +31,13 @@ export function ExerciseDialog({
   const continueButton = useRef<HTMLButtonElement>(null)
   const [answer, setAnswer] = useState('')
   const [result, setResult] = useState<'idle' | 'correct' | 'wrong'>('idle')
+  const [wrongAttempts, setWrongAttempts] = useState(0)
+  const [retryNote, setRetryNote] = useState('')
   const family = getExerciseFamilyById(exercise.familyId)
+  const coins = useProgressionStore((state) => state.coins)
+  const spendCoins = useProgressionStore((state) => state.spendCoins)
+  const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
+  const currentRetryCost = mode === 'practice' ? 0 : retryCost(wrongAttempts)
 
   useEffect(() => {
     const element = dialog.current
@@ -52,9 +61,66 @@ export function ExerciseDialog({
   }, [result])
 
   const submit = () => {
-    if (!answer.trim() || result === 'correct') return
+    if (!answer.trim() || result !== 'idle') return
     const numericAnswer = Number(answer.replace(/[.,\sđ]/gi, ''))
-    setResult(numericAnswer === exercise.answer ? 'correct' : 'wrong')
+    const correct = numericAnswer === exercise.answer
+
+    if (correct) {
+      setResult('correct')
+      setRetryNote('')
+      playGameSfx('correct')
+      return
+    }
+
+    setWrongAttempts((count) => count + 1)
+    setResult('wrong')
+    playGameSfx('retry')
+  }
+
+  const retry = () => {
+    if (mode === 'practice') {
+      setAnswer('')
+      setResult('idle')
+      setRetryNote('Practice Mode không mất xu.')
+      requestAnimationFrame(() => answerInput.current?.focus())
+      return
+    }
+
+    const cost = retryCost(wrongAttempts)
+    const paid = spendCoins(cost)
+
+    if (paid) {
+      playGameSfx('coin')
+      setRetryNote('Đã dùng ' + cost + ' xu để mở lượt thử tiếp theo.')
+    } else {
+      setRetryNote(
+        'Em chưa đủ xu. Hệ thống mở một lượt hỗ trợ miễn phí để việc học không bị khóa.',
+      )
+    }
+
+    setAnswer('')
+    setResult('idle')
+    requestAnimationFrame(() => answerInput.current?.focus())
+  }
+
+  const finishCorrect = () => {
+    if (mode === 'unlock') {
+      const gained = awardXpOnce(
+        'unlock-family:' + exercise.familyId,
+        exerciseXp(wrongAttempts, mode),
+      )
+      if (gained?.levelsGained) playGameSfx('level-up')
+      else if (gained) playGameSfx('xp')
+
+      if (isFinalUnlock) {
+        const stallReward = awardXpOnce('stall:' + stall.id, 30)
+        if (stallReward?.levelsGained) playGameSfx('level-up')
+        else if (stallReward) playGameSfx('unlock')
+      }
+    }
+
+    onCorrect()
+    if (mode === 'practice' || isFinalUnlock) onClose()
   }
 
   return (
@@ -147,14 +213,11 @@ export function ExerciseDialog({
               inputMode="numeric"
               autoComplete="off"
               value={answer}
-              readOnly={result === 'correct'}
+              readOnly={result !== 'idle'}
               aria-invalid={result === 'wrong'}
               aria-describedby="exercise-response"
               placeholder="Nhập kết quả"
-              onChange={(event) => {
-                setAnswer(event.target.value)
-                setResult('idle')
-              }}
+              onChange={(event) => setAnswer(event.target.value)}
             />
             <span>{exercise.unit}</span>
           </div>
@@ -182,12 +245,18 @@ export function ExerciseDialog({
               <>
                 <RotateCcw size={22} aria-hidden="true" />
                 <p>
-                  <strong>Thử lại một chút nhé.</strong>
-                  <span>Đọc lại dữ kiện và tính từng bước.</span>
+                  <strong>Chưa khớp với dữ kiện rồi.</strong>
+                  <span>
+                    {wrongAttempts === 1
+                      ? 'Kiểm tra lại phép tính và đơn vị trước nhé.'
+                      : wrongAttempts === 2
+                        ? 'Thử tách bài thành từng bước nhỏ hơn.'
+                        : 'Hãy tìm số cần tính trước, rồi mới ghép phép tính cuối cùng.'}
+                  </span>
                 </p>
               </>
             ) : (
-              <p>Em có thể thử lại nếu chưa tìm ra đáp án.</p>
+              <p>{retryNote || 'Em có thể thử lại nếu chưa tìm ra đáp án.'}</p>
             )}
           </div>
           {result === 'correct' ? (
@@ -195,10 +264,7 @@ export function ExerciseDialog({
               ref={continueButton}
               type="button"
               className="adventure-button"
-              onClick={() => {
-                onCorrect()
-                if (mode === 'practice' || isFinalUnlock) onClose()
-              }}
+              onClick={finishCorrect}
             >
               {mode === 'practice'
                 ? 'Quay lại gian hàng'
@@ -206,6 +272,18 @@ export function ExerciseDialog({
                   ? 'Mở gian hàng'
                   : 'Bài tiếp theo'}
               <ArrowRight size={20} aria-hidden="true" />
+            </button>
+          ) : result === 'wrong' ? (
+            <button
+              type="button"
+              className="adventure-button retry-button"
+              onClick={retry}
+            >
+              <RotateCcw size={19} aria-hidden="true" />
+              {mode === 'practice'
+                ? 'Thử lại miễn phí'
+                : 'Thử lại · ' + currentRetryCost + ' xu'}
+              {mode !== 'practice' ? <Coins size={18} aria-hidden="true" /> : null}
             </button>
           ) : (
             <button
@@ -217,6 +295,11 @@ export function ExerciseDialog({
               <ArrowRight size={20} aria-hidden="true" />
             </button>
           )}
+          <div className="exercise-wallet" aria-label={'Ví hiện có ' + coins + ' xu'}>
+            <Coins size={17} aria-hidden="true" />
+            <span>{coins.toLocaleString('vi-VN')} xu</span>
+            {mode === 'practice' ? <small>Practice không mất xu</small> : null}
+          </div>
         </form>
       </div>
     </dialog>
