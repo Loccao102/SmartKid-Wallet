@@ -8,6 +8,7 @@ import {
 import {
   createSeed,
   createSeededRandom,
+  pickOne,
 } from '../lib/seededRandom'
 import type {
   WorkCustomerDefinition,
@@ -15,6 +16,32 @@ import type {
   WorkShiftInstance,
   WorkShiftTemplateDefinition,
 } from './types'
+
+export interface WorkShiftGenerationOptions {
+  recentFingerprints?: string[]
+  maxSimilarity?: number
+  maxRegenerations?: number
+}
+
+const requestLines = [
+  'Mình nhờ em kiểm tra tổng tiền những món này nhé.',
+  'Em tính giúp mình hóa đơn hôm nay với nhé.',
+  'Mình muốn thanh toán giỏ hàng này, em kiểm tra giúp nhé.',
+  'Em xem giúp mình tổng số tiền cần trả là bao nhiêu nhé.',
+  'Mình mua những món này, nhờ em tính hóa đơn giúp.',
+] as const
+
+const priceMultipliers: Record<1 | 2 | 3, readonly number[]> = {
+  1: [0.9, 0.95, 1, 1.05, 1.1],
+  2: [0.85, 0.9, 0.95, 1, 1.05, 1.1, 1.15],
+  3: [0.8, 0.85, 0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2],
+}
+
+const quantityOffsets: Record<1 | 2 | 3, readonly number[]> = {
+  1: [0, 0, 0, 1],
+  2: [-1, 0, 0, 1, 1],
+  3: [-1, 0, 1, 1, 2],
+}
 
 function shuffleWithRandom<T>(items: readonly T[], random: () => number) {
   const result = [...items]
@@ -50,8 +77,6 @@ function selectScenarios(
   const selected: WorkScenarioDefinition[] = []
   const usedCategories = new Set<string>()
 
-  // Ca nâng cao phải thực sự có ít nhất một tình huống khó,
-  // thay vì phụ thuộc hoàn toàn vào thứ tự shuffle.
   if (template.maxScenarioDifficulty === 3) {
     const hardest = shuffled.find((scenario) => scenario.difficulty === 3)
     if (hardest) {
@@ -80,36 +105,161 @@ function selectScenarios(
   return selected
 }
 
+function roundPrice(value: number) {
+  return Math.max(5000, Math.round(value / 1000) * 1000)
+}
+
+function varyBasket(
+  blueprint: WorkCustomerBlueprint,
+  random: () => number,
+  difficulty: 1 | 2 | 3,
+) {
+  return blueprint.basket.map((item) => {
+    const multiplier = pickOne(priceMultipliers[difficulty], random)
+    const quantityOffset = pickOne(quantityOffsets[difficulty], random)
+
+    return {
+      ...item,
+      quantity: Math.max(1, Math.min(5, item.quantity + quantityOffset)),
+      unitPrice: roundPrice(item.unitPrice * multiplier),
+    }
+  })
+}
+
+function calculateBasketTotal(
+  basket: WorkCustomerDefinition['basket'],
+) {
+  return basket.reduce(
+    (total, item) => total + item.quantity * item.unitPrice,
+    0,
+  )
+}
+
+function chooseCashGiven(
+  basketTotal: number,
+  scenario: WorkScenarioDefinition | undefined,
+  random: () => number,
+) {
+  const highestBillDelta = Math.max(
+    0,
+    ...(scenario?.choices.map((choice) => choice.billDelta) ?? [0]),
+  )
+  const required = basketTotal + highestBillDelta
+  const denominations = [100000, 200000, 500000, 1000000]
+  const eligible = denominations.filter((amount) => amount >= required)
+
+  if (eligible.length === 0) {
+    return Math.ceil(required / 100000) * 100000
+  }
+
+  const near = eligible.slice(0, Math.min(2, eligible.length))
+  return pickOne(near, random)
+}
+
 function createCustomerFromBlueprint(
   blueprint: WorkCustomerBlueprint,
   name: string,
   id: string,
+  random: () => number,
+  mathDifficulty: 1 | 2 | 3,
   scenario?: WorkScenarioDefinition,
 ): WorkCustomerDefinition {
+  const basket = varyBasket(blueprint, random, mathDifficulty)
+  const basketTotal = calculateBasketTotal(basket)
+
   return {
     id,
     name,
-    basket: blueprint.basket.map((item) => ({ ...item })),
-    cashGiven: blueprint.cashGiven,
+    basket,
+    cashGiven: chooseCashGiven(basketTotal, scenario, random),
+    requestLine: pickOne(requestLines, random),
     scenarioId: scenario?.id,
     scenarioVersion: scenario?.version,
   }
 }
 
-export function generateWorkShiftInstance(
+function normalizeFingerprintText(value: string) {
+  return value
+    .toLocaleLowerCase('vi-VN')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+}
+
+export function buildWorkShiftFingerprint(
+  shift: Pick<WorkShiftInstance, 'customers'> | { customers: WorkCustomerDefinition[] },
+) {
+  const tokens: string[] = []
+
+  shift.customers.forEach((customer, customerIndex) => {
+    const position = customerIndex + 1
+    tokens.push(
+      `c${position}:scenario:${customer.scenarioId ?? 'normal'}`,
+      `c${position}:cash:${Math.round(customer.cashGiven / 50000)}`,
+    )
+
+    customer.basket.forEach((item, itemIndex) => {
+      tokens.push(
+        `c${position}:i${itemIndex + 1}:name:${normalizeFingerprintText(item.name)}`,
+        `c${position}:i${itemIndex + 1}:qty:${item.quantity}`,
+        `c${position}:i${itemIndex + 1}:price:${Math.round(item.unitPrice / 5000)}`,
+      )
+    })
+  })
+
+  return tokens.join('|')
+}
+
+export function workShiftFingerprintSimilarity(a: string, b: string) {
+  if (a === b) return 1
+
+  const aTokens = new Set(a.split('|').filter(Boolean))
+  const bTokens = new Set(b.split('|').filter(Boolean))
+  const intersection = [...aTokens].filter((token) => bTokens.has(token)).length
+  const union = new Set([...aTokens, ...bTokens]).size
+
+  return union === 0 ? 0 : intersection / union
+}
+
+function estimateDifficultyScore(
+  template: WorkShiftTemplateDefinition,
+  customers: WorkCustomerDefinition[],
+  selectedScenarios: WorkScenarioDefinition[],
+) {
+  const mathBase = template.mathDifficulty / 3
+  const scenarioBase =
+    selectedScenarios.length === 0
+      ? 0
+      : selectedScenarios.reduce(
+          (sum, scenario) => sum + scenario.difficulty / 3,
+          0,
+        ) / selectedScenarios.length
+  const averageLines =
+    customers.reduce((sum, customer) => sum + customer.basket.length, 0) /
+    Math.max(1, customers.length)
+  const basketComplexity = Math.min(1, averageLines / 3)
+
+  return Number(
+    Math.min(
+      1,
+      Math.max(0, mathBase * 0.5 + scenarioBase * 0.35 + basketComplexity * 0.15),
+    ).toFixed(3),
+  )
+}
+
+function buildShiftCandidate(
   template: WorkShiftTemplateDefinition,
   studentKey: string,
-  variantIndex = 0,
+  variantIndex: number,
+  generationAttempt: number,
 ): WorkShiftInstance {
-  if (template.customerCount <= 0) {
-    throw new Error('Work Shift customerCount must be greater than zero.')
-  }
-
-  if (template.scenarioCount > template.customerCount) {
-    throw new Error('Work Shift scenarioCount cannot exceed customerCount.')
-  }
-
-  const seed = createSeed([studentKey, template.id, template.version, variantIndex])
+  const seed = createSeed([
+    studentKey,
+    template.id,
+    template.version,
+    variantIndex,
+    generationAttempt,
+  ])
   const random = createSeededRandom(seed)
 
   const selectedScenarios = selectScenarios(template, random)
@@ -153,17 +303,20 @@ export function generateWorkShiftInstance(
       entry.blueprint,
       names[index],
       `${template.id}-${seed}-customer-${index + 1}`,
+      random,
+      template.mathDifficulty,
       entry.scenario,
     ),
   )
 
-  return {
+  const partial = {
     id: `${template.id}-seed-${seed}`,
     templateId: template.id,
     templateVersion: template.version,
     seed,
     studentKey,
     variantIndex,
+    generationAttempt,
     title: template.title,
     subtitle: template.subtitle,
     roleTitle: template.roleTitle,
@@ -172,4 +325,68 @@ export function generateWorkShiftInstance(
     startingStoreReputation: template.startingStoreReputation,
     startingCustomerSatisfaction: template.startingCustomerSatisfaction,
   }
+
+  return {
+    ...partial,
+    fingerprint: buildWorkShiftFingerprint(partial),
+    difficultyScore: estimateDifficultyScore(
+      template,
+      customers,
+      selectedScenarios,
+    ),
+  }
+}
+
+export function generateWorkShiftInstance(
+  template: WorkShiftTemplateDefinition,
+  studentKey: string,
+  variantIndex = 0,
+  options: WorkShiftGenerationOptions = {},
+): WorkShiftInstance {
+  if (template.customerCount <= 0) {
+    throw new Error('Work Shift customerCount must be greater than zero.')
+  }
+
+  if (template.scenarioCount > template.customerCount) {
+    throw new Error('Work Shift scenarioCount cannot exceed customerCount.')
+  }
+
+  const recentFingerprints = options.recentFingerprints ?? []
+  const maxSimilarity = options.maxSimilarity ?? 0.82
+  const maxRegenerations = Math.max(1, options.maxRegenerations ?? 16)
+
+  let fallback: WorkShiftInstance | null = null
+  let fallbackSimilarity = Number.POSITIVE_INFINITY
+
+  for (
+    let generationAttempt = 0;
+    generationAttempt < maxRegenerations;
+    generationAttempt += 1
+  ) {
+    const candidate = buildShiftCandidate(
+      template,
+      studentKey,
+      variantIndex,
+      generationAttempt,
+    )
+
+    if (recentFingerprints.length === 0) return candidate
+
+    const similarity = Math.max(
+      ...recentFingerprints.map((fingerprint) =>
+        workShiftFingerprintSimilarity(candidate.fingerprint, fingerprint),
+      ),
+    )
+
+    if (similarity < fallbackSimilarity) {
+      fallback = candidate
+      fallbackSimilarity = similarity
+    }
+
+    if (similarity < maxSimilarity) return candidate
+  }
+
+  if (fallback) return fallback
+
+  throw new Error(`Unable to generate work shift for template ${template.id}.`)
 }
