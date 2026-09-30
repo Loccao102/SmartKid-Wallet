@@ -15,22 +15,10 @@ export type WeekendMarketLessonId =
   | 'fair-bargain'
   | 'market-day'
 
-export interface WeekendMarketLessonDefinition {
-  id: WeekendMarketLessonId
-  title: string
-  subtitle: string
-  description: string
-  skillLabel: string
-  xpReward: number
-}
+export interface WeekendMarketLessonDefinition
+  extends WorldChapterLessonDefinition<WeekendMarketLessonId> {}
 
-export interface WeekendMarketQuestion {
-  id: string
-  prompt: string
-  answer: number
-  unit: string
-  hint: string
-}
+export type WeekendMarketQuestion = WorldChapterQuestion
 
 export interface MarketDayChoice {
   id: string
