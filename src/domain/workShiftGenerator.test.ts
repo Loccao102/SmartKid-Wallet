@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { workScenarios } from '../data/workShift'
 import {
   advancedShiftTemplate,
+  expertShiftTemplate,
   scenarioCustomerBlueprints,
 } from '../data/workShiftTemplates'
 import { calculateEffectiveTotal } from './workShiftEngine'
@@ -47,6 +48,28 @@ describe('seeded work shift generator', () => {
 
     const customerNames = shift.customers.map((customer) => customer.name)
     expect(new Set(customerNames).size).toBe(6)
+  })
+
+  it('creates an eight-customer weekend peak shift with five scenarios', () => {
+    const shift = generateWorkShiftInstance(
+      expertShiftTemplate,
+      'student-weekend',
+      0,
+    )
+
+    expect(shift.customers).toHaveLength(8)
+    expect(
+      shift.customers.filter((customer) => customer.scenarioId),
+    ).toHaveLength(5)
+    expect(
+      shift.customers.some((customer) => {
+        if (!customer.scenarioId) return false
+        return (
+          workScenarios.find((scenario) => scenario.id === customer.scenarioId)
+            ?.difficulty === 3
+        )
+      }),
+    ).toBe(true)
   })
 
   it('stores scenario versions in the generated instance', () => {
