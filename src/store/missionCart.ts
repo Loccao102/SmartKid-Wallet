@@ -4,15 +4,22 @@ import type { CartLine } from '../domain/types'
 
 interface MissionCartState {
   carts: Record<string, CartLine[]>
+  revealedEventIdsByMission: Record<string, string[]>
   addItem: (missionId: string, productId: string) => void
   removeItem: (missionId: string, productId: string) => void
+  revealEvents: (missionId: string, eventIds: string[]) => void
   clearCart: (missionId: string) => void
+}
+
+const initialState = {
+  carts: {} as Record<string, CartLine[]>,
+  revealedEventIdsByMission: {} as Record<string, string[]>,
 }
 
 export const useMissionCartStore = create<MissionCartState>()(
   persist(
     (set) => ({
-      carts: {},
+      ...initialState,
       addItem: (missionId, productId) =>
         set((state) => {
           const cart = state.carts[missionId] ?? []
@@ -51,14 +58,44 @@ export const useMissionCartStore = create<MissionCartState>()(
             },
           }
         }),
+      revealEvents: (missionId, eventIds) =>
+        set((state) => {
+          const current = state.revealedEventIdsByMission?.[missionId] ?? []
+          const merged = Array.from(new Set([...current, ...eventIds]))
+          if (merged.length === current.length) return state
+
+          return {
+            revealedEventIdsByMission: {
+              ...(state.revealedEventIdsByMission ?? {}),
+              [missionId]: merged,
+            },
+          }
+        }),
       clearCart: (missionId) =>
         set((state) => ({
           carts: {
             ...state.carts,
             [missionId]: [],
           },
+          revealedEventIdsByMission: {
+            ...(state.revealedEventIdsByMission ?? {}),
+            [missionId]: [],
+          },
         })),
     }),
-    { name: 'smartkid-wallet-mission-cart-v1' },
+    {
+      name: 'smartkid-wallet-mission-cart-v1',
+      version: 2,
+      migrate: (persisted) => {
+        const state = persisted as Partial<MissionCartState> | undefined
+        return {
+          ...initialState,
+          ...state,
+          carts: state?.carts ?? {},
+          revealedEventIdsByMission:
+            state?.revealedEventIdsByMission ?? {},
+        }
+      },
+    },
   ),
 )
