@@ -14,6 +14,107 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignment_attempts: {
+        Row: {
+          assignment_id: string
+          attempt_id: string
+          completed_at: string
+          decision_quality: number
+          elapsed_ms: number
+          first_try_correct: number
+          math_attempts: number
+          payload: Json | null
+          score: number
+          stars: number
+          student_id: string
+          total_questions: number
+        }
+        Insert: {
+          assignment_id: string
+          attempt_id?: string
+          completed_at?: string
+          decision_quality: number
+          elapsed_ms: number
+          first_try_correct: number
+          math_attempts: number
+          payload?: Json | null
+          score: number
+          stars: number
+          student_id: string
+          total_questions: number
+        }
+        Update: {
+          assignment_id?: string
+          attempt_id?: string
+          completed_at?: string
+          decision_quality?: number
+          elapsed_ms?: number
+          first_try_correct?: number
+          math_attempts?: number
+          payload?: Json | null
+          score?: number
+          stars?: number
+          student_id?: string
+          total_questions?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_attempts_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_assignments"
+            referencedColumns: ["assignment_id"]
+          },
+          {
+            foreignKeyName: "assignment_attempts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
+      }
+      classrooms: {
+        Row: {
+          academic_year: string
+          archived_at: string | null
+          classroom_id: string
+          created_at: string
+          grade_level: number | null
+          join_code: string
+          name: string
+          teacher_id: string
+        }
+        Insert: {
+          academic_year?: string
+          archived_at?: string | null
+          classroom_id?: string
+          created_at?: string
+          grade_level?: number | null
+          join_code: string
+          name: string
+          teacher_id: string
+        }
+        Update: {
+          academic_year?: string
+          archived_at?: string | null
+          classroom_id?: string
+          created_at?: string
+          grade_level?: number | null
+          join_code?: string
+          name?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "classrooms_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
+      }
       research_events: {
         Row: {
           after_state: Json | null
@@ -109,6 +210,190 @@ export type Database = {
           submitted_answer?: number | null
         }
         Relationships: []
+      }
+      student_learning_snapshots: {
+        Row: {
+          activity_results: Json
+          auth_user_id: string
+          coins: number
+          completed_missions: string[]
+          completed_world_chapters: string[]
+          level: number
+          mastery: Json
+          total_xp: number
+          updated_at: string
+        }
+        Insert: {
+          activity_results?: Json
+          auth_user_id: string
+          coins?: number
+          completed_missions?: string[]
+          completed_world_chapters?: string[]
+          level?: number
+          mastery?: Json
+          total_xp?: number
+          updated_at?: string
+        }
+        Update: {
+          activity_results?: Json
+          auth_user_id?: string
+          coins?: number
+          completed_missions?: string[]
+          completed_world_chapters?: string[]
+          level?: number
+          mastery?: Json
+          total_xp?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_learning_snapshots_auth_user_id_fkey"
+            columns: ["auth_user_id"]
+            isOneToOne: true
+            referencedRelation: "student_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
+      }
+      student_profiles: {
+        Row: {
+          active: boolean
+          auth_user_id: string
+          classroom_id: string
+          created_at: string
+          display_name: string
+          last_seen_at: string | null
+          student_code: string
+          username: string
+        }
+        Insert: {
+          active?: boolean
+          auth_user_id: string
+          classroom_id: string
+          created_at?: string
+          display_name: string
+          last_seen_at?: string | null
+          student_code: string
+          username: string
+        }
+        Update: {
+          active?: boolean
+          auth_user_id?: string
+          classroom_id?: string
+          created_at?: string
+          display_name?: string
+          last_seen_at?: string | null
+          student_code?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_profiles_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["classroom_id"]
+          },
+        ]
+      }
+      teacher_profiles: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          display_name: string
+          school_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          display_name: string
+          school_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          display_name?: string
+          school_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      weekly_assignments: {
+        Row: {
+          assignment_id: string
+          challenge_json: Json
+          challenge_seed: number
+          challenge_version: number
+          classroom_id: string
+          coin_reward: number
+          created_at: string
+          created_by: string
+          description: string | null
+          due_at: string
+          max_attempts: number
+          opens_at: string
+          status: string
+          title: string
+          updated_at: string
+          week_key: string
+          xp_reward: number
+        }
+        Insert: {
+          assignment_id?: string
+          challenge_json: Json
+          challenge_seed: number
+          challenge_version?: number
+          classroom_id: string
+          coin_reward?: number
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_at: string
+          max_attempts?: number
+          opens_at: string
+          status?: string
+          title: string
+          updated_at?: string
+          week_key: string
+          xp_reward?: number
+        }
+        Update: {
+          assignment_id?: string
+          challenge_json?: Json
+          challenge_seed?: number
+          challenge_version?: number
+          classroom_id?: string
+          coin_reward?: number
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_at?: string
+          max_attempts?: number
+          opens_at?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          week_key?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_assignments_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["classroom_id"]
+          },
+          {
+            foreignKeyName: "weekly_assignments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
       }
       weekly_challenge_attempts: {
         Row: {
