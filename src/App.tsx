@@ -327,6 +327,7 @@ export function App() {
       <footer className="game-footer">
         <span>SmartKid Wallet</span>
         <span>Học từng chút · Lớn mỗi ngày</span>
+        <a href="/teacher">Dành cho giáo viên</a>
       </footer>
     </div>
   )
