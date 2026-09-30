@@ -1,10 +1,12 @@
 import { lazy, Suspense, useState } from 'react'
 import { ArrowLeft, ArrowRight, BadgeCheck, Boxes, Check, CircleAlert, Coins, ReceiptText, RotateCcw, ShieldCheck, Star, Store, Users, Wallet, X } from 'lucide-react'
-import { gameAssets } from '../../assets/registry'
+import { getNpcAvatarConfig } from '../../avatar/avatarCatalog'
+import { AvatarCharacter } from '../../components/avatar/AvatarCharacter'
 import { getWorkManagerPlan, workManagerPlans } from '../../data/workManagerPlans'
 import { getWorkScenario } from '../../data/workShift'
 import { scoreWorkShift } from '../../domain/scoring'
 import type { WorkManagerPlanDefinition, WorkPendingFollowUp, WorkScenarioChoice, WorkShiftDefinition, WorkShiftProgress, WorkStoryFollowUpChoice } from '../../domain/types'
+import { useAvatarProfileStore } from '../../store/avatarProfile'
 import { money } from '../smartmart/ShoppingProducts'
 
 const WorkModeGame = lazy(() => import('../../game/WorkModeGame'))
@@ -76,6 +78,7 @@ export function ManagerPlanScreen({
 }
 
 export function WorkResult({ shift, progress, onBack, onReplay }: { shift: WorkShiftDefinition; progress: WorkShiftProgress; onBack: () => void; onReplay: () => void }) {
+  const avatar = useAvatarProfileStore((state) => state.avatar)
   const entries = shift.customers.map(customer => progress.customerProgress[customer.id])
   const solved = entries.reduce((sum, item) => sum + Number(item?.totalSolved) + Number(item?.changeSolved), 0)
   const firstTry = entries.reduce((sum, item) => sum + Number(item?.totalSolved && item.totalAttempts === 1) + Number(item?.changeSolved && item.changeAttempts === 1), 0)
@@ -87,7 +90,7 @@ export function WorkResult({ shift, progress, onBack, onReplay }: { shift: WorkS
     ? getWorkManagerPlan(progress.managerPlanId)
     : null
   const elapsedMs = Math.max(0, (progress.completedAtEpochMs ?? Date.now()) - (progress.startedAtEpochMs ?? Date.now()))
-  return <section className="work-result-production"><button type="button" className="quiet-button" onClick={onBack}><ArrowLeft size={18} />Nhiệm vụ của em</button><header><img src={gameAssets.production.employee} alt="Nhân viên SmartMart" /><div><p className="eyebrow">MỘT CA LÀM, THÊM NHIỀU TRẢI NGHIỆM</p><h1>Hoàn thành ca làm!</h1><p>{shift.title} · {progress.metrics.servedCustomers}/{shift.customers.length} khách đã phục vụ</p></div><BadgeCheck size={58} aria-hidden="true" /></header>
+  return <section className="work-result-production"><button type="button" className="quiet-button" onClick={onBack}><ArrowLeft size={18} />Nhiệm vụ của em</button><header><AvatarCharacter config={avatar} uniform="smartmart" expression="happy" className="work-result-avatar" label="Nhân vật của em trong đồng phục SmartMart" /><div><p className="eyebrow">MỘT CA LÀM, THÊM NHIỀU TRẢI NGHIỆM</p><h1>Hoàn thành ca làm!</h1><p>{shift.title} · {progress.metrics.servedCustomers}/{shift.customers.length} khách đã phục vụ</p></div><BadgeCheck size={58} aria-hidden="true" /></header>
     <section className="work-mastery-result"><div className="run-stars" aria-label={hiddenScore.stars + ' trên 5 sao'}>{Array.from({length:5},(_,index)=><Star key={index} size={31} className={index < hiddenScore.stars ? 'is-earned' : ''} />)}</div><strong>{hiddenScore.stars === 5 ? 'Ca làm 5 sao!' : 'Kỷ lục của lượt này: ' + hiddenScore.stars + '/5 sao'}</strong><span>{Math.floor(elapsedMs / 60000)} phút {Math.floor((elapsedMs % 60000) / 1000)} giây</span></section>
     <section className="work-learning-results" aria-labelledby="work-learning-title"><h2 id="work-learning-title">Kết quả học tập và làm việc</h2><div className="learning-result-grid"><div><ReceiptText size={26} /><strong>{solved}/{shift.customers.length * 2}</strong><span>Phép tính hoàn thành</span><small>{firstTry} đúng ngay lần đầu · {attempts} lượt thử</small></div><div><Check size={26} /><strong>{handled}/{scenarios.length}</strong><span>Tình huống đã xử lý</span><small>Mỗi lựa chọn mang lại một kết quả riêng.</small></div><div><CircleAlert size={26} /><strong>{progress.worldState.resolvedConsequences.length}</strong><span>Hệ quả đã xảy ra</span><small>{progress.worldState.resolvedFollowUps.length} lần em đã xử lý tiếp câu chuyện.</small></div></div></section>
     <section className="run-score-breakdown" aria-label="Các yếu tố tạo nên số sao"><span>Chính xác<strong>{Math.round(hiddenScore.accuracy)}/30</strong></span><span>Thời gian<strong>{Math.round(hiddenScore.time)}/20</strong></span><span>Vận hành<strong>{Math.round(hiddenScore.resources)}/20</strong></span><span>Quyết định<strong>{Math.round(hiddenScore.decisions)}/20</strong></span><span>Mục tiêu<strong>{Math.round(hiddenScore.objectives)}/10</strong></span></section>
@@ -105,6 +108,8 @@ export function WorkCounter({ shift, progress, stage, activeFollowUp, answer, fe
 }) {
   const [sceneOpen, setSceneOpen] = useState(false)
   const customer = shift.customers[progress.customerIndex]
+  const customerAvatar = getNpcAvatarConfig(customer.id, progress.customerIndex)
+  const customerExpression = stage === 'done' ? 'happy' : stage === 'scenario' || stage === 'follow-up' ? 'concerned' : stage === 'change' ? 'neutral' : 'happy'
   const scenario = customer.scenarioId ? getWorkScenario(customer.scenarioId) : null
   const orderedScenarioChoices = scenario
     ? (customer.scenarioChoiceOrder ?? scenario.choices.map((choice) => choice.id))
@@ -156,7 +161,7 @@ export function WorkCounter({ shift, progress, stage, activeFollowUp, answer, fe
   const lastConsequence = progress.worldState.resolvedConsequences.at(-1)
   return <section className="work-production"><div className="shop-toolbar"><button type="button" className="quiet-button" onClick={onBack}><ArrowLeft size={18} />Nhiệm vụ</button><span className="work-shift-chip">Khách {progress.customerIndex + 1}/{shift.customers.length}</span></div>
     <header className="work-title"><div><p className="eyebrow">ĐANG VÀO CA · {shift.roleTitle}</p><h1>{shift.title}</h1></div><span><Store size={18} />SmartMart</span></header>
-    <div className="pos-layout"><section className="customer-workspace"><div className="customer-scene"><div className="store-shelves" aria-hidden="true" /><img src={gameAssets.production.customers[progress.customerIndex % gameAssets.production.customers.length]} alt="" /><div className="customer-speech"><p className="eyebrow">KHÁCH HÀNG HIỆN TẠI</p><h2>{customer.name}</h2><p>{stage === 'follow-up' && activeFollowUp ? 'Có một tình huống từ trước quay lại cần em xử lý.' : stage === 'scenario' && scenario ? (customer.scenarioDescription ?? scenario.description) : stage === 'done' ? 'Cảm ơn em đã giúp mình mua sắm!' : stage === 'change' ? 'Mình gửi em tiền thanh toán nhé.' : (customer.requestLine ?? 'Em tính giúp mình những món này nhé.')}</p></div><div className="checkout-counter-front"><ReceiptText size={24} /><span>QUẦY THU NGÂN</span></div></div>
+    <div className="pos-layout"><section className="customer-workspace"><div className="customer-scene"><div className="store-shelves" aria-hidden="true" /><AvatarCharacter config={customerAvatar} age="adult" expression={customerExpression} className="work-customer-avatar" label={customer.name} /><div className="customer-speech"><p className="eyebrow">KHÁCH HÀNG HIỆN TẠI</p><h2>{customer.name}</h2><p>{stage === 'follow-up' && activeFollowUp ? 'Có một tình huống từ trước quay lại cần em xử lý.' : stage === 'scenario' && scenario ? (customer.scenarioDescription ?? scenario.description) : stage === 'done' ? 'Cảm ơn em đã giúp mình mua sắm!' : stage === 'change' ? 'Mình gửi em tiền thanh toán nhé.' : (customer.requestLine ?? 'Em tính giúp mình những món này nhé.')}</p></div><div className="checkout-counter-front"><ReceiptText size={24} /><span>QUẦY THU NGÂN</span></div></div>
       <div className="pos-receipt"><header><ReceiptText size={20} /><h2>Đơn hàng hiện tại</h2><span>{customer.basket.length} loại hàng</span></header><table><caption className="sr-only">Hóa đơn của {customer.name}</caption><thead><tr><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>{customer.basket.map(item => <tr key={item.name}><th scope="row">{item.name}</th><td>{item.quantity}</td><td>{money.format(item.unitPrice)}đ</td><td>{money.format(item.unitPrice * item.quantity)}đ</td></tr>)}</tbody></table><div className="receipt-summary"><span>Tổng tiền hàng</span><strong>{customerProgress.totalSolved ? `${money.format(baseTotal)}đ` : 'Em hãy tính nhé'}</strong></div>{selectedChoice?.billDelta ? <div className="receipt-summary"><span>Điều chỉnh hóa đơn</span><strong>{selectedChoice.billDelta > 0 ? '+' : ''}{money.format(selectedChoice.billDelta)}đ</strong></div> : null}</div>
     </section>
     <section className="pos-action" aria-label="Tác vụ tại quầy" key={`${customer.id}-${stage}`}>
@@ -167,7 +172,7 @@ export function WorkCounter({ shift, progress, stage, activeFollowUp, answer, fe
       </>}
     </section></div>
     {lastConsequence ? <aside className="context-warning"><CircleAlert size={22} /><div><strong>{lastConsequence.title}</strong><p>{lastConsequence.description}</p></div></aside> : null}
-    <details className="work-secondary"><summary>Hàng chờ và trạng thái mô phỏng · {Math.max(0, shift.customers.length - progress.customerIndex - 1)} khách đang chờ</summary><div className="compact-customer-queue">{shift.customers.map((item,index) => <div key={item.id}><img src={gameAssets.production.customers[index % gameAssets.production.customers.length]} alt="" /><strong>{item.name}</strong><span>{index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'Đã phục vụ' : index === progress.customerIndex ? 'Đang tại quầy' : 'Đang chờ'}</span></div>)}</div><p>Điểm sao và các chỉ số mô phỏng chỉ được tổng kết sau khi kết thúc ca.</p></details>
+    <details className="work-secondary"><summary>Hàng chờ và trạng thái mô phỏng · {Math.max(0, shift.customers.length - progress.customerIndex - 1)} khách đang chờ</summary><div className="compact-customer-queue">{shift.customers.map((item,index) => <div key={item.id}><AvatarCharacter config={getNpcAvatarConfig(item.id,index)} age="adult" expression={index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'happy' : index === progress.customerIndex ? 'neutral' : 'happy'} className="queue-avatar" decorative /><strong>{item.name}</strong><span>{index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'Đã phục vụ' : index === progress.customerIndex ? 'Đang tại quầy' : 'Đang chờ'}</span></div>)}</div><p>Điểm sao và các chỉ số mô phỏng chỉ được tổng kết sau khi kết thúc ca.</p></details>
     <button className="quiet-button scene-toggle" type="button" aria-expanded={sceneOpen} onClick={() => setSceneOpen(!sceneOpen)}>{sceneOpen ? 'Thu gọn không gian quầy' : 'Xem không gian quầy'}</button>
     {sceneOpen ? <Suspense fallback={<p>Đang mở không gian quầy…</p>}><WorkModeGame customers={shift.customers} customerIndex={progress.customerIndex} stage={stage} selectedChoice={selectedChoice} worldFlags={progress.worldState.flags} /></Suspense> : null}
   </section>
