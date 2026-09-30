@@ -33,6 +33,44 @@ const effects: Record<string, WorkWorldEffect> = {
         clearFlags: ['complaint-risk'],
       },
     ],
+    followUps: [
+      {
+        id: 'near-expiry-customer-returns',
+        delayCustomers: 1,
+        title: 'Khách quay lại với lốc sữa chua',
+        description:
+          'Khách vừa phát hiện hạn dùng rất ngắn. Họ chưa dùng sản phẩm và hỏi em sẽ xử lý thế nào.',
+        choices: [
+          {
+            id: 'apologize-and-replace',
+            label: 'Xin lỗi, đổi sang sản phẩm hạn dài hơn và giải thích rõ.',
+            employeeRatingDelta: 0.12,
+            storeReputationDelta: 0.1,
+            customerSatisfactionDelta: 0.2,
+            feedback:
+              'Em đã sửa sai bằng cách minh bạch và ưu tiên quyền lợi của khách.',
+          },
+          {
+            id: 'offer-discount-only',
+            label: 'Đề nghị giảm thêm giá nếu khách giữ sản phẩm.',
+            employeeRatingDelta: 0.02,
+            storeReputationDelta: -0.02,
+            customerSatisfactionDelta: 0.04,
+            feedback:
+              'Khách có thêm lựa chọn, nhưng vấn đề thông tin ban đầu vẫn chưa được xử lý trọn vẹn.',
+          },
+          {
+            id: 'refuse-because-valid',
+            label: 'Từ chối vì sản phẩm vẫn chưa hết hạn.',
+            employeeRatingDelta: -0.14,
+            storeReputationDelta: -0.18,
+            customerSatisfactionDelta: -0.22,
+            feedback:
+              'Đúng về hạn dùng nhưng chưa giải quyết được việc khách không được biết thông tin quan trọng trước khi mua.',
+          },
+        ],
+      },
+    ],
   },
 
   'SCENARIO_WRONG_SHELF_PRICE:honor-shelf-price': {
@@ -417,6 +455,44 @@ const effects: Record<string, WorkWorldEffect> = {
         clearFlags: ['inventory-pressure', 'complaint-risk'],
       },
     ],
+    followUps: [
+      {
+        id: 'reserved-customer-arrives',
+        delayCustomers: 2,
+        title: 'Khách đặt trước đã đến nhận hàng',
+        description:
+          'Khách đưa mã đặt trước nhưng sản phẩm cuối cùng đã được bán. Em cần xử lý ngay tại quầy.',
+        choices: [
+          {
+            id: 'own-mistake-and-solve',
+            label: 'Nhận lỗi, kiểm tra chi nhánh/kho khác và đề xuất phương án thay thế.',
+            employeeRatingDelta: 0.1,
+            storeReputationDelta: 0.08,
+            customerSatisfactionDelta: 0.12,
+            feedback:
+              'Không xóa được sai sót trước đó, nhưng cách xử lý chủ động giúp giảm thiệt hại và giữ niềm tin.',
+          },
+          {
+            id: 'offer-voucher',
+            label: 'Xin lỗi và đề xuất voucher bù nếu khách đồng ý.',
+            employeeRatingDelta: 0.04,
+            storeReputationDelta: 0.02,
+            customerSatisfactionDelta: 0.08,
+            feedback:
+              'Khách được bù đắp phần nào, nhưng nhu cầu nhận đúng sản phẩm vẫn chưa được giải quyết.',
+          },
+          {
+            id: 'blame-system',
+            label: 'Nói hệ thống kho bị lỗi và yêu cầu khách quay lại hôm khác.',
+            employeeRatingDelta: -0.16,
+            storeReputationDelta: -0.2,
+            customerSatisfactionDelta: -0.2,
+            feedback:
+              'Đẩy trách nhiệm sang hệ thống làm khách khó tin tưởng hơn và không tạo ra phương án giải quyết.',
+          },
+        ],
+      },
+    ],
   },
 
   'SCENARIO_MEMBER_PRICE:verify-member-account': {
@@ -475,6 +551,44 @@ const effects: Record<string, WorkWorldEffect> = {
         clearFlags: ['pricing-mismatch', 'billing-dispute'],
       },
     ],
+    followUps: [
+      {
+        id: 'price-dispute-at-counter',
+        delayCustomers: 1,
+        title: 'Khách mang hóa đơn quay lại',
+        description:
+          'Giá em ước lượng lúc trước không trùng với giá hệ thống. Khách muốn biết cửa hàng sẽ xử lý phần chênh lệch thế nào.',
+        choices: [
+          {
+            id: 'verify-and-refund-difference',
+            label: 'Kiểm tra giá thật, xin lỗi và hoàn phần chênh lệch nếu khách bị tính cao.',
+            employeeRatingDelta: 0.12,
+            storeReputationDelta: 0.1,
+            customerSatisfactionDelta: 0.18,
+            feedback:
+              'Em sửa lỗi dựa trên dữ liệu thực và giải quyết trực tiếp phần chênh lệch của khách.',
+          },
+          {
+            id: 'manager-review',
+            label: 'Mời quản lý xác minh hóa đơn và giá hệ thống trước khi điều chỉnh.',
+            employeeRatingDelta: 0.06,
+            storeReputationDelta: 0.08,
+            customerSatisfactionDelta: 0.02,
+            feedback:
+              'Quy trình chậm hơn nhưng mọi điều chỉnh đều có căn cứ.',
+          },
+          {
+            id: 'keep-guessed-price',
+            label: 'Giữ nguyên giá đã tính vì khách đã thanh toán.',
+            employeeRatingDelta: -0.18,
+            storeReputationDelta: -0.22,
+            customerSatisfactionDelta: -0.24,
+            feedback:
+              'Việc giao dịch đã kết thúc không làm mức giá ước lượng trở thành giá đúng.',
+          },
+        ],
+      },
+    ],
   },
   'SCENARIO_MISSING_PRICE_LABEL:remove-item-only': {
     setFlags: ['pricing-mismatch'],
@@ -515,6 +629,44 @@ const effects: Record<string, WorkWorldEffect> = {
         clearFlags: ['complaint-risk'],
       },
     ],
+    followUps: [
+      {
+        id: 'bulk-promo-customer-reconsiders',
+        delayCustomers: 1,
+        title: 'Khách quay lại hỏi về combo',
+        description:
+          'Khách chưa mở sản phẩm và nói rằng lúc nãy mình chỉ cần một món. Em sẽ hỗ trợ thế nào?',
+        choices: [
+          {
+            id: 'review-return-policy',
+            label: 'Kiểm tra điều kiện đổi trả và hỗ trợ khách theo chính sách.',
+            employeeRatingDelta: 0.08,
+            storeReputationDelta: 0.08,
+            customerSatisfactionDelta: 0.14,
+            feedback:
+              'Em không hứa vượt chính sách nhưng chủ động tìm cách khắc phục lựa chọn chưa phù hợp nhu cầu.',
+          },
+          {
+            id: 'explain-unit-saving-only',
+            label: 'Chỉ giải thích lại rằng combo có đơn giá thấp hơn.',
+            employeeRatingDelta: -0.02,
+            storeReputationDelta: -0.04,
+            customerSatisfactionDelta: -0.08,
+            feedback:
+              'Thông tin đơn giá đúng nhưng chưa phản hồi vào vấn đề khách đang quan tâm là tổng chi và nhu cầu sử dụng.',
+          },
+          {
+            id: 'dismiss-regret',
+            label: 'Từ chối trao đổi vì khách đã tự đồng ý mua combo.',
+            employeeRatingDelta: -0.12,
+            storeReputationDelta: -0.14,
+            customerSatisfactionDelta: -0.18,
+            feedback:
+              'Quyết định cuối cùng là của khách, nhưng trải nghiệm tư vấn trước đó vẫn có thể được xem lại và hỗ trợ.',
+          },
+        ],
+      },
+    ],
   },
 
   'SCENARIO_END_DAY_BREAD:disclose-and-discount': {
@@ -537,6 +689,44 @@ const effects: Record<string, WorkWorldEffect> = {
         storeReputationDelta: -0.18,
         customerSatisfactionDelta: -0.16,
         clearFlags: ['complaint-risk'],
+      },
+    ],
+    followUps: [
+      {
+        id: 'bread-customer-returns',
+        delayCustomers: 1,
+        title: 'Khách quay lại với bánh mì cuối ngày',
+        description:
+          'Khách chưa dùng bánh và muốn đổi vì không được báo trước hạn dùng ngắn.',
+        choices: [
+          {
+            id: 'replace-and-apologize',
+            label: 'Xin lỗi và đổi sang sản phẩm phù hợp hơn theo chính sách.',
+            employeeRatingDelta: 0.1,
+            storeReputationDelta: 0.08,
+            customerSatisfactionDelta: 0.16,
+            feedback:
+              'Em thừa nhận thiếu sót về thông tin và chủ động sửa trải nghiệm của khách.',
+          },
+          {
+            id: 'offer-approved-discount',
+            label: 'Giải thích và đề xuất mức giảm hợp lệ nếu khách muốn giữ bánh.',
+            employeeRatingDelta: 0.04,
+            storeReputationDelta: 0.02,
+            customerSatisfactionDelta: 0.06,
+            feedback:
+              'Khách được quyền lựa chọn lại sau khi đã có thông tin rõ ràng.',
+          },
+          {
+            id: 'refuse-return',
+            label: 'Từ chối vì bánh vẫn còn hạn trong ngày.',
+            employeeRatingDelta: -0.14,
+            storeReputationDelta: -0.18,
+            customerSatisfactionDelta: -0.22,
+            feedback:
+              'Sản phẩm chưa hết hạn nhưng khách vẫn bị thiếu thông tin quan trọng tại thời điểm mua.',
+          },
+        ],
       },
     ],
   },
