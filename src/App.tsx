@@ -232,6 +232,7 @@ export function App() {
               onContinueSmartMart={() => setPage('smartmart')}
               onOpenMission={() => openMissionById(firstMission.id)}
               onOpenLeaderboard={() => setPage('leaderboard')}
+              onOpenMissions={() => setPage('missions')}
             />
           )}
         </FeatureErrorBoundary>
