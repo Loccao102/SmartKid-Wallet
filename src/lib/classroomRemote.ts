@@ -54,6 +54,36 @@ async function signOutIncompatibleSession() {
   }
 }
 
+const STUDENT_BINDING_KEY = 'smartkid-wallet-bound-student-v1'
+
+export function bindLocalProgressToStudent(studentId: string) {
+  if (typeof window === 'undefined') return false
+
+  const current = window.localStorage.getItem(STUDENT_BINDING_KEY)
+  if (current === studentId) return false
+
+  const storages = [window.localStorage, window.sessionStorage]
+  for (const storage of storages) {
+    const keys = Array.from({ length: storage.length }, (_, index) =>
+      storage.key(index),
+    ).filter((key): key is string => Boolean(key))
+
+    for (const key of keys) {
+      if (
+        key === STUDENT_BINDING_KEY ||
+        (!key.startsWith('smartkid-wallet-') &&
+          !key.startsWith('smartkid-weekly-'))
+      ) {
+        continue
+      }
+      storage.removeItem(key)
+    }
+  }
+
+  window.localStorage.setItem(STUDENT_BINDING_KEY, studentId)
+  return true
+}
+
 export async function signInStudent(input: {
   classCode: string
   username: string
