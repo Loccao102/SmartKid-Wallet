@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createWeeklyChallenge,
   createWeeklyMathExercises,
+  createWeeklyScenarioRounds,
   getVietnamWeekKey,
   getWeeklyScenarios,
   scoreWeeklyChallenge,
@@ -25,12 +26,52 @@ describe('weekly SmartMart challenge', () => {
     expect(first.scenarioIds).toHaveLength(2)
   })
 
-  it('generates replayable questions and scenario set', () => {
+  it('generates replayable questions and scenario set for one variant', () => {
     const challenge = createWeeklyChallenge(date)
-    expect(createWeeklyMathExercises(challenge)).toEqual(
-      createWeeklyMathExercises(challenge),
+    expect(createWeeklyMathExercises(challenge, 'player-a')).toEqual(
+      createWeeklyMathExercises(challenge, 'player-a'),
+    )
+    expect(createWeeklyScenarioRounds(challenge, 'player-a')).toEqual(
+      createWeeklyScenarioRounds(challenge, 'player-a'),
     )
     expect(getWeeklyScenarios(challenge)).toHaveLength(2)
+  })
+
+  it('keeps the same blueprints while changing numeric answers by player', () => {
+    const challenge = createWeeklyChallenge(date)
+    const playerA = createWeeklyMathExercises(challenge, 'player-a')
+    const playerB = createWeeklyMathExercises(challenge, 'player-b')
+
+    expect(playerA.map((item) => item.familyId)).toEqual(
+      playerB.map((item) => item.familyId),
+    )
+    expect(
+      playerA.some(
+        (item, index) =>
+          item.answer !== playerB[index].answer ||
+          item.prompt !== playerB[index].prompt,
+      ),
+    ).toBe(true)
+  })
+
+  it('varies scenario choice positions without changing available choices', () => {
+    const challenge = createWeeklyChallenge(date)
+    const signatures = new Set<string>()
+
+    for (const player of ['a', 'b', 'c', 'd', 'e']) {
+      const rounds = createWeeklyScenarioRounds(challenge, 'player-' + player)
+      signatures.add(
+        rounds.map((round) => round.choiceOrder.join('.')).join('|'),
+      )
+
+      for (const round of rounds) {
+        expect(new Set(round.choiceOrder)).toEqual(
+          new Set(round.scenario.choices.map((choice) => choice.id)),
+        )
+      }
+    }
+
+    expect(signatures.size).toBeGreaterThan(1)
   })
 
   it('allows a mastery run to reach five stars', () => {
