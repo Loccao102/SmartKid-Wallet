@@ -14,7 +14,10 @@ import { gameAssets } from '../../assets/registry'
 import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { stalls } from '../../data/stalls'
 import { generateExercise } from '../../domain/exerciseEngine'
+import { selectAdaptiveExerciseFamily } from '../../domain/mastery'
 import type { ProductStallId, StallDefinition, StallId } from '../../domain/types'
+import { createSeed } from '../../lib/seededRandom'
+import { useLearningProfileStore } from '../../store/learningProfile'
 import { useProgressionStore } from '../../store/progression'
 import { ExerciseDialog } from './ExerciseDialog'
 import { StallShoppingScreen } from './StallShoppingScreen'
@@ -132,9 +135,8 @@ export function SmartMartScreen({
   const [nearStallId, setNearStallId] = useState<StallId | null>(null)
   const [viewMode, setViewMode] = useState<'overview' | 'game'>('overview')
   const [celebration, setCelebration] = useState<string | null>(null)
-  const [practiceAttemptByStall, setPracticeAttemptByStall] = useState<
-    Partial<Record<StallId, number>>
-  >({})
+  const [activePracticeFamilyId, setActivePracticeFamilyId] = useState<string | null>(null)
+  const [activePracticeVariant, setActivePracticeVariant] = useState(0)
   const unlockedSet = useMemo(() => new Set(unlockedStalls), [unlockedStalls])
   const nextLockedStall = stalls.find((stall) => !unlockedSet.has(stall.id))
   const unlockedCount = stalls.filter((stall) =>
@@ -154,9 +156,6 @@ export function SmartMartScreen({
   const activeCompletedFamilies = activeStall
     ? (stallExerciseProgress[activeStall.id] ?? [])
     : []
-  const activePracticeAttempt = activeStall
-    ? (practiceAttemptByStall[activeStall.id] ?? 0)
-    : 0
   const activeFamilyId =
     activeStall && activeMode
       ? activeMode === 'unlock'
@@ -164,10 +163,7 @@ export function SmartMartScreen({
             (familyId) => !activeCompletedFamilies.includes(familyId),
           ) ??
           activeStall.unlockFamilyIds[activeStall.unlockFamilyIds.length - 1])
-        : activeStall.exerciseFamilyIds[
-            Math.max(0, activePracticeAttempt - 1) %
-              activeStall.exerciseFamilyIds.length
-          ]
+        : activePracticeFamilyId
       : null
   const activeFamily = activeFamilyId
     ? getExerciseFamilyById(activeFamilyId)
@@ -179,7 +175,7 @@ export function SmartMartScreen({
           demoStudentKey,
           activeMode === 'unlock'
             ? activeCompletedFamilies.length
-            : 1000 + activeStall.order * 100 + activePracticeAttempt,
+            : activePracticeVariant,
         )
       : null
   const activeStepNumber =
@@ -197,10 +193,22 @@ export function SmartMartScreen({
   }
 
   const openPractice = (stallId: StallId) => {
-    setPracticeAttemptByStall((current) => ({
-      ...current,
-      [stallId]: (current[stallId] ?? 0) + 1,
-    }))
+    const stall = stalls.find((item) => item.id === stallId)
+    if (!stall) return
+
+    const learning = useLearningProfileStore.getState()
+    const sequence = learning.nextPracticeSequence(stallId)
+    const families = stall.exerciseFamilyIds.map(getExerciseFamilyById)
+    const selected = selectAdaptiveExerciseFamily(
+      families,
+      learning.masteryBySkill,
+      learning.recentExerciseFamilyIdsByStall[stallId] ?? [],
+      createSeed([demoStudentKey, stallId, sequence, 'adaptive-practice']),
+    )
+
+    learning.rememberExerciseFamily(stallId, selected.family.id)
+    setActivePracticeFamilyId(selected.family.id)
+    setActivePracticeVariant(1000 + stall.order * 10000 + sequence)
     setActiveStallId(stallId)
   }
   const handleExerciseCorrect = () => {

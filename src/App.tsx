@@ -35,6 +35,7 @@ import { FeatureErrorBoundary } from './features/system/FeatureErrorBoundary'
 import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
 import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
+import { useLearningProfileStore } from './store/learningProfile'
 import { useProgressionStore } from './store/progression'
 
 type StudentPage =
@@ -82,7 +83,12 @@ export function App() {
   }
   const [activeWorkShiftId, setActiveWorkShiftId] = useState(traineeShift.id)
   const [activeWorkVariant, setActiveWorkVariant] = useState(0)
-  const [recentWorkFingerprints, setRecentWorkFingerprints] = useState<string[]>([])
+  const recentWorkFingerprints = useLearningProfileStore(
+    (state) => state.recentWorkFingerprintsByKey[activeWorkShiftId] ?? [],
+  )
+  const rememberWorkFingerprint = useLearningProfileStore(
+    (state) => state.rememberWorkFingerprint,
+  )
   const mainRef = useRef<HTMLElement>(null)
   const previousPage = useRef(page)
   const activeWorkShift = getWorkShiftById(
@@ -235,9 +241,7 @@ export function App() {
               onBack={() => setPage('missions')}
               onReplayShift={() => {
                 const fingerprint = buildWorkShiftFingerprint(activeWorkShift)
-                setRecentWorkFingerprints((current) =>
-                  [fingerprint, ...current].slice(0, 5),
-                )
+                rememberWorkFingerprint(activeWorkShiftId, fingerprint)
                 setActiveWorkVariant((current) => current + 1)
               }}
             />
@@ -247,7 +251,6 @@ export function App() {
               onOpenWorkMode={(shiftId) => {
                 setActiveWorkShiftId(shiftId)
                 setActiveWorkVariant(0)
-                setRecentWorkFingerprints([])
                 setPage('work-mode')
               }}
             />

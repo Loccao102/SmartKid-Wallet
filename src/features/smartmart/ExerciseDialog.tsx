@@ -3,9 +3,12 @@ import { ArrowRight, Check, Coins, Lightbulb, RotateCcw, X } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
 import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { exerciseXp, retryCost } from '../../domain/progression'
+import { createResearchEvent } from '../../domain/researchEvents'
 import type { ExerciseInstance, StallDefinition } from '../../domain/types'
 import { playGameSfx } from '../../lib/audioEngine'
+import { useLearningProfileStore } from '../../store/learningProfile'
 import { useProgressionStore } from '../../store/progression'
+import { useResearchLogStore } from '../../store/researchLog'
 
 export function ExerciseDialog({
   stall,
@@ -29,6 +32,9 @@ export function ExerciseDialog({
   const dialog = useRef<HTMLDialogElement>(null)
   const answerInput = useRef<HTMLInputElement>(null)
   const continueButton = useRef<HTMLButtonElement>(null)
+  const attemptStartedAtRef = useRef(
+    typeof performance !== 'undefined' ? performance.now() : Date.now(),
+  )
   const [answer, setAnswer] = useState('')
   const [result, setResult] = useState<'idle' | 'correct' | 'wrong'>('idle')
   const [wrongAttempts, setWrongAttempts] = useState(0)
@@ -37,6 +43,13 @@ export function ExerciseDialog({
   const coins = useProgressionStore((state) => state.coins)
   const spendCoins = useProgressionStore((state) => state.spendCoins)
   const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
+  const recordMathAttempt = useLearningProfileStore(
+    (state) => state.recordMathAttempt,
+  )
+  const appendResearchEvent = useResearchLogStore((state) => state.appendEvent)
+  const ensureShiftSession = useResearchLogStore(
+    (state) => state.ensureShiftSession,
+  )
   const currentRetryCost = mode === 'practice' ? 0 : retryCost(wrongAttempts)
 
   useEffect(() => {
@@ -64,6 +77,39 @@ export function ExerciseDialog({
     if (!answer.trim() || result !== 'idle') return
     const numericAnswer = Number(answer.replace(/[.,\sđ]/gi, ''))
     const correct = numericAnswer === exercise.answer
+    const attemptNumber = wrongAttempts + 1
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now()
+    const responseTimeMs = Math.max(0, Math.round(now - attemptStartedAtRef.current))
+    const mastery = recordMathAttempt(
+      family.skills,
+      correct,
+      attemptNumber,
+      responseTimeMs,
+    )
+    const researchShiftId = 'exercise:' + exercise.id
+    appendResearchEvent(
+      createResearchEvent({
+        sessionId: ensureShiftSession(researchShiftId, 'student-demo-minh-anh'),
+        studentKey: 'student-demo-minh-anh',
+        shiftId: researchShiftId,
+        eventType: 'math_attempt',
+        submittedAnswer: numericAnswer,
+        expectedAnswer: exercise.answer,
+        correct,
+        attemptNumber,
+        responseTimeMs,
+        metadata: {
+          source: 'smartmart-exercise',
+          familyId: family.id,
+          stallId: stall.id,
+          mode,
+          seed: exercise.seed,
+          skills: family.skills.join(','),
+          masteryBeforeMean: Number(mastery.beforeMean.toFixed(2)),
+          masteryAfterMean: Number(mastery.afterMean.toFixed(2)),
+        },
+      }),
+    )
 
     if (correct) {
       setResult('correct')
@@ -82,6 +128,8 @@ export function ExerciseDialog({
       setAnswer('')
       setResult('idle')
       setRetryNote('Practice Mode không mất xu.')
+      attemptStartedAtRef.current =
+        typeof performance !== 'undefined' ? performance.now() : Date.now()
       requestAnimationFrame(() => answerInput.current?.focus())
       return
     }
@@ -100,6 +148,8 @@ export function ExerciseDialog({
 
     setAnswer('')
     setResult('idle')
+    attemptStartedAtRef.current =
+      typeof performance !== 'undefined' ? performance.now() : Date.now()
     requestAnimationFrame(() => answerInput.current?.focus())
   }
 

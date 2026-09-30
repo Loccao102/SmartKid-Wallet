@@ -47,6 +47,7 @@ import type {
   WorkWorldFlag,
 } from '../../domain/types'
 import { playGameSfx } from '../../lib/audioEngine'
+import { useLearningProfileStore } from '../../store/learningProfile'
 import { useProgressionStore } from '../../store/progression'
 import { useResearchLogStore } from '../../store/researchLog'
 import { useWorkShiftStore } from '../../store/workShift'
@@ -135,6 +136,9 @@ export function WorkModeScreen({
   const spendCoins = useProgressionStore((state) => state.spendCoins)
   const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
   const recordActivityResult = useProgressionStore((state) => state.recordActivityResult)
+  const recordMathAttempt = useLearningProfileStore(
+    (state) => state.recordMathAttempt,
+  )
   const progress = storedProgress ?? createInitialWorkShiftProgress(shift)
   const shiftSeed =
     'seed' in shift && typeof shift.seed === 'number' ? shift.seed : null
@@ -307,6 +311,16 @@ export function WorkModeScreen({
       0,
       Math.round(nowMs() - stageStartedAtRef.current),
     )
+    const skills =
+      mathStage === 'total'
+        ? (['multiplication', 'addition'] as const)
+        : (['subtraction'] as const)
+    const mastery = recordMathAttempt(
+      skills,
+      correct,
+      attemptNumber,
+      responseTimeMs,
+    )
 
     const attemptPatch =
       mathStage === 'total'
@@ -347,6 +361,11 @@ export function WorkModeScreen({
       responseTimeMs,
       before: createResearchSnapshot(progress),
       after: createResearchSnapshot(nextProgress),
+      metadata: {
+        skills: skills.join(','),
+        masteryBeforeMean: Number(mastery.beforeMean.toFixed(2)),
+        masteryAfterMean: Number(mastery.afterMean.toFixed(2)),
+      },
     })
 
     stageStartedAtRef.current = nowMs()
