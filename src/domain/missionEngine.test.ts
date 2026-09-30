@@ -17,6 +17,10 @@ describe('mission engine', () => {
     expect(result.coverageByStall.produce).toBe(20)
     expect(result.coverageByStall.food).toBe(20)
     expect(result.coverageByStall.drinks).toBe(24)
+    expect(result.softGoalResults).toEqual([
+      { id: 'class-party-variety', achieved: false },
+    ])
+    // Soft goals affect mastery stars, not hard mission completion.
   })
 
   it('rejects a basket that does not serve enough students', () => {
