@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { getNpcAvatarConfig, type AvatarConfig } from '../avatar/avatarCatalog'
 import type {
   WorkCustomerDefinition,
   WorkScenarioChoice,
@@ -22,7 +23,6 @@ interface DynamicView {
   worldFlags: WorkWorldFlag[]
 }
 
-const customerColors = [0xe9936f, 0x6da9cb, 0x9a82c5]
 
 export class WorkModeScene extends Phaser.Scene {
   private readonly customers: WorkCustomerDefinition[]
@@ -169,8 +169,7 @@ export class WorkModeScene extends Phaser.Scene {
       const npc = this.createNpc(
         x,
         y,
-        customer.name.charAt(0),
-        customerColors[index % customerColors.length],
+        getNpcAvatarConfig(customer.id, index),
         isCurrent,
       )
 
@@ -418,35 +417,103 @@ export class WorkModeScene extends Phaser.Scene {
   private createNpc(
     x: number,
     y: number,
-    initial: string,
-    color: number,
+    avatar: AvatarConfig,
     isCurrent: boolean,
   ) {
-    const shadow = this.add.ellipse(0, 23, 42, 13, 0x27483e, 0.14)
-    const body = this.add
-      .rectangle(0, 6, 38, 45, color, 1)
-      .setStrokeStyle(3, 0xffffff, 1)
-    const head = this.add
-      .circle(0, -22, 18, 0xffe2bd, 1)
-      .setStrokeStyle(3, 0xffffff, 1)
-    const initialText = this.add
-      .text(0, -22, initial, {
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: '11px',
-        fontStyle: 'bold',
-        color: '#604e39',
-      })
-      .setOrigin(0.5)
+    const toColor = (hex: string) => Number.parseInt(hex.slice(1), 16)
+    const skin = toColor(avatar.skinTone)
+    const hair = toColor(avatar.hairColor)
+    const top = toColor(avatar.topColor)
+    const bottom = toColor(avatar.bottomColor)
+    const shoes = toColor(avatar.shoeColor)
+    const bodyWidth =
+      avatar.bodyType === 'slim' ? 28 : avatar.bodyType === 'broad' ? 39 : 34
 
-    const npc = this.add.container(x, y, [shadow, body, head, initialText])
+    const graphics = this.add.graphics()
+    graphics.fillStyle(0x27483e, 0.14)
+    graphics.fillEllipse(0, 48, 48, 13)
+
+    // Legs: thigh, knee, lower leg, shoe.
+    graphics.lineStyle(11, bottom, 1)
+    graphics.lineBetween(-9, 15, -10, 31)
+    graphics.lineBetween(-10, 31, -11, 45)
+    graphics.lineBetween(9, 15, 10, 31)
+    graphics.lineBetween(10, 31, 11, 45)
+    graphics.fillStyle(bottom, 1)
+    graphics.fillCircle(-10, 31, 5)
+    graphics.fillCircle(10, 31, 5)
+    graphics.fillStyle(shoes, 1)
+    graphics.fillRoundedRect(-20, 42, 17, 7, 3)
+    graphics.fillRoundedRect(3, 42, 17, 7, 3)
+
+    // Arms: upper arm, elbow, forearm, hand.
+    graphics.lineStyle(10, top, 1)
+    graphics.lineBetween(-bodyWidth / 2 + 2, -2, -bodyWidth / 2 - 7, 15)
+    graphics.lineBetween(bodyWidth / 2 - 2, -2, bodyWidth / 2 + 7, 15)
+    graphics.fillStyle(skin, 1)
+    graphics.fillCircle(-bodyWidth / 2 - 7, 15, 4.5)
+    graphics.fillCircle(bodyWidth / 2 + 7, 15, 4.5)
+    graphics.lineStyle(7, skin, 1)
+    graphics.lineBetween(-bodyWidth / 2 - 7, 15, -bodyWidth / 2 - 3, 31)
+    graphics.lineBetween(bodyWidth / 2 + 7, 15, bodyWidth / 2 + 3, 31)
+    graphics.fillStyle(skin, 1)
+    graphics.fillCircle(-bodyWidth / 2 - 3, 33, 4.5)
+    graphics.fillCircle(bodyWidth / 2 + 3, 33, 4.5)
+
+    // Torso and neck.
+    graphics.fillStyle(skin, 1)
+    graphics.fillRoundedRect(-5, -22, 10, 12, 4)
+    graphics.fillStyle(top, 1)
+    graphics.fillRoundedRect(-bodyWidth / 2, -12, bodyWidth, 38, 8)
+
+    // Head and hair.
+    graphics.fillStyle(skin, 1)
+    graphics.fillEllipse(0, -38, 34, 40)
+    graphics.fillStyle(hair, 1)
+    graphics.fillEllipse(0, -49, 35, 22)
+
+    if (avatar.hairStyle === 'bob' || avatar.hairStyle === 'waves') {
+      graphics.fillRoundedRect(-18, -48, 8, 28, 4)
+      graphics.fillRoundedRect(10, -48, 8, 28, 4)
+    }
+    if (avatar.hairStyle === 'ponytail') {
+      graphics.fillEllipse(21, -36, 14, 24)
+    }
+    if (avatar.hairStyle === 'bun') {
+      graphics.fillCircle(11, -61, 9)
+    }
+    if (avatar.hairStyle === 'curly') {
+      graphics.fillCircle(-12, -53, 9)
+      graphics.fillCircle(0, -58, 10)
+      graphics.fillCircle(12, -53, 9)
+    }
+
+    // Face.
+    graphics.fillStyle(0x293b39, 1)
+    graphics.fillCircle(-6, -39, 1.8)
+    graphics.fillCircle(6, -39, 1.8)
+    graphics.lineStyle(1.8, 0x9c574f, 1)
+    graphics.beginPath()
+    graphics.arc(0, -32, 5, 0.2, Math.PI - 0.2, false)
+    graphics.strokePath()
+
+    if (avatar.accessory === 'glasses') {
+      graphics.lineStyle(1.6, 0x415158, 1)
+      graphics.strokeRoundedRect(-12, -44, 10, 8, 3)
+      graphics.strokeRoundedRect(2, -44, 10, 8, 3)
+      graphics.lineBetween(-2, -40, 2, -40)
+    }
+
+    const npc = this.add.container(x, y, [graphics])
     npc.setData('isCurrent', isCurrent)
 
     if (isCurrent) {
       npc.setDepth(5)
+      npc.setScale(1.18)
       this.tweens.add({
         targets: npc,
-        scaleX: 1.03,
-        scaleY: 1.03,
+        scaleX: 1.22,
+        scaleY: 1.22,
         duration: 850,
         yoyo: true,
         repeat: -1,
