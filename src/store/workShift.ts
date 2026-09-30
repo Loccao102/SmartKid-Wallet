@@ -66,6 +66,8 @@ export const useWorkShiftStore = create<WorkShiftStore>()(
                     progress.worldState?.pendingFollowUps ?? [],
                   resolvedFollowUps:
                     progress.worldState?.resolvedFollowUps ?? [],
+                  lastFollowUpResolvedAtServedCustomers:
+                    progress.worldState?.lastFollowUpResolvedAtServedCustomers,
                   flags: progress.worldState?.flags ?? [],
                 },
               },
