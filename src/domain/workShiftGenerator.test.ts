@@ -281,4 +281,33 @@ describe('seeded work shift generator', () => {
     ).toBe('implicit')
   })
 
+
+  it('ships 24 distinct scenario families and a blueprint for every one', () => {
+    expect(workScenarios).toHaveLength(24)
+    expect(new Set(workScenarios.map((scenario) => scenario.id)).size).toBe(24)
+
+    for (const scenario of workScenarios) {
+      expect(scenarioCustomerBlueprints[scenario.id]).toBeDefined()
+      expect(scenario.choices.length).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  it('exposes broad scenario variety across expert replay variants', () => {
+    const seenScenarioIds = new Set<string>()
+
+    for (let variant = 0; variant < 60; variant += 1) {
+      const shift = generateWorkShiftInstance(
+        expertShiftTemplate,
+        'student-content-variety',
+        variant,
+      )
+
+      for (const customer of shift.customers) {
+        if (customer.scenarioId) seenScenarioIds.add(customer.scenarioId)
+      }
+    }
+
+    expect(seenScenarioIds.size).toBeGreaterThanOrEqual(20)
+  })
+
 })
