@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { gameAssets } from './assets/registry'
+import { firstMission, getMissionById } from './data/missions'
 import { demoStudentProfile as student } from './data/studentDemo'
 import { traineeShift } from './data/workShift'
 import { getWorkShiftById } from './data/workShiftInstances'
@@ -62,7 +63,18 @@ export function App() {
   const coins = useProgressionStore((state) => state.coins)
   const nextLevelXp = xpNeededForNextLevel(level)
   const [missionStall, setMissionStall] = useState<ProductStallId>('produce')
-  const openMission = (stall: ProductStallId = 'produce') => { setMissionStall(stall); setPage('mission-class-party') }
+  const [activeMissionId, setActiveMissionId] = useState(firstMission.id)
+  const openMissionFromHub = (stall: ProductStallId = 'produce') => {
+    setActiveMissionId(firstMission.id)
+    setMissionStall(stall)
+    setPage('mission-class-party')
+  }
+  const openMissionById = (missionId: string) => {
+    const mission = getMissionById(missionId)
+    setActiveMissionId(missionId)
+    setMissionStall(mission.requiredStalls[0] ?? 'produce')
+    setPage('mission-class-party')
+  }
   const [activeWorkShiftId, setActiveWorkShiftId] = useState(traineeShift.id)
   const mainRef = useRef<HTMLElement>(null)
   const previousPage = useRef(page)
@@ -189,10 +201,15 @@ export function App() {
           ) : page === 'smartmart' ? (
             <SmartMartScreen
               onBack={() => setPage('maps')}
-              onStartMission={openMission}
+              onStartMission={openMissionFromHub}
             />
           ) : page === 'mission-class-party' ? (
-            <ClassPartyMissionScreen initialStall={missionStall} onBack={() => setPage('smartmart')} onWork={() => setPage('missions')} />
+            <ClassPartyMissionScreen
+              missionId={activeMissionId}
+              initialStall={missionStall}
+              onBack={() => setPage('smartmart')}
+              onWork={() => setPage('missions')}
+            />
           ) : page === 'work-mode' ? (
             <WorkModeScreen
               shift={activeWorkShift}
@@ -200,7 +217,7 @@ export function App() {
             />
           ) : page === 'missions' ? (
             <MissionsScreen
-              onOpenMission={() => openMission()}
+              onOpenMission={openMissionById}
               onOpenWorkMode={(shiftId) => {
                 setActiveWorkShiftId(shiftId)
                 setPage('work-mode')
@@ -213,7 +230,7 @@ export function App() {
           ) : (
             <HomeScreen
               onContinueSmartMart={() => setPage('smartmart')}
-              onOpenMission={() => openMission()}
+              onOpenMission={() => openMissionById(firstMission.id)}
               onOpenLeaderboard={() => setPage('leaderboard')}
             />
           )}
