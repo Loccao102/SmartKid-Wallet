@@ -1,5 +1,7 @@
 import type {
   WorkBasketItem,
+  WorkManagerPlanDefinition,
+  WorkManagerProtection,
   WorkPendingFollowUp,
   WorkResolvedConsequence,
   WorkStoryFollowUpChoice,
@@ -52,6 +54,8 @@ export function createInitialWorkWorldState(): WorkWorldState {
     pendingFollowUps: [],
     resolvedFollowUps: [],
     lastFollowUpResolvedAtServedCustomers: undefined,
+    managerProtections: [],
+    consumedManagerProtections: [],
   }
 }
 
@@ -83,6 +87,60 @@ export function createInitialWorkShiftProgress(
     completedAtEpochMs: undefined,
     completed: false,
   }
+}
+
+export function applyManagerPlan(
+  progress: WorkShiftProgress,
+  plan: WorkManagerPlanDefinition,
+): WorkShiftProgress {
+  if (progress.managerPlanId) return progress
+
+  return {
+    ...progress,
+    managerPlanId: plan.id,
+    metrics: {
+      ...progress.metrics,
+      employeeRating: clampRating(
+        progress.metrics.employeeRating + plan.employeeRatingDelta,
+      ),
+      storeReputation: clampRating(
+        progress.metrics.storeReputation + plan.storeReputationDelta,
+      ),
+      customerSatisfaction: clampRating(
+        progress.metrics.customerSatisfaction +
+          plan.customerSatisfactionDelta,
+      ),
+    },
+    worldState: {
+      ...progress.worldState,
+      managerProtections: [
+        ...progress.worldState.managerProtections,
+        plan.protection,
+      ],
+    },
+  }
+}
+
+const protectionFlags: Record<WorkManagerProtection, WorkWorldFlag[]> = {
+  operations: [
+    'pricing-mismatch',
+    'cash-discrepancy',
+    'billing-dispute',
+    'stale-promo-sign',
+  ],
+  inventory: ['inventory-pressure'],
+  service: ['complaint-risk'],
+}
+
+function findConsumedManagerProtection(
+  worldState: WorkWorldState,
+  effect: WorkWorldEffect,
+): WorkManagerProtection | undefined {
+  const flags = effect.setFlags ?? []
+
+  return worldState.managerProtections.find((protection) =>
+    flags.some((flag) => protectionFlags[protection].includes(flag)),
+  )
 }
 
 export function applyMathAttempt(
@@ -139,9 +197,21 @@ export function applyWorkWorldEffect(
 ): WorkWorldState {
   if (!effect) return worldState
 
+  const consumedProtection = findConsumedManagerProtection(worldState, effect)
+  const blockedFlags = consumedProtection
+    ? protectionFlags[consumedProtection]
+    : []
+  const effectiveSetFlags = (effect.setFlags ?? []).filter(
+    (flag) => !blockedFlags.includes(flag),
+  )
+  const effectiveDeferredConsequences = consumedProtection
+    ? []
+    : (effect.deferredConsequences ?? [])
+  const effectiveFollowUps = consumedProtection ? [] : (effect.followUps ?? [])
+
   const pendingConsequences = [
     ...worldState.pendingConsequences,
-    ...(effect.deferredConsequences ?? []).map((consequence, index) => ({
+    ...effectiveDeferredConsequences.map((consequence, index) => ({
       ...consequence,
       instanceId:
         consequence.id +
@@ -159,7 +229,7 @@ export function applyWorkWorldEffect(
 
   const pendingFollowUps = [
     ...worldState.pendingFollowUps,
-    ...(effect.followUps ?? []).map((followUp, index) => ({
+    ...effectiveFollowUps.map((followUp, index) => ({
       ...followUp,
       instanceId:
         followUp.id +
@@ -179,11 +249,19 @@ export function applyWorkWorldEffect(
     ...worldState,
     flags: mergeFlags(
       worldState.flags,
-      effect.setFlags,
+      effectiveSetFlags,
       effect.clearFlags,
     ),
     pendingConsequences,
     pendingFollowUps,
+    managerProtections: consumedProtection
+      ? worldState.managerProtections.filter(
+          (item) => item !== consumedProtection,
+        )
+      : worldState.managerProtections,
+    consumedManagerProtections: consumedProtection
+      ? [...worldState.consumedManagerProtections, consumedProtection]
+      : worldState.consumedManagerProtections,
   }
 }
 
