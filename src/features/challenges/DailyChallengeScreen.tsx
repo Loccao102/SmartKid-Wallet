@@ -135,6 +135,19 @@ export function DailyChallengeScreen({ onBack }: { onBack: () => void }) {
     setFeedback('idle')
   }
 
+  const resetRun = () => {
+    startedAtRef.current = Date.now()
+    setQuestionIndex(0)
+    setAnswer('')
+    setWrongAttempts(Array(CHALLENGE_SIZE).fill(0))
+    setFirstTryCorrect(0)
+    setFeedback('idle')
+    setFinished(false)
+    setFinalStars(0)
+    setFinalScore(0)
+    setElapsedMs(0)
+  }
+
   const continueChallenge = () => {
     if (questionIndex < CHALLENGE_SIZE - 1) {
       setQuestionIndex((value) => value + 1)
@@ -214,7 +227,7 @@ export function DailyChallengeScreen({ onBack }: { onBack: () => void }) {
           <button
             type="button"
             className="outline-button"
-            onClick={() => window.location.reload()}
+            onClick={resetRun}
           >
             Chơi lại challenge
           </button>
