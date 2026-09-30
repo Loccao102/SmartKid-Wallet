@@ -266,4 +266,92 @@ describe('work shift engine', () => {
     )
   })
 
+
+  it('story director prioritizes urgent follow-ups when several are due', () => {
+    const world = createInitialWorkWorldState()
+    const lowPriority = {
+      id: 'low-priority',
+      priority: 1 as const,
+      delayCustomers: 1,
+      title: 'Low priority',
+      description: 'Một tình huống nhẹ hơn đang chờ xử lý.',
+      choices: [
+        {
+          id: 'ok',
+          label: 'Xử lý',
+          employeeRatingDelta: 0,
+          storeReputationDelta: 0,
+          customerSatisfactionDelta: 0,
+          feedback: 'Đã xử lý.',
+        },
+      ],
+    }
+    const highPriority = {
+      id: 'high-priority',
+      priority: 3 as const,
+      delayCustomers: 1,
+      title: 'High priority',
+      description: 'Một tình huống nghiêm trọng hơn đang chờ xử lý.',
+      choices: [
+        {
+          id: 'ok',
+          label: 'Xử lý',
+          employeeRatingDelta: 0,
+          storeReputationDelta: 0,
+          customerSatisfactionDelta: 0,
+          feedback: 'Đã xử lý.',
+        },
+      ],
+    }
+
+    const withLow = applyWorkWorldEffect(
+      world,
+      { followUps: [lowPriority] },
+      1,
+      'scenario-low',
+      'choice-low',
+    )
+    const withBoth = applyWorkWorldEffect(
+      withLow,
+      { followUps: [highPriority] },
+      1,
+      'scenario-high',
+      'choice-high',
+    )
+
+    expect(getDueStoryFollowUp(withBoth, 2)?.id).toBe('high-priority')
+  })
+
+  it('story director prevents two follow-ups in the same service beat', () => {
+    const scenario = getWorkScenario('SCENARIO_NEAR_EXPIRY_YOGURT')
+    const choice = scenario.choices.find((item) => item.id === 'hide-expiry')!
+    const effect = getWorkWorldEffect(scenario.id, choice.id)!
+    const firstWorld = applyWorkWorldEffect(
+      createInitialWorkWorldState(),
+      effect,
+      1,
+      scenario.id,
+      choice.id,
+    )
+    const secondWorld = applyWorkWorldEffect(
+      firstWorld,
+      effect,
+      1,
+      scenario.id,
+      choice.id,
+    )
+    const first = getDueStoryFollowUp(secondWorld, 2)!
+    const chosen = first.choices[0]
+    const resolved = applyStoryFollowUpChoice(
+      createInitialShiftMetrics(traineeShift),
+      secondWorld,
+      first,
+      chosen,
+      2,
+    )
+
+    expect(getDueStoryFollowUp(resolved.worldState, 2)).toBeUndefined()
+    expect(getDueStoryFollowUp(resolved.worldState, 3)).toBeDefined()
+  })
+
 })
