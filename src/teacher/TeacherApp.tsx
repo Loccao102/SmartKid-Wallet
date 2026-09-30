@@ -339,9 +339,16 @@ function ClassStudentOverview({
   const assignments = useMemo(
     () =>
       selectedClass
-        ? workspace.assignments.filter(
-            (item) => item.classroom_id === selectedClass.classroom_id,
-          )
+        ? workspace.assignments
+            .filter(
+              (item) => item.classroom_id === selectedClass.classroom_id,
+            )
+            .sort((a, b) => {
+              const draftOrder =
+                Number(a.status === 'draft') - Number(b.status === 'draft')
+              if (draftOrder) return draftOrder
+              return b.week_key.localeCompare(a.week_key)
+            })
         : [],
     [selectedClass, workspace.assignments],
   )
