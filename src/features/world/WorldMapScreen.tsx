@@ -16,6 +16,8 @@ export function WorldMapScreen({
   onOpenSmartMart: () => void
 }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
+  const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
+  const level = useProgressionStore((state) => state.level)
   const count = stalls.filter((stall) =>
     unlockedStalls.includes(stall.id),
   ).length
@@ -71,15 +73,27 @@ export function WorldMapScreen({
                       : `${count}/${stalls.length} gian hàng đã mở`}
                   </span>
                 </>
-              ) : (
-                <>
-                  <h2 className="destination-sign">
-                    <LockKeyhole size={18} aria-hidden="true" />
-                    {map.name}
-                  </h2>
-                  <span className="destination-note">Sắp ra mắt</span>
-                </>
-              )}
+              ) : (() => {
+                const levelReady = level >= map.unlockLevel
+                const prerequisiteReady =
+                  !map.prerequisiteMissionId ||
+                  completedMissionIds.includes(map.prerequisiteMissionId)
+                const requirementsReady = levelReady && prerequisiteReady
+
+                return (
+                  <>
+                    <h2 className={'destination-sign ' + (requirementsReady ? 'is-ready-next' : '')}>
+                      <LockKeyhole size={18} aria-hidden="true" />
+                      {map.name}
+                    </h2>
+                    <span className="destination-note">
+                      {requirementsReady
+                        ? 'Đã đủ điều kiện · chương mới đang chuẩn bị'
+                        : 'Mở ở Cấp ' + map.unlockLevel + (map.prerequisiteMissionId ? ' + nhiệm vụ trước' : '')}
+                    </span>
+                  </>
+                )
+              })()}
             </article>
           ))}
         </div>
