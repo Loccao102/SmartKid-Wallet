@@ -5,6 +5,7 @@ import {
   Compass,
   Home,
   Map,
+  School,
   Star,
   Settings2,
   Target,
@@ -24,6 +25,8 @@ import type { MapId, ProductStallId } from './domain/types'
 import { TinyBankScreen } from './features/bank/TinyBankScreen'
 import { DailyChallengeScreen } from './features/challenges/DailyChallengeScreen'
 import { WeeklyChallengeScreen } from './features/challenges/WeeklyChallengeScreen'
+import { ClassroomScreen } from './features/classroom/ClassroomScreen'
+import { StudentAccountBridge } from './features/classroom/StudentAccountBridge'
 import { HomeScreen } from './features/home/HomeScreen'
 import { HappyRestaurantScreen } from './features/restaurant/HappyRestaurantScreen'
 import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
@@ -41,11 +44,13 @@ import { WorldMapScreen } from './features/world/WorldMapScreen'
 import { useAvatarProfileStore } from './store/avatarProfile'
 import { useLearningProfileStore } from './store/learningProfile'
 import { useProgressionStore } from './store/progression'
+import { useStudentAccountStore } from './store/studentAccount'
 
 type StudentPage =
   | 'home'
   | 'daily-challenge'
   | 'weekly-challenge'
+  | 'classroom'
   | 'maps'
   | 'smartmart'
   | 'tiny-bank'
@@ -65,6 +70,7 @@ const navItems: Array<{
 }> = [
   { id: 'home', icon: Home, label: 'Trang chủ' },
   { id: 'maps', icon: Map, label: 'Bản đồ' },
+  { id: 'classroom', icon: School, label: 'Lớp học' },
   { id: 'missions', icon: Target, label: 'Nhiệm vụ' },
   { id: 'leaderboard', icon: Trophy, label: 'Xếp hạng' },
   { id: 'profile', icon: User, label: 'Hồ sơ' },
@@ -74,6 +80,10 @@ export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
   const [audioSettingsOpen, setAudioSettingsOpen] = useState(false)
   const avatar = useAvatarProfileStore((state) => state.avatar)
+  const classStudent = useStudentAccountStore((state) => state.student)
+  const classRoom = useStudentAccountStore((state) => state.classroom)
+  const profileName = classStudent?.display_name ?? student.name
+  const profileClassName = classRoom?.name ?? student.className
   const level = useProgressionStore((state) => state.level)
   const levelXp = useProgressionStore((state) => state.levelXp)
   const coins = useProgressionStore((state) => state.coins)
@@ -135,6 +145,7 @@ export function App() {
       className={`production-shell ${working ? 'mode-work' : 'mode-learning'} ${page === 'mission-class-party' ? 'is-shopping' : ''}`}
     >
       <ResearchSyncBridge />
+      <StudentAccountBridge />
       <AudioExperience />
       <a href="#student-content" className="skip-link">
         Đến nội dung chính
@@ -183,14 +194,14 @@ export function App() {
             type="button"
             className="game-profile"
             onClick={() => setPage('profile')}
-            aria-label={`Hồ sơ ${student.name}`}
+            aria-label={`Hồ sơ ${profileName}`}
           >
           <span className="student-portrait">
             <AvatarCharacter config={avatar} className="student-avatar-render" decorative />
           </span>
           <span>
-            <strong>{student.name}</strong>
-            <small>Lớp {student.className}</small>
+            <strong>{profileName}</strong>
+            <small>{classStudent ? profileClassName : 'Lớp ' + profileClassName}</small>
           </span>
           </button>
         </div>
@@ -210,7 +221,9 @@ export function App() {
                 ? 'Đang phục vụ tại Nhà hàng vui vẻ'
                 : page === 'weekend-market'
                   ? 'Đang khám phá Chợ cuối tuần'
-                  : 'Một hành trình nhỏ, thật nhiều điều hay'}
+                  : page === 'classroom'
+                    ? 'Bài tập và lớp học của em'
+                    : 'Một hành trình nhỏ, thật nhiều điều hay'}
         </span>
         <div className="game-economy">
           <span className="game-coins">
@@ -242,6 +255,8 @@ export function App() {
             <DailyChallengeScreen onBack={() => setPage('home')} />
           ) : page === 'weekly-challenge' ? (
             <WeeklyChallengeScreen onBack={() => setPage('leaderboard')} />
+          ) : page === 'classroom' ? (
+            <ClassroomScreen />
           ) : page === 'maps' ? (
             <WorldMapScreen
               onOpenMap={(mapId: MapId) => {
