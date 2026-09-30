@@ -546,6 +546,8 @@ export function WorkModeScreen({
         changeGiven: expectedChange,
         consequencesResolved: resolved.newlyResolved.length,
         storyFollowUpTriggered: dueFollowUp?.id ?? null,
+        pendingStoryFollowUps: resolved.worldState.pendingFollowUps.length,
+        triggeredStoryPriority: dueFollowUp?.priority ?? null,
       },
     })
 
@@ -615,6 +617,8 @@ export function WorkModeScreen({
         storyFollowUpId: activeFollowUp.id,
         storyFollowUpInstanceId: activeFollowUp.instanceId,
         sourceChoiceId: activeFollowUp.sourceChoiceId,
+        storyPriority: activeFollowUp.priority ?? 1,
+        queuedStoryFollowUps: resolved.worldState.pendingFollowUps.length,
       },
     })
 
