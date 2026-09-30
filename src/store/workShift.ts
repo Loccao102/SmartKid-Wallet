@@ -56,6 +56,7 @@ export const useWorkShiftStore = create<WorkShiftStore>()(
                 ...progress,
                 activeFollowUpInstanceId:
                   progress.activeFollowUpInstanceId ?? undefined,
+                managerPlanId: progress.managerPlanId ?? undefined,
                 worldState: {
                   ...progress.worldState,
                   pendingConsequences:
@@ -68,6 +69,10 @@ export const useWorkShiftStore = create<WorkShiftStore>()(
                     progress.worldState?.resolvedFollowUps ?? [],
                   lastFollowUpResolvedAtServedCustomers:
                     progress.worldState?.lastFollowUpResolvedAtServedCustomers,
+                  managerProtections:
+                    progress.worldState?.managerProtections ?? [],
+                  consumedManagerProtections:
+                    progress.worldState?.consumedManagerProtections ?? [],
                   flags: progress.worldState?.flags ?? [],
                 },
               },
