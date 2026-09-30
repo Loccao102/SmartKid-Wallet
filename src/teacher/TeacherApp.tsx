@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import {
   BarChart3,
   BookOpenCheck,
@@ -302,7 +302,7 @@ function EmptyState({
   icon: typeof School
   title: string
   description: string
-  action?: React.ReactNode
+  action?: ReactNode
 }) {
   return (
     <div className="teacher-empty">
