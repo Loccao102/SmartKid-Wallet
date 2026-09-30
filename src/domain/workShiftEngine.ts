@@ -51,6 +51,7 @@ export function createInitialWorkWorldState(): WorkWorldState {
     resolvedConsequences: [],
     pendingFollowUps: [],
     resolvedFollowUps: [],
+    lastFollowUpResolvedAtServedCustomers: undefined,
   }
 }
 
@@ -264,10 +265,26 @@ export function getDueStoryFollowUp(
   servedCustomers: number,
   shiftEnded = false,
 ): WorkPendingFollowUp | undefined {
-  return worldState.pendingFollowUps.find(
-    (followUp) =>
-      shiftEnded || followUp.dueAtServedCustomers <= servedCustomers,
-  )
+  if (
+    !shiftEnded &&
+    worldState.lastFollowUpResolvedAtServedCustomers === servedCustomers
+  ) {
+    return undefined
+  }
+
+  const candidates = worldState.pendingFollowUps
+    .filter(
+      (followUp) =>
+        shiftEnded || followUp.dueAtServedCustomers <= servedCustomers,
+    )
+    .sort(
+      (a, b) =>
+        (b.priority ?? 1) - (a.priority ?? 1) ||
+        a.dueAtServedCustomers - b.dueAtServedCustomers ||
+        a.scheduledAtServedCustomers - b.scheduledAtServedCustomers,
+    )
+
+  return candidates[0]
 }
 
 export function applyStoryFollowUpChoice(
@@ -306,6 +323,7 @@ export function applyStoryFollowUpChoice(
           feedback: choice.feedback,
         },
       ],
+      lastFollowUpResolvedAtServedCustomers: servedCustomers,
     },
   }
 }
