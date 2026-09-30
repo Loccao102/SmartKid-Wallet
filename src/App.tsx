@@ -21,6 +21,7 @@ import { getWorkShiftById } from './data/workShiftInstances'
 import { xpNeededForNextLevel } from './domain/progression'
 import type { ProductStallId } from './domain/types'
 import { DailyChallengeScreen } from './features/challenges/DailyChallengeScreen'
+import { WeeklyChallengeScreen } from './features/challenges/WeeklyChallengeScreen'
 import { HomeScreen } from './features/home/HomeScreen'
 import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
 import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
@@ -38,6 +39,7 @@ import { useProgressionStore } from './store/progression'
 type StudentPage =
   | 'home'
   | 'daily-challenge'
+  | 'weekly-challenge'
   | 'maps'
   | 'smartmart'
   | 'mission-class-party'
@@ -46,7 +48,7 @@ type StudentPage =
   | 'leaderboard'
   | 'profile'
 const navItems: Array<{
-  id: Exclude<StudentPage, 'daily-challenge' | 'smartmart' | 'mission-class-party' | 'work-mode'>
+  id: Exclude<StudentPage, 'daily-challenge' | 'weekly-challenge' | 'smartmart' | 'mission-class-party' | 'work-mode'>
   icon: LucideIcon
   label: string
 }> = [
@@ -88,7 +90,9 @@ export function App() {
         ? 'missions'
         : page === 'daily-challenge'
           ? 'home'
-          : page
+          : page === 'weekly-challenge'
+            ? 'leaderboard'
+            : page
   const working = page === 'work-mode'
 
   useEffect(() => {
@@ -202,6 +206,8 @@ export function App() {
         <FeatureErrorBoundary resetKey={page} onRecover={() => setPage('maps')}>
           {page === 'daily-challenge' ? (
             <DailyChallengeScreen onBack={() => setPage('home')} />
+          ) : page === 'weekly-challenge' ? (
+            <WeeklyChallengeScreen onBack={() => setPage('leaderboard')} />
           ) : page === 'maps' ? (
             <WorldMapScreen onOpenSmartMart={() => setPage('smartmart')} />
           ) : page === 'smartmart' ? (
@@ -230,7 +236,9 @@ export function App() {
               }}
             />
           ) : page === 'leaderboard' ? (
-            <LeaderboardScreen />
+            <LeaderboardScreen
+              onOpenWeeklyChallenge={() => setPage('weekly-challenge')}
+            />
           ) : page === 'profile' ? (
             <ProfileScreen onMap={() => setPage('smartmart')} onLeaderboard={() => setPage('leaderboard')} />
           ) : (
@@ -240,6 +248,7 @@ export function App() {
               onOpenLeaderboard={() => setPage('leaderboard')}
               onOpenMissions={() => setPage('missions')}
               onOpenDailyChallenge={() => setPage('daily-challenge')}
+              onOpenWeeklyChallenge={() => setPage('weekly-challenge')}
             />
           )}
         </FeatureErrorBoundary>
