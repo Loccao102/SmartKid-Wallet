@@ -414,6 +414,253 @@ export const workScenarios: WorkScenarioDefinition[] = [
       },
     ],
   },
+,
+  {
+    id: 'SCENARIO_RETURN_NO_RECEIPT',
+    version: 1,
+    category: 'customer-needs',
+    difficulty: 2,
+    title: 'Đổi hàng nhưng không có hóa đơn',
+    description:
+      'Khách mang một sản phẩm còn nguyên tem đến quầy và muốn đổi, nhưng không tìm thấy hóa đơn giấy.',
+    choices: [
+      {
+        id: 'check-purchase-history',
+        label: 'Hỏi thông tin giao dịch và kiểm tra lịch sử mua trước khi xử lý.',
+        billDelta: 0,
+        employeeRatingDelta: 0.18,
+        storeReputationDelta: 0.16,
+        customerSatisfactionDelta: 0.08,
+        feedback:
+          'Mất thêm thời gian nhưng cửa hàng có cơ sở xác minh giao dịch và khách vẫn có cơ hội được hỗ trợ.',
+      },
+      {
+        id: 'manager-store-credit',
+        label: 'Nhờ quản lý xác nhận và đề xuất phiếu mua hàng nếu chính sách cho phép.',
+        billDelta: 0,
+        employeeRatingDelta: 0.14,
+        storeReputationDelta: 0.18,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Khách có phương án thay thế mà cửa hàng vẫn kiểm soát được rủi ro đổi trả không có hóa đơn.',
+      },
+      {
+        id: 'refuse-immediately',
+        label: 'Từ chối ngay vì khách không có hóa đơn.',
+        billDelta: 0,
+        employeeRatingDelta: -0.18,
+        storeReputationDelta: -0.18,
+        customerSatisfactionDelta: -0.28,
+        feedback:
+          'Quầy xử lý nhanh nhưng chưa kiểm tra các cách xác minh khác, nên khách có thể cảm thấy chưa được hỗ trợ đầy đủ.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_DAMAGED_EGGS',
+    version: 1,
+    category: 'product-quality',
+    difficulty: 1,
+    title: 'Hộp trứng có một quả bị nứt',
+    description:
+      'Ngay trước khi thanh toán, em thấy một quả trứng trong hộp của khách đã bị nứt.',
+    choices: [
+      {
+        id: 'replace-carton',
+        label: 'Báo khách và đổi sang hộp trứng nguyên vẹn.',
+        billDelta: 0,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.16,
+        customerSatisfactionDelta: 0.16,
+        feedback:
+          'Khách nhận sản phẩm nguyên vẹn, nhưng quầy cần thêm một chút thời gian để đổi hàng.',
+      },
+      {
+        id: 'remove-and-let-customer-decide',
+        label: 'Báo khách, bỏ hộp bị nứt khỏi hóa đơn và hỏi khách có muốn lấy hộp khác không.',
+        billDelta: -42000,
+        employeeRatingDelta: 0.16,
+        storeReputationDelta: 0.12,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Giao dịch minh bạch và khách tự quyết định có chờ lấy hộp mới hay không.',
+      },
+      {
+        id: 'bag-damaged-eggs',
+        label: 'Đóng túi cẩn thận hơn và không nhắc vì chỉ nứt một quả.',
+        billDelta: 0,
+        employeeRatingDelta: -0.32,
+        storeReputationDelta: -0.3,
+        customerSatisfactionDelta: -0.3,
+        feedback:
+          'Khách có thể phát hiện sản phẩm hỏng sau khi rời quầy và phải quay lại xử lý.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_QUEUE_PRIORITY',
+    version: 1,
+    category: 'customer-needs',
+    difficulty: 2,
+    title: 'Khách lớn tuổi xin thanh toán trước',
+    description:
+      'Quầy đang đông. Một khách lớn tuổi chỉ có hai món và hỏi liệu có thể được thanh toán trước không.',
+    choices: [
+      {
+        id: 'ask-queue-consent',
+        label: 'Hỏi nhanh những khách đang chờ xem mọi người có đồng ý nhường lượt không.',
+        billDelta: 0,
+        employeeRatingDelta: 0.18,
+        storeReputationDelta: 0.12,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Quyết định được trao đổi công khai với hàng chờ, giảm cảm giác ưu tiên tùy tiện nhưng tốn thêm vài giây.',
+      },
+      {
+        id: 'call-support-counter',
+        label: 'Gọi hỗ trợ mở quầy phụ hoặc nhờ nhân viên khác thanh toán hai món.',
+        billDelta: 0,
+        employeeRatingDelta: 0.14,
+        storeReputationDelta: 0.2,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Hàng chờ hiện tại giữ nguyên thứ tự, nhưng cửa hàng phải điều phối thêm nhân sự.',
+      },
+      {
+        id: 'ignore-request',
+        label: 'Yêu cầu khách tiếp tục chờ như mọi người mà không giải thích thêm.',
+        billDelta: 0,
+        employeeRatingDelta: -0.12,
+        storeReputationDelta: -0.12,
+        customerSatisfactionDelta: -0.24,
+        feedback:
+          'Thứ tự hàng chờ được giữ nguyên nhưng nhu cầu hỗ trợ của khách chưa được xem xét hoặc giải thích.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_UNIT_PRICE_COMPARISON',
+    version: 1,
+    category: 'transparency',
+    difficulty: 2,
+    title: 'Gói lớn chưa chắc rẻ hơn',
+    description:
+      'Khách hỏi gói đang gắn biển khuyến mãi có thực sự tiết kiệm hơn gói nhỏ khi tính theo đơn vị hay không.',
+    choices: [
+      {
+        id: 'explain-unit-price',
+        label: 'Tính giá theo đơn vị của cả hai gói, giải thích rồi để khách tự chọn.',
+        billDelta: 0,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.18,
+        customerSatisfactionDelta: 0.16,
+        feedback:
+          'Khách có đủ dữ kiện để tự chọn theo nhu cầu thay vì chỉ dựa vào biển khuyến mãi.',
+      },
+      {
+        id: 'recommend-cheaper-unit',
+        label: 'Tính nhanh và đề xuất gói có giá theo đơn vị thấp hơn.',
+        billDelta: -6000,
+        employeeRatingDelta: 0.14,
+        storeReputationDelta: 0.1,
+        customerSatisfactionDelta: 0.18,
+        feedback:
+          'Khách tiết kiệm thời gian và chi phí đơn vị, nhưng quyết định dựa nhiều hơn vào đề xuất của nhân viên.',
+      },
+      {
+        id: 'push-promo-pack',
+        label: 'Khuyên khách lấy gói có biển khuyến mãi mà không so sánh đơn giá.',
+        billDelta: 0,
+        employeeRatingDelta: -0.2,
+        storeReputationDelta: -0.22,
+        customerSatisfactionDelta: -0.2,
+        feedback:
+          'Biển khuyến mãi được dùng như lý do chính dù chưa kiểm tra lựa chọn nào thực sự tiết kiệm hơn.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_FROZEN_ITEM_LEFT_OUT',
+    version: 1,
+    category: 'product-quality',
+    difficulty: 3,
+    title: 'Hàng đông lạnh đã để ngoài lâu',
+    description:
+      'Một gói thực phẩm đông lạnh bị bỏ ngoài quầy khá lâu. Không ai chắc sản phẩm còn được giữ đúng nhiệt độ.',
+    choices: [
+      {
+        id: 'quarantine-and-replace',
+        label: 'Tách sản phẩm khỏi hàng bán và lấy sản phẩm khác cho khách.',
+        billDelta: 0,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.22,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Cửa hàng chịu thêm chi phí xử lý nhưng tránh bán sản phẩm có điều kiện bảo quản không chắc chắn.',
+      },
+      {
+        id: 'hold-for-manager',
+        label: 'Giữ sản phẩm riêng, nhờ quản lý kiểm tra quy trình rồi mới quyết định.',
+        billDelta: 0,
+        employeeRatingDelta: 0.16,
+        storeReputationDelta: 0.2,
+        customerSatisfactionDelta: -0.05,
+        feedback:
+          'Quy trình thận trọng hơn nhưng khách và hàng chờ phải đợi trong lúc xác minh.',
+      },
+      {
+        id: 'put-back-freezer',
+        label: 'Cho lại vào tủ đông vì bao bì vẫn còn lạnh.',
+        billDelta: 0,
+        employeeRatingDelta: -0.4,
+        storeReputationDelta: -0.45,
+        customerSatisfactionDelta: -0.28,
+        feedback:
+          'Sản phẩm quay lại kệ dù điều kiện bảo quản trước đó chưa được xác minh.',
+      },
+    ],
+  },
+  {
+    id: 'SCENARIO_COUPON_STACKING',
+    version: 1,
+    category: 'promotion',
+    difficulty: 3,
+    title: 'Hai coupon không được cộng dồn',
+    description:
+      'Khách có hai coupon đều hợp lệ riêng lẻ, nhưng điều kiện chương trình ghi rằng chỉ được dùng một coupon cho mỗi hóa đơn.',
+    choices: [
+      {
+        id: 'compare-coupons',
+        label: 'Tính cả hai phương án và giúp khách chọn coupon tiết kiệm hơn.',
+        billDelta: -30000,
+        employeeRatingDelta: 0.2,
+        storeReputationDelta: 0.16,
+        customerSatisfactionDelta: 0.2,
+        feedback:
+          'Quy định được giữ đúng và khách vẫn nhận phương án có lợi hơn sau khi so sánh.',
+      },
+      {
+        id: 'let-customer-choose-coupon',
+        label: 'Giải thích không được cộng dồn và để khách tự chọn coupon muốn dùng.',
+        billDelta: -20000,
+        employeeRatingDelta: 0.16,
+        storeReputationDelta: 0.14,
+        customerSatisfactionDelta: 0.14,
+        feedback:
+          'Khách giữ quyền quyết định, dù họ có thể không chọn phương án tiết kiệm tối đa.',
+      },
+      {
+        id: 'stack-both-coupons',
+        label: 'Áp dụng cả hai coupon để khách vui hơn.',
+        billDelta: -50000,
+        employeeRatingDelta: -0.3,
+        storeReputationDelta: -0.28,
+        customerSatisfactionDelta: 0.12,
+        feedback:
+          'Khách được lợi trong giao dịch này nhưng chính sách khuyến mãi bị áp dụng sai và đối soát có thể phát hiện chênh lệch.',
+      },
+    ],
+  }
 ]
 
 export const traineeShift: WorkShiftDefinition = {
