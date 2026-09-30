@@ -223,9 +223,20 @@ body {
   margin: auto;
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   padding: 10px 24px 24px;
   color: #708072;
   font-size: 12px;
+}
+
+.game-footer a {
+  color: #527364;
+  font-weight: 780;
+  text-decoration: none;
+}
+
+.game-footer a:hover {
+  text-decoration: underline;
 }
 .mode-work .game-header {
   background: #24483f;
