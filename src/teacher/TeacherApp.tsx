@@ -1482,10 +1482,39 @@ export function TeacherApp() {
             <span className="teacher-brand-mark"><GraduationCap size={24} /></span>
             <strong>Teacher</strong>
           </a>
-          <button type="button" className="teacher-icon-button" onClick={() => void load()}>
-            <RefreshCw size={19} />
-          </button>
+          <div>
+            <button
+              type="button"
+              className="teacher-icon-button"
+              onClick={() => void load()}
+              aria-label="Tải lại dữ liệu"
+            >
+              <RefreshCw size={19} />
+            </button>
+            <button
+              type="button"
+              className="teacher-icon-button"
+              onClick={logout}
+              aria-label="Đăng xuất"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
         </header>
+
+        <nav className="teacher-mobile-nav" aria-label="Điều hướng giáo viên">
+          {navItems.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              className={page === id ? 'is-active' : ''}
+              onClick={() => setPage(id)}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
 
         {page === 'overview' ? (
           <OverviewPage
