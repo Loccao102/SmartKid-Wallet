@@ -92,6 +92,20 @@ export interface CartLine {
   quantity: number
 }
 
+export type MissionSoftGoalKind =
+  | 'min-distinct-products'
+  | 'avoid-products'
+
+export interface MissionSoftGoalDefinition {
+  id: string
+  title: string
+  description: string
+  revealAfterItems: number
+  kind: MissionSoftGoalKind
+  target?: number
+  productIds?: string[]
+}
+
 export interface MissionDefinition {
   id: string
   version: number
@@ -108,6 +122,7 @@ export interface MissionDefinition {
   targetTimeSeconds?: number
   xpReward: number
   coinReward?: number
+  softGoals?: MissionSoftGoalDefinition[]
   teacherChallenge?: {
     id: string
     requiredStars: 5
@@ -122,6 +137,10 @@ export interface MissionEvaluation {
   remaining: number
   coverageByStall: Record<ProductStallId, number>
   reasons: string[]
+  softGoalResults: Array<{
+    id: string
+    achieved: boolean
+  }>
 }
 
 
