@@ -34,6 +34,9 @@ export function evaluateMission(
 
   const remaining = mission.budget - spent
   const reasons: string[] = []
+  const selectedProductIds = new Set(
+    cart.filter((line) => line.quantity > 0).map((line) => line.productId),
+  )
 
   if (spent > mission.budget) {
     reasons.push('Giỏ hàng vượt quá ngân sách.')
@@ -53,11 +56,33 @@ export function evaluateMission(
     }
   }
 
+  const softGoalResults = (mission.softGoals ?? []).map((goal) => {
+    if (goal.kind === 'min-distinct-products') {
+      return {
+        id: goal.id,
+        achieved: selectedProductIds.size >= (goal.target ?? 0),
+      }
+    }
+
+    if (goal.kind === 'avoid-products') {
+      const blocked = new Set(goal.productIds ?? [])
+      return {
+        id: goal.id,
+        achieved: !cart.some(
+          (line) => line.quantity > 0 && blocked.has(line.productId),
+        ),
+      }
+    }
+
+    return { id: goal.id, achieved: false }
+  })
+
   return {
     success: reasons.length === 0,
     spent,
     remaining,
     coverageByStall,
     reasons,
+    softGoalResults,
   }
 }
