@@ -262,9 +262,11 @@ export function resolveDueConsequences(
 export function getDueStoryFollowUp(
   worldState: WorkWorldState,
   servedCustomers: number,
+  shiftEnded = false,
 ): WorkPendingFollowUp | undefined {
   return worldState.pendingFollowUps.find(
-    (followUp) => followUp.dueAtServedCustomers <= servedCustomers,
+    (followUp) =>
+      shiftEnded || followUp.dueAtServedCustomers <= servedCustomers,
   )
 }
 
