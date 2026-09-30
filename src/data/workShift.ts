@@ -414,7 +414,6 @@ export const workScenarios: WorkScenarioDefinition[] = [
       },
     ],
   },
-,
   {
     id: 'SCENARIO_RETURN_NO_RECEIPT',
     version: 1,
