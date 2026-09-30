@@ -25,12 +25,14 @@ export function HomeScreen({
   onOpenLeaderboard,
   onOpenMissions,
   onOpenDailyChallenge,
+  onOpenWeeklyChallenge,
 }: {
   onContinueSmartMart: () => void
   onOpenMission: () => void
   onOpenLeaderboard: () => void
   onOpenMissions: () => void
   onOpenDailyChallenge: () => void
+  onOpenWeeklyChallenge: () => void
 }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
@@ -153,9 +155,9 @@ export function HomeScreen({
             <BriefcaseBusiness size={24} />
             <span><strong>Work</strong><small>Nhập vai nhân viên, trade-off và hậu quả ẩn.</small></span>
           </button>
-          <button type="button" onClick={onOpenDailyChallenge}>
-            <CalendarDays size={24} />
-            <span><strong>Daily Challenge</strong><small>5 câu theo seed trong ngày, săn 5 sao và nhận thưởng một lần.</small></span>
+          <button type="button" onClick={onOpenWeeklyChallenge}>
+            <Trophy size={24} />
+            <span><strong>Weekly Arena</strong><small>6 bài Toán + 2 tình huống, cùng đề cả tuần và có bảng xếp hạng thật.</small></span>
           </button>
         </div>
       </section>
