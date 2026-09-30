@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { Json } from '../../types/supabase'
 import {
+  bindLocalProgressToStudent,
   fetchCurrentStudentAccount,
   syncStudentLearningSnapshot,
 } from '../../lib/classroomRemote'
@@ -23,6 +24,10 @@ export function StudentAccountBridge() {
     const loadAccount = async () => {
       try {
         const account = await fetchCurrentStudentAccount()
+        if (account && bindLocalProgressToStudent(account.student.auth_user_id)) {
+          window.location.reload()
+          return
+        }
         if (!disposed) {
           useStudentAccountStore.getState().setAccount(account)
         }
