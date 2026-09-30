@@ -21,6 +21,8 @@ import {
 import { getWorkScenario } from '../../data/workShift'
 import { demoWorkStudentKey } from '../../data/workShiftInstances'
 import { getWorkWorldEffect } from '../../data/workWorldEffects'
+import { retryCost } from '../../domain/progression'
+import { scoreWorkShift } from '../../domain/scoring'
 import {
   createResearchEvent,
   createResearchSnapshot,
@@ -44,6 +46,8 @@ import type {
   WorkShiftProgress,
   WorkWorldFlag,
 } from '../../domain/types'
+import { playGameSfx } from '../../lib/audioEngine'
+import { useProgressionStore } from '../../store/progression'
 import { useResearchLogStore } from '../../store/researchLog'
 import { useWorkShiftStore } from '../../store/workShift'
 
@@ -125,6 +129,10 @@ export function WorkModeScreen({
   const appendResearchEvent = useResearchLogStore((state) => state.appendEvent)
   const ensureShiftSession = useResearchLogStore((state) => state.ensureShiftSession)
   const endShiftSession = useResearchLogStore((state) => state.endShiftSession)
+  const coins = useProgressionStore((state) => state.coins)
+  const spendCoins = useProgressionStore((state) => state.spendCoins)
+  const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
+  const recordActivityResult = useProgressionStore((state) => state.recordActivityResult)
   const progress = storedProgress ?? createInitialWorkShiftProgress(shift)
   const shiftSeed =
     'seed' in shift && typeof shift.seed === 'number' ? shift.seed : null
@@ -256,6 +264,7 @@ export function WorkModeScreen({
   )
 
   const submitNumeric = () => {
+    if (feedback === 'wrong') return
     const mathStage = stage === 'change' ? 'change' : 'total'
     const expected = mathStage === 'total' ? baseTotal : expectedChange
     const submittedAnswer = normalizeMoney(answer)
@@ -313,12 +322,30 @@ export function WorkModeScreen({
     stageStartedAtRef.current = nowMs()
 
     if (!correct) {
+      playGameSfx('retry')
       setFeedback('wrong')
       return
     }
 
+    playGameSfx('correct')
     setAnswer('')
     setFeedback('correct')
+  }
+
+  const retryNumeric = () => {
+    if (!customerProgress) return
+
+    const wrongAttempts =
+      stage === 'change'
+        ? customerProgress.changeAttempts
+        : customerProgress.totalAttempts
+    const cost = retryCost(wrongAttempts)
+    const paid = spendCoins(cost)
+
+    if (paid) playGameSfx('coin')
+    setAnswer('')
+    setFeedback('idle')
+    stageStartedAtRef.current = nowMs()
   }
 
   const chooseScenario = (choice: WorkScenarioChoice) => {
@@ -384,6 +411,7 @@ export function WorkModeScreen({
       customerIndex: isLast
         ? progress.customerIndex
         : progress.customerIndex + 1,
+      completedAtEpochMs: isLast ? Date.now() : progress.completedAtEpochMs,
       completed: isLast,
     }
 
@@ -426,6 +454,26 @@ export function WorkModeScreen({
     }
 
     if (isLast) {
+      const hiddenScore = scoreWorkShift(
+        shift,
+        nextProgress,
+        (scenarioId) => getWorkScenario(scenarioId),
+      )
+      recordActivityResult(
+        'work:' + shift.id,
+        hiddenScore.stars,
+        hiddenScore.total,
+        Math.max(
+          0,
+          (nextProgress.completedAtEpochMs ?? Date.now()) -
+            (nextProgress.startedAtEpochMs ?? Date.now()),
+        ),
+      )
+      const xpResult = awardXpOnce('work:' + shift.id, 90)
+      if (xpResult?.levelsGained) playGameSfx('level-up')
+      else if (xpResult) playGameSfx('xp')
+      playGameSfx('mission-complete')
+
       logResearchEvent({
         eventType: 'shift_completed',
         customerId: customer.id,
@@ -448,5 +496,10 @@ export function WorkModeScreen({
     setFeedback('idle')
   }
 
-  return <WorkCounter shift={shift} progress={progress} stage={stage} answer={answer} feedback={feedback} selectedChoice={selectedChoice} baseTotal={baseTotal} effectiveTotal={effectiveTotal} expectedChange={expectedChange} onAnswer={(value) => { setAnswer(value); setFeedback('idle') }} onSubmit={submitNumeric} onChoice={chooseScenario} onContinue={continueCustomer} onBack={onBack} />
+  const wrongAttempts =
+    stage === 'change'
+      ? customerProgress.changeAttempts
+      : customerProgress.totalAttempts
+
+  return <WorkCounter shift={shift} progress={progress} stage={stage} answer={answer} feedback={feedback} selectedChoice={selectedChoice} baseTotal={baseTotal} effectiveTotal={effectiveTotal} expectedChange={expectedChange} coins={coins} retryPrice={retryCost(wrongAttempts)} onAnswer={(value) => { setAnswer(value); if (feedback !== 'wrong') setFeedback('idle') }} onSubmit={submitNumeric} onRetry={retryNumeric} onChoice={chooseScenario} onContinue={continueCustomer} onBack={onBack} />
 }
