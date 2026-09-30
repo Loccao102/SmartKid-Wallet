@@ -1,7 +1,9 @@
 import type {
   WorkBasketItem,
+  WorkPendingStoryDecision,
   WorkResolvedConsequence,
   WorkScenarioChoice,
+  WorkStoryChoice,
   WorkShiftCustomerProgress,
   WorkShiftDefinition,
   WorkShiftMetrics,
@@ -46,6 +48,7 @@ export function createInitialWorkWorldState(): WorkWorldState {
   return {
     flags: [],
     pendingConsequences: [],
+    pendingStoryDecisions: [],
     resolvedConsequences: [],
   }
 }
@@ -197,12 +200,19 @@ export function resolveDueConsequences(
       metrics,
       worldState,
       newlyResolved: [] as WorkResolvedConsequence[],
+      newlyPresentedStoryDecisions: [] as WorkPendingStoryDecision[],
     }
   }
 
+  const storyDue = due.filter(
+    (consequence): consequence is WorkPendingStoryDecision =>
+      Boolean(consequence.storyDecision),
+  )
+  const automaticDue = due.filter((consequence) => !consequence.storyDecision)
+
   let nextMetrics = metrics
   let nextFlags = [...worldState.flags]
-  const newlyResolved = due.map((consequence) => {
+  const newlyResolved = automaticDue.map((consequence) => {
     const resolved: WorkResolvedConsequence = {
       ...consequence,
       resolvedAtServedCustomers: servedCustomers,
@@ -223,12 +233,89 @@ export function resolveDueConsequences(
       pendingConsequences: worldState.pendingConsequences.filter(
         (item) => !dueIds.has(item.instanceId),
       ),
+      pendingStoryDecisions: [
+        ...worldState.pendingStoryDecisions,
+        ...storyDue,
+      ],
       resolvedConsequences: [
         ...worldState.resolvedConsequences,
         ...newlyResolved,
       ],
     },
     newlyResolved,
+    newlyPresentedStoryDecisions: storyDue,
+  }
+}
+
+function applyStoryChoiceMetrics(
+  metrics: WorkShiftMetrics,
+  choice: WorkStoryChoice,
+): WorkShiftMetrics {
+  return {
+    ...metrics,
+    employeeRating: clampRating(
+      metrics.employeeRating + choice.employeeRatingDelta,
+    ),
+    storeReputation: clampRating(
+      metrics.storeReputation + choice.storeReputationDelta,
+    ),
+    customerSatisfaction: clampRating(
+      metrics.customerSatisfaction + choice.customerSatisfactionDelta,
+    ),
+  }
+}
+
+export function resolveStoryDecision(
+  metrics: WorkShiftMetrics,
+  worldState: WorkWorldState,
+  instanceId: string,
+  choiceId: string,
+) {
+  const pending = worldState.pendingStoryDecisions.find(
+    (item) => item.instanceId === instanceId,
+  )
+
+  if (!pending) {
+    throw new Error('Unknown pending story decision: ' + instanceId)
+  }
+
+  const choice = pending.storyDecision.choices.find(
+    (item) => item.id === choiceId,
+  )
+
+  if (!choice) {
+    throw new Error(
+      'Unknown story choice ' + choiceId + ' for ' + pending.id,
+    )
+  }
+
+  const nextMetrics = applyStoryChoiceMetrics(metrics, choice)
+  const resolved: WorkResolvedConsequence = {
+    ...pending,
+    resolvedAtServedCustomers: metrics.servedCustomers,
+    resolutionChoiceId: choice.id,
+    resolutionFeedback: choice.feedback,
+  }
+
+  return {
+    metrics: nextMetrics,
+    worldState: {
+      flags: mergeFlags(
+        worldState.flags,
+        choice.setFlags,
+        [...(pending.clearFlags ?? []), ...(choice.clearFlags ?? [])],
+      ),
+      pendingConsequences: worldState.pendingConsequences,
+      pendingStoryDecisions: worldState.pendingStoryDecisions.filter(
+        (item) => item.instanceId !== instanceId,
+      ),
+      resolvedConsequences: [
+        ...worldState.resolvedConsequences,
+        resolved,
+      ],
+    },
+    resolved,
+    choice,
   }
 }
 
