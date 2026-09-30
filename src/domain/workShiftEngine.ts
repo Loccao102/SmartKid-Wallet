@@ -74,6 +74,8 @@ export function createInitialWorkShiftProgress(
     ),
     metrics: createInitialShiftMetrics(shift),
     worldState: createInitialWorkWorldState(),
+    startedAtEpochMs: Date.now(),
+    completedAtEpochMs: undefined,
     completed: false,
   }
 }
