@@ -11,10 +11,11 @@ Region: ap-southeast-1
 Current live backend slice:
 - Anonymous Auth: enabled;
 - research_events: deployed;
-- RLS: enabled;
-- authenticated: SELECT + INSERT own rows;
-- client UPDATE/DELETE: blocked;
-- security advisor: clean at deployment check;
+- weekly_challenge_attempts: deployed, append-only, own SELECT/INSERT;
+- weekly_challenge_leaderboard: deployed, authenticated SELECT-only safe projection;
+- weekly leaderboard trigger stores pseudonymous player codes only;
+- RLS: enabled on every exposed SmartKid table;
+- client UPDATE/DELETE on attempts/research: blocked;
 - smoke workflow: passing.
 
 ## 2. Research sync
@@ -37,7 +38,33 @@ Offline gameplay không bị block.
 - research event append-only;
 - auth_user_id lấy từ session Supabase, không tin user ID trong payload local.
 
-## 4. Production next schema
+## 4. Weekly Arena backend
+
+```text
+WeeklyChallenge run
+→ authenticated/anonymous Supabase user
+→ weekly_challenge_attempts (append-only)
+→ internal trigger
+→ weekly_challenge_leaderboard (safe projection)
+→ browser SELECT leaderboard
+```
+
+Ranking projection intentionally does **not** store auth UUID, child name, email or profile data.
+
+Current browser permissions:
+- attempts: SELECT own + INSERT own;
+- leaderboard: SELECT only;
+- trigger function: EXECUTE revoked from public/anon/authenticated.
+
+Current limitation:
+- score/evidence submission is not yet server-recomputed, so intentional client tampering is still possible. Add Edge Function/server verification before high-stakes competition.
+
+Advisor notes after deployment:
+- anonymous-auth policy warnings are expected while anonymous onboarding is intentionally enabled;
+- new weekly indexes may show as unused until real traffic exists;
+- leaked-password protection warning is unrelated to anonymous pilot accounts but must be reviewed before permanent password accounts.
+
+## 5. Production next schema
 
 Cần bổ sung:
 - profiles;
@@ -57,7 +84,7 @@ Mọi schema mới:
 5. advisor check;
 6. smoke/integration test.
 
-## 5. Anonymous account strategy
+## 6. Anonymous account strategy
 
 Production onboarding:
 - có thể bắt đầu anonymous;
@@ -69,7 +96,7 @@ Trước pilot công khai:
 - rate/abuse review;
 - consent/privacy UX.
 
-## 6. Research smoke
+## 7. Research smoke
 
 Workflow `Supabase Smoke` đã xác nhận:
 - anonymous sign-in thành công;
@@ -79,7 +106,7 @@ Workflow `Supabase Smoke` đã xác nhận:
 - UPDATE bị chặn;
 - DELETE bị chặn.
 
-## 7. Environment
+## 8. Environment
 
 Client có production URL/publishable-key fallback.
 
