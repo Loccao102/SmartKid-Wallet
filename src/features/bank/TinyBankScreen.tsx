@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,7 +11,6 @@ import {
   RotateCcw,
   ShieldCheck,
   Sparkles,
-  Star,
   Target,
   TrendingUp,
 } from 'lucide-react'
@@ -20,12 +19,17 @@ import {
   createTinyBankMission,
   createTinyBankQuiz,
   scoreTinyBankMission,
+  tinyBankChapter,
   tinyBankLessons,
   type TinyBankLessonId,
   type TinyBankMissionRun,
 } from '../../data/tinyBank'
-import { useProgressionStore } from '../../store/progression'
 import { useTinyBankProgressStore } from '../../store/tinyBankProgress'
+import {
+  WorldChapterQuiz,
+  WorldChapterStars,
+} from '../world/WorldChapterQuiz'
+import { useWorldChapterController } from '../world/useWorldChapterController'
 
 const money = new Intl.NumberFormat('vi-VN')
 
@@ -35,163 +39,6 @@ const lessonIcons = {
   'growth-bonus': TrendingUp,
   'four-week-mission': ShieldCheck,
 } satisfies Record<TinyBankLessonId, typeof Target>
-
-function Stars({ value }: { value: number }) {
-  return (
-    <span className="bank-stars" aria-label={value + ' trên 5 sao'}>
-      {Array.from({ length: 5 }, (_, index) => (
-        <Star
-          key={index}
-          size={17}
-          fill={index < value ? 'currentColor' : 'none'}
-          aria-hidden="true"
-        />
-      ))}
-    </span>
-  )
-}
-
-function QuizLesson({
-  lessonId,
-  seed,
-  onExit,
-  onComplete,
-}: {
-  lessonId: Exclude<TinyBankLessonId, 'four-week-mission'>
-  seed: number
-  onExit: () => void
-  onComplete: (stars: number) => void
-}) {
-  const questions = useMemo(
-    () => createTinyBankQuiz(lessonId, seed),
-    [lessonId, seed],
-  )
-  const lesson = tinyBankLessons.find((item) => item.id === lessonId)!
-  const [index, setIndex] = useState(0)
-  const [answer, setAnswer] = useState('')
-  const [mistakes, setMistakes] = useState(0)
-  const [feedback, setFeedback] = useState<string | null>(null)
-  const [finished, setFinished] = useState(false)
-  const question = questions[index]
-
-  const submit = () => {
-    const parsed = Number(answer.replace(/[.s,]/g, ''))
-    if (!Number.isFinite(parsed)) return
-
-    if (parsed !== question.answer) {
-      setMistakes((current) => current + 1)
-      setFeedback(question.hint)
-      setAnswer('')
-      return
-    }
-
-    setFeedback('Chính xác. Em đã theo dõi dòng tiền rất tốt.')
-    if (index < questions.length - 1) {
-      window.setTimeout(() => {
-        setIndex((current) => current + 1)
-        setAnswer('')
-        setFeedback(null)
-      }, 450)
-      return
-    }
-
-    const stars =
-      mistakes === 0 ? 5 : mistakes <= 2 ? 4 : mistakes <= 4 ? 3 : 2
-    setFinished(true)
-    onComplete(stars)
-  }
-
-  if (finished) {
-    const stars =
-      mistakes === 0 ? 5 : mistakes <= 2 ? 4 : mistakes <= 4 ? 3 : 2
-    return (
-      <section className="bank-play-panel bank-complete-panel">
-        <span className="bank-complete-icon">
-          <Check size={34} aria-hidden="true" />
-        </span>
-        <p className="eyebrow">HOÀN THÀNH BÀI LUYỆN</p>
-        <h2>{lesson.title}</h2>
-        <Stars value={stars} />
-        <p>
-          Em đã xử lý đủ 3 tình huống. Lần sau số tiền sẽ đổi để em luyện cách
-          suy nghĩ thay vì nhớ đáp án.
-        </p>
-        <button type="button" className="adventure-button" onClick={onExit}>
-          Về sảnh ngân hàng <ArrowRight size={18} />
-        </button>
-      </section>
-    )
-  }
-
-  return (
-    <section className="bank-play-panel">
-      <header className="bank-play-heading">
-        <button type="button" className="quiet-button" onClick={onExit}>
-          <ArrowLeft size={18} /> Thoát bài
-        </button>
-        <span>
-          Câu {index + 1}/{questions.length}
-        </span>
-      </header>
-
-      <div className="bank-question-progress" aria-hidden="true">
-        {questions.map((item, itemIndex) => (
-          <i
-            key={item.id}
-            className={
-              itemIndex < index
-                ? 'done'
-                : itemIndex === index
-                  ? 'current'
-                  : ''
-            }
-          />
-        ))}
-      </div>
-
-      <div className="bank-question-card">
-        <span className="bank-question-icon">
-          <CircleDollarSign size={28} aria-hidden="true" />
-        </span>
-        <p className="eyebrow">{lesson.skillLabel}</p>
-        <h2>{question.prompt}</h2>
-        <label htmlFor="tiny-bank-answer">Câu trả lời của em</label>
-        <div className="bank-answer">
-          <input
-            id="tiny-bank-answer"
-            inputMode="numeric"
-            value={answer}
-            onChange={(event) => setAnswer(event.target.value)}
-            placeholder="Nhập số tiền"
-            autoFocus
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') submit()
-            }}
-          />
-          <span>{question.unit}</span>
-        </div>
-        {feedback ? (
-          <div className="bank-hint" role="status">
-            <Sparkles size={17} aria-hidden="true" />
-            <span>{feedback}</span>
-          </div>
-        ) : (
-          <p className="bank-question-tip">
-            Em có thể nháp từng bước trước khi nhập kết quả.
-          </p>
-        )}
-        <button
-          type="button"
-          className="adventure-button bank-submit"
-          disabled={!answer.trim()}
-          onClick={submit}
-        >
-          Kiểm tra <ArrowRight size={18} />
-        </button>
-      </div>
-    </section>
-  )
-}
 
 function MissionLesson({
   run,
@@ -238,7 +85,7 @@ function MissionLesson({
         </span>
         <p className="eyebrow">KẾT QUẢ 4 TUẦN</p>
         <h2>{passed ? 'Em đã hoàn thành kế hoạch!' : 'Thử một kế hoạch khác nhé'}</h2>
-        <Stars value={stars} />
+        <WorldChapterStars value={stars} className="bank-stars" />
         <div className="bank-result-grid">
           <div>
             <span>Tiền mục tiêu</span>
@@ -332,68 +179,45 @@ function MissionLesson({
 }
 
 export function TinyBankScreen({ onBack }: { onBack: () => void }) {
-  const completedLessonIds = useTinyBankProgressStore(
-    (state) => state.completedLessonIds,
-  )
-  const bestStarsByLessonId = useTinyBankProgressStore(
-    (state) => state.bestStarsByLessonId,
-  )
-  const nextRun = useTinyBankProgressStore((state) => state.nextRun)
-  const completeLesson = useTinyBankProgressStore((state) => state.completeLesson)
-  const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
-  const claimChallengeReward = useProgressionStore(
-    (state) => state.claimChallengeReward,
-  )
-  const recordActivityResult = useProgressionStore(
-    (state) => state.recordActivityResult,
-  )
-  const completeWorldChapter = useProgressionStore(
-    (state) => state.completeWorldChapter,
-  )
-  const completedWorldChapterIds = useProgressionStore(
-    (state) => state.completedWorldChapterIds,
-  )
-
-  const [activeLessonId, setActiveLessonId] =
-    useState<TinyBankLessonId | null>(null)
-  const [runSeed, setRunSeed] = useState(1)
-
-  const chapterCompleted = completedWorldChapterIds.includes('tiny-bank')
-  const coreCompleted = tinyBankLessons
-    .slice(0, 3)
-    .every((lesson) => completedLessonIds.includes(lesson.id))
-
-  const startLesson = (lessonId: TinyBankLessonId) => {
-    const run = nextRun(lessonId)
-    const lessonIndex = tinyBankLessons.findIndex((item) => item.id === lessonId)
-    setRunSeed(20260930 + run * 7919 + lessonIndex * 104729)
-    setActiveLessonId(lessonId)
-  }
-
-  const finishLesson = (lessonId: TinyBankLessonId, stars: number) => {
-    const passed = lessonId !== 'four-week-mission' || stars >= 3
-    const lesson = tinyBankLessons.find((item) => item.id === lessonId)!
-
-    recordActivityResult('tiny-bank:' + lessonId + ':v1', stars, stars * 20)
-
-    if (!passed) return
-
-    completeLesson(lessonId, stars)
-    awardXpOnce('tiny-bank:' + lessonId, lesson.xpReward)
-
-    if (lessonId === 'four-week-mission') {
-      completeWorldChapter('tiny-bank')
-      awardXpOnce('tiny-bank:chapter:v1', 80)
-      claimChallengeReward('tiny-bank:chapter:v1', 80)
-    }
-  }
+  const {
+    activeLessonId,
+    setActiveLessonId,
+    runSeed,
+    chapterCompleted,
+    completedLessonIds,
+    bestStarsByLessonId,
+    startLesson,
+    finishLesson,
+    isLessonUnlocked,
+  } = useWorldChapterController({
+    chapter: tinyBankChapter,
+    lessons: tinyBankLessons,
+    progressStore: useTinyBankProgressStore,
+  })
 
   if (activeLessonId && activeLessonId !== 'four-week-mission') {
+    const lesson = tinyBankLessons.find((item) => item.id === activeLessonId)!
+
     return (
-      <QuizLesson
+      <WorldChapterQuiz
         key={activeLessonId + ':' + runSeed}
-        lessonId={activeLessonId}
-        seed={runSeed}
+        theme="bank"
+        lessonTitle={lesson.title}
+        skillLabel={lesson.skillLabel}
+        questions={createTinyBankQuiz(activeLessonId, runSeed)}
+        icon={CircleDollarSign}
+        copy={{
+          exitLabel: 'Thoát bài',
+          counterLabel: 'Câu',
+          inputLabel: 'Câu trả lời của em',
+          inputPlaceholder: 'Nhập số tiền',
+          idleTip: 'Em có thể nháp từng bước trước khi nhập kết quả.',
+          correctFeedback: 'Chính xác. Em đã theo dõi dòng tiền rất tốt.',
+          completeEyebrow: 'HOÀN THÀNH BÀI LUYỆN',
+          completeDescription:
+            'Lần sau số tiền sẽ đổi để em luyện cách suy nghĩ thay vì nhớ đáp án.',
+          backLabel: 'Về sảnh ngân hàng',
+        }}
         onExit={() => setActiveLessonId(null)}
         onComplete={(stars) => finishLesson(activeLessonId, stars)}
       />
@@ -457,12 +281,7 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
       <div className="bank-room-grid">
         {tinyBankLessons.map((lesson, index) => {
           const Icon = lessonIcons[lesson.id]
-          const previous = tinyBankLessons[index - 1]
-          const unlocked =
-            index === 0 ||
-            (lesson.id === 'four-week-mission'
-              ? coreCompleted
-              : Boolean(previous && completedLessonIds.includes(previous.id)))
+          const unlocked = isLessonUnlocked(lesson.id)
           const completed = completedLessonIds.includes(lesson.id)
           const stars = bestStarsByLessonId[lesson.id] ?? 0
 
@@ -487,7 +306,7 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
                 <h2>{lesson.title}</h2>
                 <span>{lesson.skillLabel}</span>
               </div>
-              {stars ? <Stars value={stars} /> : null}
+              {stars ? <WorldChapterStars value={stars} className="bank-stars" /> : null}
               <button
                 type="button"
                 disabled={!unlocked}
