@@ -51,6 +51,7 @@ export function choiceQuality(choice: WorkScenarioChoice) {
 export function scoreWorkShift(
   shift: WorkShiftDefinition,
   progress: WorkShiftProgress,
+  resolveScenario?: (id: string) => { choices: WorkScenarioChoice[] } | undefined,
 ): HiddenScoreBreakdown {
   const entries = shift.customers.map(
     (customer) => progress.customerProgress[customer.id],
@@ -91,7 +92,7 @@ export function scoreWorkShift(
         const choiceId =
           progress.customerProgress[customer.id]?.scenarioChoiceId
         if (!choiceId || !customer.scenarioId) return sum
-        const scenario = shiftScenarioLookup(customer.scenarioId)
+        const scenario = resolveScenario?.(customer.scenarioId)
         const choice = scenario?.choices.find((item) => item.id === choiceId)
         return sum + (choice ? choiceQuality(choice) : 0)
       }, 0) / scenarioCustomers.length
@@ -116,18 +117,6 @@ export function scoreWorkShift(
   }
 }
 
-let scenarioResolver: ((id: string) => { choices: WorkScenarioChoice[] } | undefined) | null =
-  null
-
-export function registerScenarioResolver(
-  resolver: (id: string) => { choices: WorkScenarioChoice[] } | undefined,
-) {
-  scenarioResolver = resolver
-}
-
-function shiftScenarioLookup(id: string) {
-  return scenarioResolver?.(id)
-}
 
 export function scoreShoppingMission(
   mission: MissionDefinition,
