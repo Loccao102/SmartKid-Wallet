@@ -9,8 +9,13 @@ import {
   Target,
   Trophy,
   TrendingUp,
+  BriefcaseBusiness,
+  Gamepad2,
+  CalendarDays,
+  Coins,
 } from 'lucide-react'
 import { firstMission } from '../../data/missions'
+import { xpNeededForNextLevel } from '../../domain/progression'
 import { demoStudentProfile, weeklyChallenge } from '../../data/studentDemo'
 import { useProgressionStore } from '../../store/progression'
 
@@ -18,13 +23,19 @@ export function HomeScreen({
   onContinueSmartMart,
   onOpenMission,
   onOpenLeaderboard,
+  onOpenMissions,
 }: {
   onContinueSmartMart: () => void
   onOpenMission: () => void
   onOpenLeaderboard: () => void
+  onOpenMissions: () => void
 }) {
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const completedMissionIds = useProgressionStore((state) => state.completedMissionIds)
+  const level = useProgressionStore((state) => state.level)
+  const levelXp = useProgressionStore((state) => state.levelXp)
+  const coins = useProgressionStore((state) => state.coins)
+  const nextLevelXp = xpNeededForNextLevel(level)
 
   const smartMartProgress = Math.round((unlockedStalls.length / 5) * 100)
   const missionUnlocked = unlockedStalls.length >= 5
@@ -101,8 +112,8 @@ export function HomeScreen({
             </div>
             <div>
               <span>Cấp độ</span>
-              <strong>Lv. {demoStudentProfile.level}</strong>
-              <small>{demoStudentProfile.xp}/{demoStudentProfile.nextLevelXp} XP</small>
+              <strong>Lv. {level}</strong>
+              <small>{levelXp}/{nextLevelXp} XP</small>
             </div>
           </article>
 
@@ -118,6 +129,34 @@ export function HomeScreen({
           </article>
         </aside>
       </div>
+
+      <section className="home-mode-hub">
+        <header>
+          <div>
+            <p className="page-kicker">CHỌN CÁCH CHƠI</p>
+            <h2>Mỗi chế độ có một nhịp khác nhau</h2>
+          </div>
+          <span className="home-coins"><Coins size={18} />{coins.toLocaleString('vi-VN')} xu</span>
+        </header>
+        <div className="home-mode-grid">
+          <button type="button" onClick={onContinueSmartMart}>
+            <Map size={24} />
+            <span><strong>Adventure</strong><small>Giải Toán, mở gian và đi theo hành trình.</small></span>
+          </button>
+          <button type="button" onClick={onContinueSmartMart}>
+            <Gamepad2 size={24} />
+            <span><strong>Practice</strong><small>Luyện lại gian đã mở, retry miễn phí.</small></span>
+          </button>
+          <button type="button" onClick={onOpenMissions}>
+            <BriefcaseBusiness size={24} />
+            <span><strong>Work</strong><small>Nhập vai nhân viên, trade-off và hậu quả ẩn.</small></span>
+          </button>
+          <button type="button" onClick={onOpenLeaderboard}>
+            <CalendarDays size={24} />
+            <span><strong>Daily / Class Challenge</strong><small>Challenge cùng seed để so kỷ lục và săn 5 sao.</small></span>
+          </button>
+        </div>
+      </section>
 
       <div className="home-secondary-grid">
         <article className="home-mission-card">
