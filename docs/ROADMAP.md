@@ -86,6 +86,25 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 - [ ] cosmetic coin sinks
 - [ ] level-up celebration / reward presentation polish
 
+## P2.6 — SmartMart depth
+
+- [x] Shopping Mission soft clue
+- [x] persistent live Mission event engine
+- [x] people/budget/product-availability event types
+- [x] 16 Work Mode scenarios
+- [x] Work Shift 03 · Cuối tuần cao điểm
+- [x] guaranteed difficulty-3 incident in expert shift
+- [x] Weekly Arena deterministic engine
+- [x] Weekly Arena 6 Math + 2 Scenario
+- [x] shared Supabase weekly leaderboard
+- [x] anonymous public player codes
+- [x] same-seed/no-paid-retry fairness rule
+- [ ] 30+ reviewed scenarios
+- [ ] 8+ distinct Shopping Missions
+- [ ] 5+ Work Shifts
+- [ ] class-scoped leaderboard
+- [ ] server-side challenge verification / anti-cheat hardening
+
 ## P3 — Cloud identity & progression
 
 - [ ] profiles
@@ -142,5 +161,5 @@ Chưa ưu tiên trước Production v1:
 - Weekend Market gameplay;
 - social/multiplayer;
 - monetization;
-- advanced leaderboard;
+- gameplay cho các map ngoài SmartMart trước depth gate;
 - microservices/K8s.
