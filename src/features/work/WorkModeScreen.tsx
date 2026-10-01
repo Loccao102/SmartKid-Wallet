@@ -527,7 +527,14 @@ export function WorkModeScreen({
         objectives: hiddenScore.objectives,
       },
       result: {
-        metrics: nextProgress.metrics,
+        metrics: {
+          employeeRating: nextProgress.metrics.employeeRating,
+          storeReputation: nextProgress.metrics.storeReputation,
+          customerSatisfaction: nextProgress.metrics.customerSatisfaction,
+          revenue: nextProgress.metrics.revenue,
+          servedCustomers: nextProgress.metrics.servedCustomers,
+          mathMistakes: nextProgress.metrics.mathMistakes,
+        },
         managerPlanId: nextProgress.managerPlanId ?? null,
         resolvedConsequences:
           nextProgress.worldState.resolvedConsequences.length,
