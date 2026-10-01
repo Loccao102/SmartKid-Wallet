@@ -115,6 +115,102 @@ export type Database = {
           },
         ]
       }
+      parent_link_codes: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string
+          link_code: string
+          student_id: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at: string
+          link_code: string
+          student_id: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          link_code?: string
+          student_id?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_link_codes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+          {
+            foreignKeyName: "parent_link_codes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
+      }
+      parent_profiles: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          display_name: string
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          display_name: string
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          display_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      parent_student_links: {
+        Row: {
+          linked_at: string
+          parent_id: string
+          student_id: string
+        }
+        Insert: {
+          linked_at?: string
+          parent_id: string
+          student_id: string
+        }
+        Update: {
+          linked_at?: string
+          parent_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parent_student_links_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: true
+            referencedRelation: "parent_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+          {
+            foreignKeyName: "parent_student_links_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
+      }
       research_events: {
         Row: {
           after_state: Json | null
@@ -210,6 +306,79 @@ export type Database = {
           submitted_answer?: number | null
         }
         Relationships: []
+      }
+      student_activity_submissions: {
+        Row: {
+          activity_kind: string
+          assignment_id: string | null
+          attempt_number: number
+          cart: Json | null
+          classroom_id: string
+          content_id: string
+          created_at: string
+          criteria: Json
+          elapsed_ms: number | null
+          result: Json | null
+          score: number
+          stars: number
+          student_id: string
+          submission_id: string
+        }
+        Insert: {
+          activity_kind: string
+          assignment_id?: string | null
+          attempt_number: number
+          cart?: Json | null
+          classroom_id: string
+          content_id: string
+          created_at?: string
+          criteria?: Json
+          elapsed_ms?: number | null
+          result?: Json | null
+          score: number
+          stars: number
+          student_id: string
+          submission_id?: string
+        }
+        Update: {
+          activity_kind?: string
+          assignment_id?: string | null
+          attempt_number?: number
+          cart?: Json | null
+          classroom_id?: string
+          content_id?: string
+          created_at?: string
+          criteria?: Json
+          elapsed_ms?: number | null
+          result?: Json | null
+          score?: number
+          stars?: number
+          student_id?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_activity_submissions_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_assignments"
+            referencedColumns: ["assignment_id"]
+          },
+          {
+            foreignKeyName: "student_activity_submissions_classroom_id_fkey"
+            columns: ["classroom_id"]
+            isOneToOne: false
+            referencedRelation: "classrooms"
+            referencedColumns: ["classroom_id"]
+          },
+          {
+            foreignKeyName: "student_activity_submissions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
       }
       student_learning_snapshots: {
         Row: {
@@ -319,6 +488,68 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      teacher_reviews: {
+        Row: {
+          assignment_id: string | null
+          comment: string
+          created_at: string
+          review_id: string
+          student_id: string
+          submission_id: string | null
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          assignment_id?: string | null
+          comment: string
+          created_at?: string
+          review_id?: string
+          student_id: string
+          submission_id?: string | null
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string | null
+          comment?: string
+          created_at?: string
+          review_id?: string
+          student_id?: string
+          submission_id?: string | null
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_reviews_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "weekly_assignments"
+            referencedColumns: ["assignment_id"]
+          },
+          {
+            foreignKeyName: "teacher_reviews_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "student_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+          {
+            foreignKeyName: "teacher_reviews_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "student_activity_submissions"
+            referencedColumns: ["submission_id"]
+          },
+          {
+            foreignKeyName: "teacher_reviews_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
+            referencedColumns: ["auth_user_id"]
+          },
+        ]
       }
       weekly_assignments: {
         Row: {
