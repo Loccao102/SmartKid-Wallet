@@ -25,6 +25,7 @@ import {
   UsersRound,
   X,
 } from 'lucide-react'
+import { products } from '../data/products'
 import {
   bestAttemptsForAssignment,
   rankClassAssignment,
@@ -37,10 +38,13 @@ import type {
   StudentProfileRow,
   TeacherWorkspace,
   WeeklyAssignmentRow,
+  StudentActivitySubmissionRow,
 } from '../lib/teacherRemote'
 import {
   createClassroom,
+  createParentLinkCode,
   createStudentAccount,
+  createTeacherReview,
   createTeacherAssignment,
   fetchStudentResearchEvents,
   fetchTeacherWorkspace,
@@ -402,6 +406,38 @@ function ClassStudentOverview({
     const snapshot = snapshotByStudent.get(student.auth_user_id)
     const bestAttempt = bestAttempts.get(student.auth_user_id)
     const skills = masteryEntries(snapshot)
+  const submissions = workspace.submissions.filter(
+    (item) => item.student_id === studentId,
+  )
+  const reviews = workspace.reviews.filter(
+    (item) => item.student_id === studentId,
+  )
+  const selectedSubmission =
+    submissions.find((item) => item.submission_id === selectedSubmissionId) ??
+    submissions[0]
+
+  const saveReview = async () => {
+    if (!student || !reviewText.trim()) return
+    setReviewBusy(true)
+    try {
+      await createTeacherReview({
+        studentId: student.auth_user_id,
+        comment: reviewText,
+        submissionId: selectedSubmission?.submission_id,
+        assignmentId: selectedSubmission?.assignment_id ?? undefined,
+      })
+      setReviewText('')
+      onRefresh()
+    } finally {
+      setReviewBusy(false)
+    }
+  }
+
+  const makeParentCode = async () => {
+    if (!student) return
+    const code = await createParentLinkCode(student.auth_user_id)
+    setParentCode(code.link_code)
+  }
     const masteryAverage = skills.length
       ? average(skills.map((skill) => skill.score))
       : null
@@ -896,6 +932,18 @@ function AssignmentCreatePanel({
           </button>
         </header>
         <form onSubmit={submit}>
+          <label>
+            Bộ nội dung
+            <select value="smartmart-standard" disabled>
+              <option value="smartmart-standard">
+                SmartMart chuẩn · 6 câu Toán + 2 tình huống
+              </option>
+            </select>
+            <small>
+              Bộ câu hỏi và tình huống đã cấu hình; mọi học sinh trong lớp nhận
+              cùng một đề.
+            </small>
+          </label>
           <label>
             Tên bài
             <input value={title} onChange={(event) => setTitle(event.target.value)} required />
@@ -1492,16 +1540,100 @@ function masteryEntries(snapshot?: StudentLearningSnapshotRow) {
     .sort((a, b) => a.score - b.score)
 }
 
+
+const criteriaLabels: Record<string, string> = {
+  accuracy: 'Chính xác',
+  time: 'Thời gian',
+  resources: 'Tài nguyên',
+  decisions: 'Lựa chọn',
+  objectives: 'Mục tiêu',
+}
+
+function asRecord(value: unknown) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {}
+}
+
+function submissionTitle(submission: StudentActivitySubmissionRow) {
+  if (submission.activity_kind === 'class_assignment') return 'Assignment lớp'
+  if (submission.activity_kind === 'shopping_mission') return 'Nhiệm vụ mua sắm'
+  return 'Ca làm SmartMart'
+}
+
+function SubmissionDetail({
+  submission,
+}: {
+  submission: StudentActivitySubmissionRow
+}) {
+  const criteria = asRecord(submission.criteria)
+  const result = asRecord(submission.result)
+  const cart = Array.isArray(submission.cart) ? submission.cart : []
+  const productById = new Map(products.map((product) => [product.id, product]))
+
+  return (
+    <div className="teacher-submission-detail">
+      <div className="teacher-submission-rubric">
+        {Object.entries(criteria).map(([key, value]) => (
+          <div key={key}>
+            <span>{criteriaLabels[key] ?? key}</span>
+            <strong>{Math.round(Number(value) * 10) / 10}</strong>
+          </div>
+        ))}
+      </div>
+
+      {cart.length ? (
+        <div className="teacher-cart-review">
+          <strong>Giỏ hàng đã chọn</strong>
+          <div>
+            {cart.map((raw, index) => {
+              const line = asRecord(raw)
+              const product = productById.get(String(line.productId ?? ''))
+              const quantity = Number(line.quantity ?? 0)
+              return (
+                <span key={String(line.productId ?? index)}>
+                  {product?.name ?? String(line.productId ?? 'Sản phẩm')}
+                  <b>×{quantity}</b>
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {Object.keys(result).length ? (
+        <div className="teacher-result-facts">
+          {Object.entries(result)
+            .filter(
+              ([key, value]) =>
+                ['string', 'number', 'boolean'].includes(typeof value) &&
+                !['choiceIds'].includes(key),
+            )
+            .slice(0, 8)
+            .map(([key, value]) => (
+              <span key={key}>
+                {key}
+                <strong>{String(value)}</strong>
+              </span>
+            ))}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 function StudentsPage({
   workspace,
   selectedClass,
   onSelectClass,
   focusStudentId,
+  onRefresh,
 }: {
   workspace: TeacherWorkspace
   selectedClass?: ClassroomRow
   onSelectClass: (id: string) => void
   focusStudentId?: string
+  onRefresh: () => void
 }) {
   const students = selectedClass
     ? workspace.students.filter((item) => item.classroom_id === selectedClass.classroom_id)
@@ -1509,6 +1641,10 @@ function StudentsPage({
   const [studentId, setStudentId] = useState(students[0]?.auth_user_id ?? '')
   const [events, setEvents] = useState<ResearchEventRow[]>([])
   const [eventsLoading, setEventsLoading] = useState(false)
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState('')
+  const [reviewText, setReviewText] = useState('')
+  const [reviewBusy, setReviewBusy] = useState(false)
+  const [parentCode, setParentCode] = useState('')
 
   useEffect(() => {
     if (
@@ -1659,6 +1795,116 @@ function StudentsPage({
                 ) : (
                   <p className="teacher-muted">Học sinh chưa nộp bài lớp nào.</p>
                 )}
+              </section>
+
+              <section className="teacher-subsection">
+                <header>
+                  <h3>Lượt làm chi tiết</h3>
+                  <span>{submissions.length} lượt đã đồng bộ</span>
+                </header>
+                {submissions.length ? (
+                  <>
+                    <div className="teacher-submission-list">
+                      {submissions.slice(0, 10).map((submission) => (
+                        <button
+                          key={submission.submission_id}
+                          type="button"
+                          className={
+                            selectedSubmission?.submission_id ===
+                            submission.submission_id
+                              ? 'is-active'
+                              : ''
+                          }
+                          onClick={() =>
+                            setSelectedSubmissionId(submission.submission_id)
+                          }
+                        >
+                          <span>
+                            <strong>{submissionTitle(submission)}</strong>
+                            <small>
+                              Lượt {submission.attempt_number} ·{' '}
+                              {formatDateTime(submission.created_at)}
+                            </small>
+                          </span>
+                          <b>{formatScore(Number(submission.score))}</b>
+                          <em>{submission.stars}/5 ★</em>
+                        </button>
+                      ))}
+                    </div>
+                    {selectedSubmission ? (
+                      <SubmissionDetail submission={selectedSubmission} />
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="teacher-muted">
+                    Chưa có lượt chơi chi tiết được đồng bộ từ tài khoản lớp.
+                  </p>
+                )}
+              </section>
+
+              <section className="teacher-subsection">
+                <header>
+                  <h3>Nhận xét giáo viên</h3>
+                  <span>{reviews.length} nhận xét</span>
+                </header>
+                <div className="teacher-review-compose">
+                  <textarea
+                    rows={3}
+                    value={reviewText}
+                    onChange={(event) => setReviewText(event.target.value)}
+                    placeholder="Ví dụ: Con tính tiền khá chắc, nhưng cần cân nhắc ngân sách dự phòng tốt hơn..."
+                  />
+                  <button
+                    type="button"
+                    className="teacher-primary"
+                    disabled={reviewBusy || !reviewText.trim()}
+                    onClick={() => void saveReview()}
+                  >
+                    {reviewBusy ? 'Đang lưu…' : 'Ghi nhận xét'}
+                  </button>
+                </div>
+                {reviews.length ? (
+                  <div className="teacher-review-list">
+                    {reviews.slice(0, 6).map((review) => (
+                      <article key={review.review_id}>
+                        <p>{review.comment}</p>
+                        <span>{formatDateTime(review.created_at)}</span>
+                      </article>
+                    ))}
+                  </div>
+                ) : null}
+              </section>
+
+              <section className="teacher-subsection">
+                <header>
+                  <h3>Liên kết phụ huynh</h3>
+                  <span>Mỗi tài khoản phụ huynh liên kết một học sinh</span>
+                </header>
+                <div className="teacher-parent-link">
+                  <div>
+                    <strong>{parentCode || 'Chưa tạo mã liên kết mới'}</strong>
+                    <span>
+                      Mã dùng một lần, hết hạn sau 7 ngày.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="teacher-secondary"
+                    onClick={() => void makeParentCode()}
+                  >
+                    <KeyRound size={16} />
+                    Tạo mã phụ huynh
+                  </button>
+                  {parentCode ? (
+                    <button
+                      type="button"
+                      className="teacher-secondary"
+                      onClick={() => void navigator.clipboard.writeText(parentCode)}
+                    >
+                      <Copy size={16} /> Sao chép
+                    </button>
+                  ) : null}
+                </div>
               </section>
 
               <section className="teacher-subsection">
@@ -1864,6 +2110,7 @@ export function TeacherApp() {
             selectedClass={selectedClass}
             onSelectClass={setSelectedClassId}
             focusStudentId={focusedStudentId}
+            onRefresh={() => void load()}
           />
         )}
       </main>
