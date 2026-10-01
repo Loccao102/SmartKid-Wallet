@@ -52,6 +52,7 @@ import type {
   WorkWorldFlag,
 } from '../../domain/types'
 import { playGameSfx } from '../../lib/audioEngine'
+import { submitStudentActivity } from '../../lib/activityRemote'
 import { useLearningProfileStore } from '../../store/learningProfile'
 import { useProgressionStore } from '../../store/progression'
 import { useResearchLogStore } from '../../store/researchLog'
@@ -501,16 +502,46 @@ export function WorkModeScreen({
       nextProgress,
       (scenarioId) => getWorkScenario(scenarioId),
     )
+    const elapsedMs = Math.max(
+      0,
+      (nextProgress.completedAtEpochMs ?? Date.now()) -
+        (nextProgress.startedAtEpochMs ?? Date.now()),
+    )
     recordActivityResult(
       'work:' + shift.id,
       hiddenScore.stars,
       hiddenScore.total,
-      Math.max(
-        0,
-        (nextProgress.completedAtEpochMs ?? Date.now()) -
-          (nextProgress.startedAtEpochMs ?? Date.now()),
-      ),
+      elapsedMs,
     )
+    void submitStudentActivity({
+      activityKind: 'work_shift',
+      contentId: shift.id,
+      score: hiddenScore.total,
+      stars: hiddenScore.stars,
+      elapsedMs,
+      criteria: {
+        accuracy: hiddenScore.accuracy,
+        time: hiddenScore.time,
+        resources: hiddenScore.resources,
+        decisions: hiddenScore.decisions,
+        objectives: hiddenScore.objectives,
+      },
+      result: {
+        metrics: {
+          employeeRating: nextProgress.metrics.employeeRating,
+          storeReputation: nextProgress.metrics.storeReputation,
+          customerSatisfaction: nextProgress.metrics.customerSatisfaction,
+          revenue: nextProgress.metrics.revenue,
+          servedCustomers: nextProgress.metrics.servedCustomers,
+          mathMistakes: nextProgress.metrics.mathMistakes,
+        },
+        managerPlanId: nextProgress.managerPlanId ?? null,
+        resolvedConsequences:
+          nextProgress.worldState.resolvedConsequences.length,
+        resolvedStoryFollowUps:
+          nextProgress.worldState.resolvedFollowUps.length,
+      },
+    }).catch(() => undefined)
     const xpResult = awardXpOnce('work:' + shift.id, 90)
     if (xpResult?.levelsGained) playGameSfx('level-up')
     else if (xpResult) playGameSfx('xp')

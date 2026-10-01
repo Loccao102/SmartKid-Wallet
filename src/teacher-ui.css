@@ -1856,3 +1856,239 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+.teacher-submission-list {
+  display: grid;
+  gap: 7px;
+}
+
+.teacher-submission-list button {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px 58px;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid #dfe7e3;
+  border-radius: 11px;
+  background: #fbfcfb;
+  color: var(--teacher-ink);
+  text-align: left;
+}
+
+.teacher-submission-list button.is-active {
+  border-color: #78a392;
+  background: #edf5f1;
+}
+
+.teacher-submission-list button span strong,
+.teacher-submission-list button span small {
+  display: block;
+}
+
+.teacher-submission-list button span strong {
+  font-size: 10px;
+}
+
+.teacher-submission-list button span small {
+  margin-top: 2px;
+  color: #83918b;
+  font-size: 8px;
+}
+
+.teacher-submission-list button > b {
+  color: #2f6f5d;
+  font-size: 16px;
+  text-align: right;
+}
+
+.teacher-submission-list button > em {
+  color: #b27e1c;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.teacher-submission-detail {
+  display: grid;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid #e2e9e5;
+  border-radius: 12px;
+  background: #f8faf9;
+}
+
+.teacher-submission-rubric {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.teacher-submission-rubric > div {
+  padding: 9px;
+  border-radius: 9px;
+  background: white;
+}
+
+.teacher-submission-rubric span,
+.teacher-submission-rubric strong {
+  display: block;
+}
+
+.teacher-submission-rubric span {
+  color: #7e8b85;
+  font-size: 8px;
+}
+
+.teacher-submission-rubric strong {
+  margin-top: 3px;
+  color: #315c4e;
+  font-size: 15px;
+}
+
+.teacher-cart-review {
+  display: grid;
+  gap: 7px;
+}
+
+.teacher-cart-review > strong {
+  font-size: 10px;
+}
+
+.teacher-cart-review > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.teacher-cart-review span {
+  display: inline-flex;
+  gap: 5px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: #eef4f1;
+  color: #5d746b;
+  font-size: 8px;
+}
+
+.teacher-result-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.teacher-result-facts span {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #fff;
+  color: #84918b;
+  font-size: 7px;
+}
+
+.teacher-result-facts strong {
+  color: #49675c;
+  font-size: 10px;
+}
+
+.teacher-review-compose {
+  display: grid;
+  gap: 7px;
+}
+
+.teacher-review-compose textarea {
+  min-height: 82px;
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #d4dfd9;
+  border-radius: 10px;
+  outline: 0;
+  resize: vertical;
+  color: var(--teacher-ink);
+  font: inherit;
+  font-size: 10px;
+}
+
+.teacher-review-compose textarea:focus {
+  border-color: #78a392;
+  box-shadow: 0 0 0 4px rgba(47,111,93,.08);
+}
+
+.teacher-review-compose .teacher-primary {
+  justify-self: end;
+}
+
+.teacher-review-list {
+  display: grid;
+  gap: 6px;
+}
+
+.teacher-review-list article {
+  padding: 9px 10px;
+  border-left: 3px solid #79a393;
+  border-radius: 8px;
+  background: #f6f9f7;
+}
+
+.teacher-review-list p {
+  margin: 0;
+  color: #4f655d;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.teacher-review-list span {
+  display: block;
+  margin-top: 4px;
+  color: #8a9691;
+  font-size: 7px;
+}
+
+.teacher-parent-link {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #dce5e0;
+  border-radius: 11px;
+  background: #f8faf9;
+}
+
+.teacher-parent-link strong,
+.teacher-parent-link span {
+  display: block;
+}
+
+.teacher-parent-link strong {
+  color: #2f6f5d;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  letter-spacing: .08em;
+}
+
+.teacher-parent-link span {
+  margin-top: 2px;
+  color: #87938e;
+  font-size: 8px;
+}
+
+@media (max-width: 780px) {
+  .teacher-submission-rubric {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-result-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-parent-link {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-parent-link .teacher-secondary {
+    width: 100%;
+  }
+}

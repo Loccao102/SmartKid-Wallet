@@ -7,6 +7,7 @@ import { stalls } from '../../data/stalls'
 import { evaluateMission } from '../../domain/missionEngine'
 import { scoreShoppingMission, type HiddenScoreBreakdown } from '../../domain/scoring'
 import { playGameSfx } from '../../lib/audioEngine'
+import { submitStudentActivity } from '../../lib/activityRemote'
 import type { CartLine, ProductStallId } from '../../domain/types'
 import { useMissionCartStore } from '../../store/missionCart'
 import { useProgressionStore } from '../../store/progression'
@@ -114,6 +115,35 @@ export function ClassPartyMissionScreen({ missionId = firstMission.id, onBack, i
         result.total,
         elapsedMs,
       )
+
+      void submitStudentActivity({
+        activityKind: 'shopping_mission',
+        contentId: mission.id,
+        score: result.total,
+        stars: result.stars,
+        elapsedMs,
+        criteria: {
+          accuracy: result.accuracy,
+          time: result.time,
+          resources: result.resources,
+          decisions: result.decisions,
+          objectives: result.objectives,
+        },
+        cart: cart.map((line) => ({
+          productId: line.productId,
+          quantity: line.quantity,
+        })),
+        result: {
+          spent: evaluation.spent,
+          remaining: evaluation.remaining,
+          effectivePeople: evaluation.effectivePeople,
+          effectiveBudget: evaluation.effectiveBudget,
+          coverageByStall: evaluation.coverageByStall,
+          softGoalResults: evaluation.softGoalResults,
+          activeEventIds: evaluation.activeEventIds,
+          checkoutAttempts: nextAttempts,
+        },
+      }).catch(() => undefined)
 
       if (mission.coinReward) {
         claimChallengeReward(
