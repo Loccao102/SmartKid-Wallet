@@ -406,38 +406,6 @@ function ClassStudentOverview({
     const snapshot = snapshotByStudent.get(student.auth_user_id)
     const bestAttempt = bestAttempts.get(student.auth_user_id)
     const skills = masteryEntries(snapshot)
-  const submissions = workspace.submissions.filter(
-    (item) => item.student_id === studentId,
-  )
-  const reviews = workspace.reviews.filter(
-    (item) => item.student_id === studentId,
-  )
-  const selectedSubmission =
-    submissions.find((item) => item.submission_id === selectedSubmissionId) ??
-    submissions[0]
-
-  const saveReview = async () => {
-    if (!student || !reviewText.trim()) return
-    setReviewBusy(true)
-    try {
-      await createTeacherReview({
-        studentId: student.auth_user_id,
-        comment: reviewText,
-        submissionId: selectedSubmission?.submission_id,
-        assignmentId: selectedSubmission?.assignment_id ?? undefined,
-      })
-      setReviewText('')
-      onRefresh()
-    } finally {
-      setReviewBusy(false)
-    }
-  }
-
-  const makeParentCode = async () => {
-    if (!student) return
-    const code = await createParentLinkCode(student.auth_user_id)
-    setParentCode(code.link_code)
-  }
     const masteryAverage = skills.length
       ? average(skills.map((skill) => skill.score))
       : null
@@ -1689,6 +1657,38 @@ function StudentsPage({
   const correctEvents = mathEvents.filter((event) => event.correct === true)
   const firstTry = correctEvents.filter((event) => event.attempt_number === 1)
   const skills = masteryEntries(snapshot)
+  const submissions = workspace.submissions.filter(
+    (item) => item.student_id === studentId,
+  )
+  const reviews = workspace.reviews.filter(
+    (item) => item.student_id === studentId,
+  )
+  const selectedSubmission =
+    submissions.find((item) => item.submission_id === selectedSubmissionId) ??
+    submissions[0]
+
+  const saveReview = async () => {
+    if (!student || !reviewText.trim()) return
+    setReviewBusy(true)
+    try {
+      await createTeacherReview({
+        studentId: student.auth_user_id,
+        comment: reviewText,
+        submissionId: selectedSubmission?.submission_id,
+        assignmentId: selectedSubmission?.assignment_id ?? undefined,
+      })
+      setReviewText('')
+      onRefresh()
+    } finally {
+      setReviewBusy(false)
+    }
+  }
+
+  const makeParentCode = async () => {
+    if (!student) return
+    const code = await createParentLinkCode(student.auth_user_id)
+    setParentCode(code.link_code)
+  }
 
   return (
     <div className="teacher-page-stack">
