@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { App } from './App'
 import { TeacherApp } from './teacher/TeacherApp'
+import { ParentApp } from './parent/ParentApp'
 import './styles.css'
 import './production-ui.css'
 import './shopping-ui.css'
@@ -16,6 +17,7 @@ import './market-ui.css'
 import './world-chapter-ui.css'
 import './teacher-ui.css'
 import './classroom-ui.css'
+import './parent-ui.css'
 
 const queryClient = new QueryClient()
 
@@ -46,7 +48,13 @@ if (!resetDemoStorageFromUrl()) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      {window.location.pathname.startsWith('/teacher') ? <TeacherApp /> : <App />}
+      {window.location.pathname.startsWith('/teacher') ? (
+        <TeacherApp />
+      ) : window.location.pathname.startsWith('/parent') ? (
+        <ParentApp />
+      ) : (
+        <App />
+      )}
     </QueryClientProvider>
   </StrictMode>,
 )
