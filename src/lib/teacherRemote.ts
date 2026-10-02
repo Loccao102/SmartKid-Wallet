@@ -11,6 +11,9 @@ export type WeeklyAssignmentRow = Tables<'weekly_assignments'>
 export type AssignmentAttemptRow = Tables<'assignment_attempts'>
 export type StudentLearningSnapshotRow = Tables<'student_learning_snapshots'>
 export type ResearchEventRow = Tables<'research_events'>
+export type StudentActivitySubmissionRow = Tables<'student_activity_submissions'>
+export type TeacherReviewRow = Tables<'teacher_reviews'>
+export type ParentLinkCodeRow = Tables<'parent_link_codes'>
 
 export interface TeacherWorkspace {
   teacher: TeacherProfileRow
@@ -19,6 +22,8 @@ export interface TeacherWorkspace {
   assignments: WeeklyAssignmentRow[]
   attempts: AssignmentAttemptRow[]
   snapshots: StudentLearningSnapshotRow[]
+  submissions: StudentActivitySubmissionRow[]
+  reviews: TeacherReviewRow[]
 }
 
 function requireSupabase() {
@@ -45,7 +50,10 @@ export async function getTeacherUser(): Promise<User | null> {
 
   const user = session?.user ?? null
   if (!user || user.is_anonymous) return null
-  if (user.app_metadata?.app_role === 'student') return null
+  if (
+    user.app_metadata?.app_role === 'student' ||
+    user.app_metadata?.app_role === 'parent'
+  ) return null
   return user
 }
 
@@ -68,9 +76,12 @@ export async function signInTeacher(email: string, password: string) {
     password,
   })
   if (error) throw error
-  if (data.user.app_metadata?.app_role === 'student') {
+  if (
+    data.user.app_metadata?.app_role === 'student' ||
+    data.user.app_metadata?.app_role === 'parent'
+  ) {
     await client.auth.signOut()
-    throw new Error('Đây là tài khoản học sinh, không phải tài khoản giáo viên.')
+    throw new Error('Tài khoản này không có quyền giáo viên.')
   }
 
   await ensureTeacherProfile(
@@ -180,6 +191,8 @@ export async function fetchTeacherWorkspace(): Promise<TeacherWorkspace> {
       assignments: [],
       attempts: [],
       snapshots: [],
+      submissions: [],
+      reviews: [],
     }
   }
 
@@ -204,7 +217,12 @@ export async function fetchTeacherWorkspace(): Promise<TeacherWorkspace> {
   const assignmentIds = assignments.map((item) => item.assignment_id)
   const studentIds = students.map((item) => item.auth_user_id)
 
-  const [attemptsResult, snapshotsResult] = await Promise.all([
+  const [
+    attemptsResult,
+    snapshotsResult,
+    submissionsResult,
+    reviewsResult,
+  ] = await Promise.all([
     assignmentIds.length
       ? client
           .from('assignment_attempts')
@@ -218,10 +236,26 @@ export async function fetchTeacherWorkspace(): Promise<TeacherWorkspace> {
           .select('*')
           .in('auth_user_id', studentIds)
       : Promise.resolve({ data: [], error: null }),
+    studentIds.length
+      ? client
+          .from('student_activity_submissions')
+          .select('*')
+          .in('student_id', studentIds)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
+    studentIds.length
+      ? client
+          .from('teacher_reviews')
+          .select('*')
+          .in('student_id', studentIds)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
   ])
 
   if (attemptsResult.error) throw attemptsResult.error
   if (snapshotsResult.error) throw snapshotsResult.error
+  if (submissionsResult.error) throw submissionsResult.error
+  if (reviewsResult.error) throw reviewsResult.error
 
   return {
     teacher,
@@ -230,6 +264,8 @@ export async function fetchTeacherWorkspace(): Promise<TeacherWorkspace> {
     assignments,
     attempts: attemptsResult.data ?? [],
     snapshots: snapshotsResult.data ?? [],
+    submissions: submissionsResult.data ?? [],
+    reviews: reviewsResult.data ?? [],
   }
 }
 
@@ -420,4 +456,68 @@ export function parseAssignmentChallenge(
   assignment: WeeklyAssignmentRow,
 ): WeeklyChallengeDefinition {
   return assignment.challenge_json as unknown as WeeklyChallengeDefinition
+}
+
+
+function generateParentLinkCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const bytes = new Uint32Array(10)
+  crypto.getRandomValues(bytes)
+  return Array.from(
+    bytes,
+    (value) => alphabet[value % alphabet.length],
+  ).join('')
+}
+
+export async function createParentLinkCode(studentId: string) {
+  const client = requireSupabase()
+  const user = await getTeacherUser()
+  if (!user) throw new Error('Cần đăng nhập bằng tài khoản giáo viên.')
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const linkCode = generateParentLinkCode()
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+
+    const { data, error } = await client
+      .from('parent_link_codes')
+      .insert({
+        link_code: linkCode,
+        student_id: studentId,
+        created_by: user.id,
+        expires_at: expiresAt.toISOString(),
+      })
+      .select()
+      .single()
+
+    if (!error) return data
+    if (error.code !== '23505') throw error
+  }
+
+  throw new Error('Không tạo được mã liên kết. Hãy thử lại.')
+}
+
+export async function createTeacherReview(input: {
+  studentId: string
+  comment: string
+  submissionId?: string
+  assignmentId?: string
+}) {
+  const client = requireSupabase()
+  const user = await getTeacherUser()
+  if (!user) throw new Error('Cần đăng nhập bằng tài khoản giáo viên.')
+
+  const { data, error } = await client
+    .from('teacher_reviews')
+    .insert({
+      teacher_id: user.id,
+      student_id: input.studentId,
+      submission_id: input.submissionId ?? null,
+      assignment_id: input.assignmentId ?? null,
+      comment: input.comment.trim(),
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
 }

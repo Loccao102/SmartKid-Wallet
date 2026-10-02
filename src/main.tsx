@@ -15,9 +15,11 @@ import './market-ui.css'
 import './world-chapter-ui.css'
 import './teacher-ui.css'
 import './classroom-ui.css'
+import './parent-ui.css'
 
 const queryClient = new QueryClient()
 const TeacherApp = lazy(() => import('./teacher/TeacherApp').then(m => ({ default: m.TeacherApp })))
+const ParentApp = lazy(() => import('./parent/ParentApp').then(m => ({ default: m.ParentApp })))
 
 function resetDemoStorageFromUrl() {
   const url = new URL(window.location.href)
@@ -47,7 +49,13 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Suspense fallback={<p role="status">Đang mở SmartKid Wallet…</p>}>
-        {window.location.pathname.startsWith('/teacher') ? <TeacherApp /> : <App />}
+      {window.location.pathname.startsWith('/teacher') ? (
+        <TeacherApp />
+      ) : window.location.pathname.startsWith('/parent') ? (
+        <ParentApp />
+      ) : (
+        <App />
+      )}
       </Suspense>
     </QueryClientProvider>
   </StrictMode>,

@@ -337,6 +337,7 @@ export function App() {
         <span>SmartKid Wallet</span>
         <span>Học từng chút · Lớn mỗi ngày</span>
         <a href="/teacher">Dành cho giáo viên</a>
+        <a href="/parent">Dành cho phụ huynh</a>
       </footer>
     </div>
   )

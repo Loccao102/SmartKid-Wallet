@@ -201,6 +201,7 @@ Không gán skill không liên quan vào stall.
 - Character/avatar system: docs/CHARACTER_SYSTEM.md
 - World/map extension architecture: docs/WORLD_CHAPTER_CORE.md
 - Teacher/classroom architecture: docs/TEACHER_CONSOLE.md
+- Parent/review architecture: docs/PARENT_PORTAL.md
 - Astra UI implementation brief: docs/ASTRA_UI_BRIEF.md
 
 
@@ -221,3 +222,13 @@ Không gán skill không liên quan vào stall.
 - Teacher Assignment dùng cùng một đề/variant cho cả lớp; Public Weekly Arena có thể dùng variant riêng.
 - Learning snapshot là formative analytics, không coi là dữ liệu chấm thi authoritative.
 - Xem `docs/TEACHER_CONSOLE.md` trước khi sửa auth, lớp, assignment hoặc teacher analytics.
+
+
+## Parent / Teacher Review Privacy
+
+- Parent chỉ được đọc dữ liệu của student đã liên kết qua `parent_student_links`.
+- Mã liên kết phụ huynh phải dùng một lần và có hạn; redeem qua server/Edge Function.
+- Không expose tên thật, review hoặc parent link ra public leaderboard.
+- Gameplay mới nên submit kết quả chi tiết qua `student_activity_submissions` thay vì tạo bảng kết quả riêng nếu không cần thiết.
+- Teacher review là dữ liệu riêng của lớp, không dùng làm public score.
+- Xem `docs/PARENT_PORTAL.md` trước khi sửa parent auth, review hoặc detailed submissions.

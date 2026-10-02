@@ -23,6 +23,7 @@ import {
   type WeeklyChallengeRunScore,
 } from '../../domain/weeklyChallenge'
 import type { WorkScenarioChoice } from '../../domain/types'
+import { submitStudentActivity } from '../../lib/activityRemote'
 import {
   fetchStudentAssignments,
   parseAssignmentChallenge,
@@ -171,6 +172,27 @@ function ClassAssignmentPlay({
           choiceIds: finalChoiceIds,
           attemptCounts,
           sharedVariantKey,
+        },
+      })
+
+      await submitStudentActivity({
+        activityKind: 'class_assignment',
+        contentId: assignment.assignment_id,
+        assignmentId: assignment.assignment_id,
+        score: score.total,
+        stars: score.stars,
+        elapsedMs: elapsed,
+        criteria: {
+          accuracy: score.accuracy,
+          decisions: score.decisions,
+          time: score.time,
+        },
+        result: {
+          firstTryCorrect,
+          totalQuestions: exercises.length,
+          totalMathAttempts,
+          choiceIds: finalChoiceIds,
+          decisionQuality: score.decisionQuality,
         },
       })
 
