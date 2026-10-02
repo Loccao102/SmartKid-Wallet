@@ -1,0 +1,290 @@
+/* Spatial play keeps the world large enough to read; the camera follows on phones. */
+.production-shell:has(.exploration-focus) {
+  padding: 0;
+}
+.production-shell:has(.exploration-focus) > .game-header,
+.production-shell:has(.exploration-focus) > .game-status-bar,
+.production-shell:has(.exploration-focus) > .game-footer,
+.production-shell:has(.exploration-focus) > .mobile-game-nav {
+  display: none;
+}
+.production-shell:has(.exploration-focus) .game-content {
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  width: 100%;
+}
+.production-hub.exploration-focus {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  width: 100%;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+.exploration-focus > .hub-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  padding: 6px 12px;
+  min-height: 56px;
+  background: var(--sk-surface);
+}
+.exploration-focus > .hub-toolbar > button {
+  width: auto;
+  min-width: 0;
+  font-size: 13px;
+}
+.exploration-focus > .hub-toolbar .hub-view-switch,
+.exploration-focus > .exploration-heading,
+.exploration-focus > .hub-mission-gate {
+  display: none;
+}
+.exploration-focus > .unlock-celebration {
+  position: absolute;
+  top: 64px;
+  left: 16px;
+  right: 16px;
+  z-index: 10;
+}
+.production-hub.exploration-focus .hub-walk {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+}
+.exploration-focus .smartmart-game-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.exploration-focus .hub-walk .smartmart-phaser-host {
+  position: relative;
+  height: 0;
+  flex: 1;
+  min-height: 0;
+}
+.exploration-focus .smartmart-phaser-host canvas {
+  position: absolute;
+  inset: 0;
+}
+.exploration-focus .exploration-destinations,
+.exploration-focus .smartmart-touch-controls {
+  flex-shrink: 0;
+}
+.exploration-focus .smartmart-touch-controls {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+.production-hub .exploration-heading {
+  margin-bottom: 16px;
+}
+.production-hub .hub-walk {
+  overflow: hidden;
+  padding: 0;
+}
+.production-hub .hub-walk > p {
+  margin: 0;
+  padding: 14px 20px;
+  background: var(--sk-surface);
+  font-size: 14px;
+}
+.hub-walk .smartmart-phaser-host {
+  height: min(620px, 68dvh);
+  min-height: 360px;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  touch-action: none;
+  cursor: crosshair;
+}
+.hub-walk .smartmart-phaser-host:focus-visible {
+  outline: 3px solid var(--sk-ring);
+  outline-offset: -4px;
+}
+.exploration-destinations {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  background: var(--sk-surface-soft);
+  border-top: 1px solid var(--sk-border);
+}
+.exploration-destinations button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--sk-border-strong);
+  border-radius: var(--sk-radius-sm);
+  background: var(--sk-surface);
+  color: var(--sk-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+.exploration-destinations button > span {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--sk-gold-soft);
+}
+.hub-walk .smartmart-touch-controls {
+  position: static;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  gap: 20px;
+  background: var(--sk-surface);
+  pointer-events: auto;
+}
+.hub-walk .smartmart-dpad {
+  flex-shrink: 0;
+  width: 162px;
+  height: 108px;
+  grid-template-columns: repeat(3, 52px);
+  grid-template-rows: repeat(2, 52px);
+  gap: 3px;
+}
+.hub-walk .smartmart-dpad button {
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  background: var(--sk-primary);
+  border-radius: var(--sk-radius-sm);
+  box-shadow: var(--sk-button-shadow);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.hub-walk .smartmart-dpad .move-down {
+  grid-column: 2;
+  grid-row: 2;
+}
+.exploration-action {
+  display: grid;
+  justify-items: end;
+  max-width: 420px;
+  gap: 8px;
+}
+.exploration-action p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--sk-ink-2);
+  text-align: right;
+}
+.hub-walk .smartmart-touch-action {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  width: auto;
+  min-height: 58px;
+  height: auto;
+  border-radius: var(--sk-radius-md);
+  background: var(--sk-primary);
+  box-shadow: var(--sk-button-shadow);
+  touch-action: manipulation;
+}
+.hub-walk .smartmart-touch-action span {
+  display: grid;
+  gap: 2px;
+  font-size: 16px;
+  text-align: left;
+}
+.hub-walk .smartmart-touch-action small {
+  font-size: 12px;
+  font-weight: 500;
+}
+.hub-walk button:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+@media (max-width: 760px) {
+  .production-hub .exploration-heading h1 {
+    font-size: 23px;
+  }
+  .production-hub .exploration-heading p:not(.eyebrow) {
+    font-size: 14px;
+  }
+  .production-hub .hub-walk > p {
+    padding: 10px 12px;
+  }
+  .hub-walk .smartmart-phaser-host {
+    height: clamp(300px, 48dvh, 460px);
+    min-height: 300px;
+  }
+  .hub-walk .smartmart-touch-controls {
+    padding: 12px;
+    gap: 10px;
+  }
+  .exploration-destinations {
+    padding: 10px;
+  }
+  .exploration-action p {
+    font-size: 12px;
+  }
+  .hub-walk .smartmart-touch-action {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+  .hub-walk .smartmart-touch-action span {
+    font-size: 14px;
+  }
+  .hub-walk .smartmart-touch-action small {
+    display: none;
+  }
+}
+@media (max-width: 380px) {
+  .hub-walk .smartmart-dpad {
+    width: 138px;
+    height: 92px;
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(2, 44px);
+  }
+  .hub-walk .smartmart-dpad button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .hub-walk .smartmart-touch-action svg {
+    display: none;
+  }
+}
+@media (max-height: 550px) and (orientation: landscape) {
+  .hub-walk .smartmart-phaser-host {
+    height: 320px;
+    min-height: 320px;
+  }
+  .exploration-focus .hub-walk > p {
+    display: none;
+  }
+  .exploration-focus .hub-walk .smartmart-phaser-host {
+    min-height: 0;
+  }
+  .exploration-focus .smartmart-touch-controls {
+    position: absolute;
+    inset: auto 0 78px;
+    background: transparent;
+    pointer-events: none;
+  }
+  .exploration-focus .exploration-action {
+    pointer-events: auto;
+  }
+  .exploration-focus .exploration-action p {
+    padding: 4px 8px;
+    border-radius: var(--sk-radius-sm);
+    background: var(--sk-surface);
+  }
+}

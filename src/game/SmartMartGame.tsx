@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowDown,
   ArrowLeft,
@@ -7,8 +7,13 @@ import {
   CircleDot,
 } from 'lucide-react'
 import Phaser from 'phaser'
-import { AVATAR_ART_SIZE, AvatarCharacter } from '../components/avatar/AvatarCharacter'
+import {
+  AVATAR_ART_SIZE,
+  AvatarCharacter,
+} from '../components/avatar/AvatarCharacter'
 import { useAvatarProfileStore } from '../store/avatarProfile'
+import { stalls } from '../data/stalls'
+import { type Position } from './smartMartNavigation'
 import type { StallId } from '../domain/types'
 import { serializeAvatarSvg } from './avatarSvg'
 import { SmartMartScene } from './SmartMartScene'
@@ -16,6 +21,8 @@ import { SmartMartScene } from './SmartMartScene'
 interface SmartMartGameProps {
   unlockedStalls: StallId[]
   paused?: boolean
+  initialPosition?: Position
+  onPositionChange?: (position: Position) => void
   onInteractStall: (stallId: StallId) => void
   onNearStallChange?: (stallId: StallId | null) => void
 }
@@ -23,9 +30,13 @@ interface SmartMartGameProps {
 export default function SmartMartGame({
   unlockedStalls,
   paused = false,
+  initialPosition,
+  onPositionChange,
   onInteractStall,
   onNearStallChange,
 }: SmartMartGameProps) {
+  const [nearStall, setNearStall] = useState<StallId | null>(null)
+  const [ready, setReady] = useState(false)
   const avatar = useAvatarProfileStore((state) => state.avatar)
   const avatarSourceRef = useRef<HTMLDivElement | null>(null)
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -44,7 +55,7 @@ export default function SmartMartGame({
     const sceneKey = 'SmartMartScene'
 
     if (pausedRef.current) {
-      scene.setVirtualMove(0, 0)
+      scene.setControlsEnabled(false)
 
       if (game.scene.isActive(sceneKey)) {
         game.scene.pause(sceneKey)
@@ -56,6 +67,7 @@ export default function SmartMartGame({
     if (game.scene.isPaused(sceneKey)) {
       game.scene.resume(sceneKey)
     }
+    scene.setControlsEnabled(document.activeElement === hostRef.current)
   }
 
   useEffect(() => {
@@ -76,12 +88,20 @@ export default function SmartMartGame({
     const avatarSvgUrl = serializeAvatarSvg(avatarSvg)
 
     const scene = new SmartMartScene({
+      initialPosition,
+      onPositionChange,
       avatarSvgUrl,
       avatarArtSize: AVATAR_ART_SIZE,
       unlockedStalls,
       onInteractStall: (stallId) => interactRef.current(stallId),
-      onNearStallChange: (stallId) => nearRef.current?.(stallId),
-      onReady: () => applyPausedState(),
+      onNearStallChange: (stallId) => {
+        setNearStall(stallId)
+        nearRef.current?.(stallId)
+      },
+      onReady: () => {
+        setReady(true)
+        applyPausedState()
+      },
     })
 
     sceneRef.current = scene
@@ -101,10 +121,26 @@ export default function SmartMartGame({
         antialias: true,
         pixelArt: false,
       },
+      input: { keyboard: false },
       banner: false,
     })
 
+    const resizeObserver = new ResizeObserver(() => {
+      const host = hostRef.current
+      if (host && host.clientWidth && host.clientHeight)
+        gameRef.current?.scale.resize(host.clientWidth, host.clientHeight)
+    })
+    resizeObserver.observe(hostRef.current)
+    const stop = () => scene.setControlsEnabled(false)
+    const visibility = () => {
+      if (document.hidden) stop()
+    }
+    window.addEventListener('blur', stop)
+    document.addEventListener('visibilitychange', visibility)
     return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('blur', stop)
+      document.removeEventListener('visibilitychange', visibility)
       gameRef.current?.destroy(true)
       gameRef.current = null
       sceneRef.current = null
@@ -126,6 +162,7 @@ export default function SmartMartGame({
     y: number,
   ) => {
     event.preventDefault()
+    if (paused || !ready) return
     event.currentTarget.setPointerCapture(event.pointerId)
     sceneRef.current?.setVirtualMove(x, y)
   }
@@ -134,74 +171,163 @@ export default function SmartMartGame({
     sceneRef.current?.setVirtualMove(0, 0)
   }
 
+  const nextStall = stalls.find((stall) => !unlockedStalls.includes(stall.id))
+  const canInteract =
+    ready &&
+    !paused &&
+    nearStall !== null &&
+    (unlockedStalls.includes(nearStall) || nextStall?.id === nearStall)
+  const nearName = stalls.find((stall) => stall.id === nearStall)?.name
+
   return (
     <div className="smartmart-game-wrapper">
-      <div ref={avatarSourceRef} hidden aria-hidden="true" data-player-avatar-source>
+      <div
+        ref={avatarSourceRef}
+        hidden
+        aria-hidden="true"
+        data-player-avatar-source
+      >
         <AvatarCharacter config={avatar} decorative />
       </div>
       <div
         ref={hostRef}
         className="smartmart-phaser-host"
         tabIndex={0}
-        aria-label="Không gian SmartMart tương tác. Dùng WASD hoặc phím mũi tên để di chuyển."
+        role="region"
+        onKeyDown={(event) => {
+          if (paused || !ready) return
+          const key = event.key.toLowerCase()
+          if (
+            [
+              'arrowup',
+              'arrowdown',
+              'arrowleft',
+              'arrowright',
+              'w',
+              'a',
+              's',
+              'd',
+              'e',
+              ' ',
+            ].includes(key)
+          ) {
+            event.preventDefault()
+            sceneRef.current?.setControlsEnabled(true)
+            if (key === 'e' || key === ' ') {
+              if (!event.repeat) sceneRef.current?.triggerInteraction()
+            } else sceneRef.current?.setKey(key, true)
+          }
+        }}
+        onKeyUp={(event) => sceneRef.current?.setKey(event.key, false)}
+        onFocus={() => {
+          if (!paused) sceneRef.current?.setControlsEnabled(true)
+        }}
+        onBlur={() => sceneRef.current?.setControlsEnabled(false)}
+        onPointerDown={() => {
+          hostRef.current?.focus({ preventScroll: true })
+          if (!paused) sceneRef.current?.setControlsEnabled(true)
+        }}
+        aria-label="Sân chơi SmartMart. Chạm để đi hoặc dùng WASD, phím mũi tên. Nhấn E để tương tác."
       />
 
+      <div
+        className="exploration-destinations"
+        role="group"
+        aria-label="Đi đến gian hàng"
+      >
+        {stalls.map((stall) => (
+          <button
+            key={stall.id}
+            type="button"
+            disabled={!ready || paused}
+            onClick={() => sceneRef.current?.walkToStall(stall.id)}
+          >
+            <span>{stall.order}</span>
+            {stall.name}
+          </button>
+        ))}
+      </div>
       <div className="smartmart-touch-controls" aria-label="Điều khiển cảm ứng">
         <div className="smartmart-dpad">
-          <button
-            type="button"
-            className="move-up"
-            aria-label="Đi lên"
-            onPointerDown={(event) => startMove(event, 0, -1)}
-            onPointerUp={stopMove}
-            onPointerCancel={stopMove}
-          >
-            <ArrowUp size={22} />
-          </button>
-          <button
-            type="button"
-            className="move-left"
-            aria-label="Đi sang trái"
-            onPointerDown={(event) => startMove(event, -1, 0)}
-            onPointerUp={stopMove}
-            onPointerCancel={stopMove}
-          >
-            <ArrowLeft size={22} />
-          </button>
-          <button
-            type="button"
-            className="move-right"
-            aria-label="Đi sang phải"
-            onPointerDown={(event) => startMove(event, 1, 0)}
-            onPointerUp={stopMove}
-            onPointerCancel={stopMove}
-          >
-            <ArrowRight size={22} />
-          </button>
-          <button
-            type="button"
-            className="move-down"
-            aria-label="Đi xuống"
-            onPointerDown={(event) => startMove(event, 0, 1)}
-            onPointerUp={stopMove}
-            onPointerCancel={stopMove}
-          >
-            <ArrowDown size={22} />
-          </button>
+          {[
+            {
+              className: 'move-up',
+              label: 'Đi lên',
+              x: 0,
+              y: -1,
+              Icon: ArrowUp,
+            },
+            {
+              className: 'move-left',
+              label: 'Đi sang trái',
+              x: -1,
+              y: 0,
+              Icon: ArrowLeft,
+            },
+            {
+              className: 'move-right',
+              label: 'Đi sang phải',
+              x: 1,
+              y: 0,
+              Icon: ArrowRight,
+            },
+            {
+              className: 'move-down',
+              label: 'Đi xuống',
+              x: 0,
+              y: 1,
+              Icon: ArrowDown,
+            },
+          ].map(({ className, label, x, y, Icon }) => (
+            <button
+              key={className}
+              type="button"
+              className={className}
+              aria-label={label}
+              disabled={paused || !ready}
+              onPointerDown={(event) => startMove(event, x, y)}
+              onPointerUp={stopMove}
+              onPointerCancel={stopMove}
+              onLostPointerCapture={stopMove}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  if (!event.repeat) sceneRef.current?.setVirtualMove(x, y)
+                }
+              }}
+              onKeyUp={stopMove}
+              onBlur={stopMove}
+            >
+              <Icon size={22} aria-hidden="true" />
+            </button>
+          ))}
         </div>
 
-        <button
-          type="button"
-          className="smartmart-touch-action"
-          aria-label="Tương tác với gian hàng"
-          onPointerDown={(event) => {
-            event.preventDefault()
-            sceneRef.current?.triggerInteraction()
-          }}
-        >
-          <CircleDot size={26} />
-          <span>Tương tác</span>
-        </button>
+        <div className="exploration-action">
+          <p role="status">
+            {nearName
+              ? nearStall &&
+                (unlockedStalls.includes(nearStall) ||
+                  nextStall?.id === nearStall)
+                ? nearName
+                : nearName + ' · Hoàn thành gian trước để mở'
+              : 'Đến gần quầy để khám phá'}
+          </p>
+          <button
+            type="button"
+            className="smartmart-touch-action"
+            disabled={!canInteract}
+            onClick={() => sceneRef.current?.triggerInteraction()}
+          >
+            <CircleDot size={24} aria-hidden="true" />
+            <span>
+              {nearStall && unlockedStalls.includes(nearStall)
+                ? 'Vào gian hàng'
+                : 'Khám phá gian'}
+              <small>E / Space</small>
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   )

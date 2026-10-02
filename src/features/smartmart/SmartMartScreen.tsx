@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -6,6 +6,8 @@ import {
   Gamepad2,
   Grid2X2,
   LockKeyhole,
+  Maximize2,
+  Minimize2,
   Sparkles,
   Target,
   X,
@@ -17,12 +19,18 @@ import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { stalls } from '../../data/stalls'
 import { generateExercise } from '../../domain/exerciseEngine'
 import { selectAdaptiveExerciseFamily } from '../../domain/mastery'
-import type { ProductStallId, StallDefinition, StallId } from '../../domain/types'
+import type {
+  ProductStallId,
+  StallDefinition,
+  StallId,
+} from '../../domain/types'
 import { createSeed } from '../../lib/seededRandom'
 import { useLearningProfileStore } from '../../store/learningProfile'
 import { useProgressionStore } from '../../store/progression'
 import { ExerciseDialog } from './ExerciseDialog'
 import { StallShoppingScreen } from './StallShoppingScreen'
+
+import { spawnPosition, type Position } from '../../game/smartMartNavigation'
 
 const SmartMartGame = lazy(() => import('../../game/SmartMartGame'))
 const demoStudentKey = 'student-demo-minh-anh'
@@ -135,10 +143,13 @@ export function SmartMartScreen({
   )
   const [activeStallId, setActiveStallId] = useState<StallId | null>(null)
   const [shoppingStallId, setShoppingStallId] = useState<StallId | null>(null)
-  const [nearStallId, setNearStallId] = useState<StallId | null>(null)
-  const [viewMode, setViewMode] = useState<'overview' | 'game'>('overview')
+  const [viewMode, setViewMode] = useState<'overview' | 'game'>('game')
+  const [focusedPlay, setFocusedPlay] = useState(true)
+  const positionRef = useRef<Position>(spawnPosition)
   const [celebration, setCelebration] = useState<string | null>(null)
-  const [activePracticeFamilyId, setActivePracticeFamilyId] = useState<string | null>(null)
+  const [activePracticeFamilyId, setActivePracticeFamilyId] = useState<
+    string | null
+  >(null)
   const [activePracticeVariant, setActivePracticeVariant] = useState(0)
   const unlockedSet = useMemo(() => new Set(unlockedStalls), [unlockedStalls])
   const nextLockedStall = stalls.find((stall) => !unlockedSet.has(stall.id))
@@ -186,10 +197,6 @@ export function SmartMartScreen({
   const activeStepTotal = activeStall?.unlockFamilyIds.length ?? 1
   const isFinalUnlock =
     activeMode === 'unlock' && activeStepNumber === activeStepTotal
-  const nearStall = nearStallId
-    ? (stalls.find((stall) => stall.id === nearStallId) ?? null)
-    : null
-
   const interactWithStall = (stallId: StallId) => {
     if (unlockedSet.has(stallId)) setShoppingStallId(stallId)
     else if (nextLockedStall?.id === stallId) setActiveStallId(stallId)
@@ -225,149 +232,184 @@ export function SmartMartScreen({
 
   return (
     <>
-    {shoppingStallId ? <StallShoppingScreen stall={stalls.find(stall => stall.id === shoppingStallId)!} missionUnlocked={missionUnlocked} onBack={() => setShoppingStallId(null)} onPractice={() => openPractice(shoppingStallId)} onStartMission={onStartMission} /> :
-    <section className="production-hub" aria-labelledby="hub-title">
-      <div className="hub-toolbar">
-        <button type="button" className="quiet-button" onClick={onBack}>
-          <ArrowLeft size={18} aria-hidden="true" />
-          Bản đồ thế giới
-        </button>
-        <div
-          className="hub-view-switch"
-          role="group"
-          aria-label="Góc nhìn siêu thị"
-        >
-          <button
-            type="button"
-            aria-pressed={viewMode === 'overview'}
-            onClick={() => setViewMode('overview')}
-          >
-            <Grid2X2 size={18} aria-hidden="true" />
-            Chọn gian
-          </button>
-          <button
-            type="button"
-            aria-pressed={viewMode === 'game'}
-            onClick={() => setViewMode('game')}
-          >
-            <Gamepad2 size={18} aria-hidden="true" />
-            Đi dạo
-          </button>
-        </div>
-      </div>
-      <header className="adventure-heading">
-        <div>
-          <p className="eyebrow">ĐIỂM ĐẾN ĐẦU TIÊN</p>
-          <h1 id="hub-title">Chào mừng đến SmartMart!</h1>
-          <p>
-            Giải 3 bài Toán để mở mỗi gian. Gian đã mở luôn chờ em quay lại.
-          </p>
-        </div>
-        <div className="hub-progress">
-          <strong>
-            {unlockedCount}
-            <span>/{stalls.length}</span>
-          </strong>
-          <span>
-            gian đã mở
-            <progress
-              value={unlockedCount}
-              max={stalls.length}
-              aria-label="Tiến độ mở gian SmartMart"
-            />
-          </span>
-        </div>
-      </header>
-      {celebration ? (
-        <div className="unlock-celebration" role="status">
-          <Sparkles size={30} aria-hidden="true" />
-          <div>
-            <strong>Gian {celebration} đã mở!</strong>
-            <span>
-              {missionUnlocked
-                ? 'Em đã sẵn sàng cho nhiệm vụ liên hoan lớp.'
-                : 'Giỏi lắm! Gian tiếp theo đang chờ em khám phá.'}
-            </span>
-          </div>
-          <button
-            type="button"
-            className="quiet-button"
-            aria-label="Đóng thông báo mở gian"
-            onClick={() => setCelebration(null)}
-          >
-            <X size={21} />
-          </button>
-        </div>
-      ) : null}
-      {viewMode === 'overview' ? (
-        <div className="hub-world">
-          <img
-            className="hub-floor"
-            src={gameAssets.production.hubFloor}
-            alt=""
-          />
-          <div className="hub-welcome-sign">
-            <strong>SmartMart</strong>
-            <span>Học Toán qua mua sắm</span>
-          </div>
-          <div className="hub-destinations">
-            {stalls.map((stall) => (
-              <StallDestination
-                key={stall.id}
-                stall={stall}
-                state={
-                  unlockedSet.has(stall.id)
-                    ? 'open'
-                    : stall.id === nextLockedStall?.id
-                      ? 'available'
-                      : 'locked'
-                }
-                completedCount={stallExerciseProgress[stall.id]?.length ?? 0}
-                onOpen={() => interactWithStall(stall.id)}
-              />
-            ))}
-          </div>
-          <div className="hub-student">
-            <AvatarCharacter config={avatar} className="hub-avatar" label="Nhân vật của em đang khám phá SmartMart" />
-            <span>
-              {missionUnlocked ? 'Sẵn sàng mua sắm!' : 'Chọn gian để khám phá!'}
-            </span>
-          </div>
-        </div>
+      {shoppingStallId ? (
+        <StallShoppingScreen
+          stall={stalls.find((stall) => stall.id === shoppingStallId)!}
+          missionUnlocked={missionUnlocked}
+          onBack={() => setShoppingStallId(null)}
+          onPractice={() => openPractice(shoppingStallId)}
+          onStartMission={onStartMission}
+        />
       ) : (
-        <div className="hub-walk">
-          <p>
-            <Gamepad2 size={20} aria-hidden="true" />
-            <span>
-              Di chuyển bằng phím mũi tên / WASD. Nhấn E / Space khi đến gần
-              gian.
-            </span>
-          </p>
-          <Suspense
-            fallback={
-              <div className="smartmart-game-loading">Đang mở SmartMart…</div>
-            }
-          >
-            <SmartMartGame
-              unlockedStalls={unlockedStalls}
-              paused={Boolean(activeStallId)}
-              onInteractStall={interactWithStall}
-              onNearStallChange={setNearStallId}
-            />
-          </Suspense>
-          <div className="hub-near-stall" role="status">
-            {nearStall
-              ? `${nearStall.name} · ${unlockedSet.has(nearStall.id) ? 'Đã mở' : nextLockedStall?.id === nearStall.id ? 'Sẵn sàng mở bằng Toán' : 'Hoàn thành gian trước'}`
-              : 'Đi đến gần một gian hàng để khám phá.'}
+        <section
+          className={`production-hub ${focusedPlay && viewMode === 'game' ? 'exploration-focus' : ''}`}
+          aria-label="Khám phá SmartMart"
+        >
+          <div className="hub-toolbar">
+            <button type="button" className="quiet-button" onClick={onBack}>
+              <ArrowLeft size={18} aria-hidden="true" />
+              Bản đồ thế giới
+            </button>
+            <div
+              className="hub-view-switch"
+              role="group"
+              aria-label="Góc nhìn siêu thị"
+            >
+              <button
+                type="button"
+                aria-pressed={viewMode === 'overview'}
+                onClick={() => setViewMode('overview')}
+              >
+                <Grid2X2 size={18} aria-hidden="true" />
+                Chọn gian
+              </button>
+              <button
+                type="button"
+                aria-pressed={viewMode === 'game'}
+                onClick={() => setViewMode('game')}
+              >
+                <Gamepad2 size={18} aria-hidden="true" />
+                Khám phá
+              </button>
+            </div>
+            {viewMode === 'game' ? (
+              <button
+                className="quiet-button exploration-size"
+                type="button"
+                aria-pressed={focusedPlay}
+                onClick={() => setFocusedPlay(!focusedPlay)}
+              >
+                {focusedPlay ? (
+                  <Minimize2 size={18} />
+                ) : (
+                  <Maximize2 size={18} />
+                )}
+                {focusedPlay ? 'Thu gọn sân chơi' : 'Tập trung chơi'}
+              </button>
+            ) : null}
           </div>
-        </div>
+          <header className="adventure-heading exploration-heading">
+            <div>
+              <p className="eyebrow">ĐIỂM ĐẾN ĐẦU TIÊN</p>
+              <h1 id="hub-title">Chào mừng đến SmartMart!</h1>
+              <p>
+                Giải 3 bài Toán để mở mỗi gian. Gian đã mở luôn chờ em quay lại.
+              </p>
+            </div>
+            <div className="hub-progress">
+              <strong>
+                {unlockedCount}
+                <span>/{stalls.length}</span>
+              </strong>
+              <span>
+                gian đã mở
+                <progress
+                  value={unlockedCount}
+                  max={stalls.length}
+                  aria-label="Tiến độ mở gian SmartMart"
+                />
+              </span>
+            </div>
+          </header>
+          {celebration ? (
+            <div className="unlock-celebration" role="status">
+              <Sparkles size={30} aria-hidden="true" />
+              <div>
+                <strong>Gian {celebration} đã mở!</strong>
+                <span>
+                  {missionUnlocked
+                    ? 'Em đã sẵn sàng cho nhiệm vụ liên hoan lớp.'
+                    : 'Giỏi lắm! Gian tiếp theo đang chờ em khám phá.'}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="quiet-button"
+                aria-label="Đóng thông báo mở gian"
+                onClick={() => setCelebration(null)}
+              >
+                <X size={21} />
+              </button>
+            </div>
+          ) : null}
+          {viewMode === 'overview' ? (
+            <div className="hub-world">
+              <img
+                className="hub-floor"
+                src={gameAssets.production.hubFloor}
+                alt=""
+              />
+              <div className="hub-welcome-sign">
+                <strong>SmartMart</strong>
+                <span>Học Toán qua mua sắm</span>
+              </div>
+              <div className="hub-destinations">
+                {stalls.map((stall) => (
+                  <StallDestination
+                    key={stall.id}
+                    stall={stall}
+                    state={
+                      unlockedSet.has(stall.id)
+                        ? 'open'
+                        : stall.id === nextLockedStall?.id
+                          ? 'available'
+                          : 'locked'
+                    }
+                    completedCount={
+                      stallExerciseProgress[stall.id]?.length ?? 0
+                    }
+                    onOpen={() => interactWithStall(stall.id)}
+                  />
+                ))}
+              </div>
+              <div className="hub-student">
+                <AvatarCharacter
+                  config={avatar}
+                  className="hub-avatar"
+                  label="Nhân vật của em đang khám phá SmartMart"
+                />
+                <span>
+                  {missionUnlocked
+                    ? 'Sẵn sàng mua sắm!'
+                    : 'Chọn gian để khám phá!'}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="hub-walk">
+              <p>
+                <Gamepad2 size={20} aria-hidden="true" />
+                <span>
+                  Chạm xuống sàn để đi, hoặc dùng WASD / phím mũi tên. Đến gần
+                  quầy rồi nhấn E để khám phá.
+                </span>
+              </p>
+              <Suspense
+                fallback={
+                  <div className="smartmart-game-loading">
+                    Đang mở SmartMart…
+                  </div>
+                }
+              >
+                <SmartMartGame
+                  initialPosition={positionRef.current}
+                  onPositionChange={(position) => {
+                    positionRef.current = position
+                  }}
+                  unlockedStalls={unlockedStalls}
+                  paused={Boolean(activeStallId)}
+                  onInteractStall={interactWithStall}
+                />
+              </Suspense>
+            </div>
+          )}
+          <MissionGate
+            missionUnlocked={missionUnlocked}
+            unlockedCount={unlockedCount}
+            onStartMission={onStartMission}
+          />
+        </section>
       )}
-      <MissionGate
-        missionUnlocked={missionUnlocked}
-        unlockedCount={unlockedCount}
-        onStartMission={onStartMission}
-      />
-    </section>}
       {activeStall && activeExercise && activeMode ? (
         <ExerciseDialog
           key={activeExercise.id}
