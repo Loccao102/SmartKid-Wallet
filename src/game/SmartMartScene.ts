@@ -1,15 +1,6 @@
 import Phaser from 'phaser'
 import { gameAssets } from '../assets/registry'
 import type { StallId } from '../domain/types'
-import {
-  canWalk,
-  findWalkingPath,
-  movePlayer,
-  spawnPosition,
-  stallEntrance,
-  stallLayout,
-  type Position,
-} from './smartMartNavigation'
 
 type StallState = 'open' | 'available' | 'locked'
 
@@ -33,8 +24,6 @@ interface SmartMartSceneOptions {
   onInteractStall: (stallId: StallId) => void
   onNearStallChange?: (stallId: StallId | null) => void
   onReady?: () => void
-  initialPosition?: Position
-  onPositionChange?: (position: Position) => void
 }
 
 const stallOrder: StallId[] = [
@@ -45,7 +34,29 @@ const stallOrder: StallId[] = [
   'promotion',
 ]
 
-const stallDefinitions = stallLayout
+const stallDefinitions: Array<
+  Pick<StallZone, 'id' | 'name' | 'x' | 'y' | 'width' | 'height'>
+> = [
+  {
+    id: 'produce',
+    name: 'RAU CỦ & HOA QUẢ',
+    x: 190,
+    y: 150,
+    width: 240,
+    height: 110,
+  },
+  { id: 'food', name: 'THỰC PHẨM', x: 610, y: 150, width: 240, height: 110 },
+  { id: 'drinks', name: 'ĐỒ UỐNG', x: 190, y: 395, width: 240, height: 110 },
+  { id: 'supplies', name: 'ĐỒ DÙNG', x: 610, y: 395, width: 240, height: 110 },
+  {
+    id: 'promotion',
+    name: 'KHUYẾN MÃI',
+    x: 400,
+    y: 555,
+    width: 270,
+    height: 96,
+  },
+]
 
 const boothColors: Record<StallId, number> = {
   produce: 0xe77863,
@@ -57,15 +68,17 @@ const boothColors: Record<StallId, number> = {
 
 export class SmartMartScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container
-  private character!: Phaser.GameObjects.Image
-  private destination!: Phaser.GameObjects.Arc
-  private route: Position[] = []
-  private controlsEnabled = false
-  private readonly initialPosition: Position
-  private readonly onPositionChange?: (position: Position) => void
   private readonly avatarSvgUrl: string
   private readonly avatarArtSize: { width: number; height: number }
-  private heldKeys = new Set<string>()
+  private keys!: {
+    cursors: Phaser.Types.Input.Keyboard.CursorKeys
+    w: Phaser.Input.Keyboard.Key
+    a: Phaser.Input.Keyboard.Key
+    s: Phaser.Input.Keyboard.Key
+    d: Phaser.Input.Keyboard.Key
+    e: Phaser.Input.Keyboard.Key
+    space: Phaser.Input.Keyboard.Key
+  }
 
   private stalls: StallZone[] = []
   private unlockedStalls = new Set<StallId>()
@@ -81,11 +94,6 @@ export class SmartMartScene extends Phaser.Scene {
 
   constructor(options: SmartMartSceneOptions) {
     super({ key: 'SmartMartScene' })
-    this.initialPosition =
-      options.initialPosition && canWalk(options.initialPosition)
-        ? options.initialPosition
-        : spawnPosition
-    this.onPositionChange = options.onPositionChange
     this.avatarSvgUrl = options.avatarSvgUrl
     this.avatarArtSize = options.avatarArtSize
     this.unlockedStalls = new Set(options.unlockedStalls)
@@ -116,6 +124,18 @@ export class SmartMartScene extends Phaser.Scene {
     this.createCheckoutArea()
     this.createPlayer()
 
+    if (!this.input.keyboard) return
+
+    this.keys = {
+      cursors: this.input.keyboard.createCursorKeys(),
+      w: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      a: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      s: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+      d: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      e: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
+      space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
+    }
+
     this.helpText = this.add
       .text(400, 705, 'WASD / phím mũi tên để di chuyển', {
         fontFamily: 'system-ui, sans-serif',
@@ -126,105 +146,53 @@ export class SmartMartScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
 
-    this.destination = this.add
-      .circle(0, 0, 12, 0xeeb94d, 0.3)
-      .setStrokeStyle(3, 0x26745b)
-      .setVisible(false)
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      const point = this.cameras.main.getWorldPoint(pointer.x, pointer.y)
-      const stall = this.stalls.find(
-        (item) =>
-          Math.abs(point.x - item.x) <= item.width / 2 &&
-          Math.abs(point.y - item.y) <= item.height / 2 + 20,
-      )
-      this.walkTo(stall ? stallEntrance(stall.id) : point)
-    })
-    this.scale.on('resize', this.fitCamera, this)
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.scale.off('resize', this.fitCamera, this)
-    })
+    this.scale.on('resize', () => this.fitCamera())
     this.fitCamera()
     this.onReady?.()
   }
 
   update(_time: number, delta: number) {
-    if (!this.player) return
-    let x = this.virtualMove.x
-    let y = this.virtualMove.y
-    if (this.controlsEnabled) {
-      if (this.heldKeys.has('arrowleft') || this.heldKeys.has('a')) x -= 1
-      if (this.heldKeys.has('arrowright') || this.heldKeys.has('d')) x += 1
-      if (this.heldKeys.has('arrowup') || this.heldKeys.has('w')) y -= 1
-      if (this.heldKeys.has('arrowdown') || this.heldKeys.has('s')) y += 1
+    if (!this.keys || !this.player) return
+
+    const speed = 190 * (delta / 1000)
+    let directionX = this.virtualMove.x
+    let directionY = this.virtualMove.y
+
+    if (this.keys.cursors.left.isDown || this.keys.a.isDown) directionX -= 1
+    if (this.keys.cursors.right.isDown || this.keys.d.isDown) directionX += 1
+    if (this.keys.cursors.up.isDown || this.keys.w.isDown) directionY -= 1
+    if (this.keys.cursors.down.isDown || this.keys.s.isDown) directionY += 1
+
+    directionX = Phaser.Math.Clamp(directionX, -1, 1)
+    directionY = Phaser.Math.Clamp(directionY, -1, 1)
+
+    if (directionX !== 0 && directionY !== 0) {
+      directionX *= 0.7071
+      directionY *= 0.7071
     }
-    const manual = x !== 0 || y !== 0
-    if (manual) this.cancelRoute()
-    const target = this.route[0]
-    const old = { x: this.player.x, y: this.player.y }
-    if (target) {
-      x = target.x - old.x
-      y = target.y - old.y
-      if (Math.hypot(x, y) <= (220 * Math.min(delta, 40)) / 1000) {
-        this.player.setPosition(target.x, target.y)
-        this.route.shift()
-        x = 0
-        y = 0
-        if (!this.route.length) this.destination.setVisible(false)
-      }
-    }
-    if (x || y) {
-      const next = movePlayer(this.player, { x, y }, delta)
-      this.player.setPosition(next.x, next.y)
-    }
-    const moving = old.x !== this.player.x || old.y !== this.player.y
-    if (moving) {
-      this.onPositionChange?.({ x: this.player.x, y: this.player.y })
-      if (x) this.character.setFlipX(x < 0)
-    }
-    this.character.y =
-      -18 +
-      (moving && !this.reducedMotion.matches
-        ? Math.sin(this.time.now * 0.022) * 3
-        : 0)
-    this.character.setAngle(
-      moving && !this.reducedMotion.matches
-        ? Math.sin(this.time.now * 0.011) * 3
-        : 0,
-    )
+
+    const nextX = Phaser.Math.Clamp(this.player.x + directionX * speed, 45, 755)
+    const nextY = Phaser.Math.Clamp(this.player.y + directionY * speed, 88, 665)
+
+    if (this.canMoveTo(nextX, this.player.y)) this.player.x = nextX
+    if (this.canMoveTo(this.player.x, nextY)) this.player.y = nextY
+
+    const isMoving = directionX !== 0 || directionY !== 0
+    const pulse =
+      isMoving && !this.reducedMotion.matches
+        ? 1 + Math.sin(this.time.now * 0.018) * 0.025
+        : 1
+    this.player.setScale(pulse)
+
     this.updateNearbyStall()
-  }
 
-  setControlsEnabled(enabled: boolean) {
-    this.controlsEnabled = enabled
-    if (!enabled) this.stopMovement()
-  }
-
-  setKey(key: string, down: boolean) {
-    if (down) this.heldKeys.add(key.toLowerCase())
-    else this.heldKeys.delete(key.toLowerCase())
-  }
-
-  stopMovement() {
-    this.virtualMove = { x: 0, y: 0 }
-    this.heldKeys.clear()
-    this.cancelRoute()
-  }
-
-  private cancelRoute() {
-    this.route = []
-    this.destination?.setVisible(false)
-  }
-
-  walkTo(point: Position) {
-    if (!this.player || !this.scene.isActive()) return
-    this.route = findWalkingPath(this.player, point)
-    this.destination
-      .setPosition(point.x, point.y)
-      .setVisible(this.route.length > 0)
-  }
-
-  walkToStall(id: StallId) {
-    this.walkTo(stallEntrance(id))
+    if (
+      this.nearStall &&
+      (Phaser.Input.Keyboard.JustDown(this.keys.e) ||
+        Phaser.Input.Keyboard.JustDown(this.keys.space))
+    ) {
+      this.triggerInteraction()
+    }
   }
 
   setUnlockedStalls(stallIds: StallId[]) {
@@ -233,18 +201,12 @@ export class SmartMartScene extends Phaser.Scene {
   }
 
   setVirtualMove(x: number, y: number) {
-    if (x || y) this.cancelRoute()
     this.virtualMove.x = Phaser.Math.Clamp(x, -1, 1)
     this.virtualMove.y = Phaser.Math.Clamp(y, -1, 1)
   }
 
   triggerInteraction() {
-    if (
-      this.scene.isActive() &&
-      this.nearStall &&
-      this.getStallState(this.nearStall) !== 'locked'
-    ) {
-      this.stopMovement()
+    if (this.nearStall) {
       this.onInteractStall(this.nearStall)
     }
   }
@@ -376,13 +338,7 @@ export class SmartMartScene extends Phaser.Scene {
     const character = this.add
       .image(0, -10, 'student-production')
       .setDisplaySize(52, 65)
-    this.character = character
-    character.setDisplaySize(64, 80)
-    this.player = this.add.container(
-      this.initialPosition.x,
-      this.initialPosition.y,
-      [shadow, character],
-    )
+    this.player = this.add.container(400, 250, [shadow, character])
     this.player.setDepth(20)
   }
 
@@ -405,10 +361,10 @@ export class SmartMartScene extends Phaser.Scene {
       stall.status.setAlpha(state === 'locked' ? 0.65 : 1)
 
       if (state === 'open') {
-        stall.status.setText('ĐÃ MỞ · VÀO GIAN')
+        stall.status.setText('ĐÃ MỞ · E ĐỂ LUYỆN')
         stall.status.setBackgroundColor('#187258dd')
       } else if (state === 'available') {
-        stall.status.setText('GIẢI TOÁN ĐỂ MỞ')
+        stall.status.setText('E ĐỂ MỞ KHÓA')
         stall.status.setBackgroundColor('#9b6f08dd')
       } else {
         stall.status.setText('ĐANG KHÓA')
@@ -469,21 +425,28 @@ export class SmartMartScene extends Phaser.Scene {
     }
   }
 
+  private canMoveTo(x: number, y: number) {
+    const playerRadius = 20
+
+    return !this.stalls.some((stall) => {
+      const halfWidth = stall.width / 2 + playerRadius
+      const halfHeight = stall.height / 2 + playerRadius
+
+      return (
+        x > stall.x - halfWidth &&
+        x < stall.x + halfWidth &&
+        y > stall.y - halfHeight &&
+        y < stall.y + halfHeight
+      )
+    })
+  }
+
   private fitCamera() {
     const width = this.scale.width
     const height = this.scale.height
-    const zoom = Math.max(0.85, Math.min(width / 800, height / 740))
+    const zoom = Math.min(width / 800, height / 740)
 
     this.cameras.main.setZoom(zoom)
-    const extraX = Math.max(0, width / zoom - 800) / 2
-    const extraY = Math.max(0, height / zoom - 740) / 2
-    this.cameras.main.setBounds(
-      -extraX,
-      -extraY,
-      800 + extraX * 2,
-      740 + extraY * 2,
-    )
-    this.cameras.main.startFollow(this.player, true, 1, 1)
-    this.helpText.setVisible(width >= 680)
+    this.cameras.main.centerOn(400, 370)
   }
 }

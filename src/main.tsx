@@ -16,7 +16,6 @@ import './world-chapter-ui.css'
 import './teacher-ui.css'
 import './classroom-ui.css'
 import './parent-ui.css'
-import './exploration-ui.css'
 
 const queryClient = new QueryClient()
 const TeacherApp = lazy(() => import('./teacher/TeacherApp').then(m => ({ default: m.TeacherApp })))
