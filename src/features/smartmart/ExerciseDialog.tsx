@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Check, Coins, Lightbulb, RotateCcw, X } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
+import { AvatarCharacter } from '../../components/avatar/AvatarCharacter'
+import { useAvatarProfileStore } from '../../store/avatarProfile'
 import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { exerciseXp, retryCost } from '../../domain/progression'
 import { createResearchEvent } from '../../domain/researchEvents'
@@ -30,6 +32,7 @@ export function ExerciseDialog({
   onCorrect: () => void
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
+  const avatar = useAvatarProfileStore((state) => state.avatar)
   const answerInput = useRef<HTMLInputElement>(null)
   const continueButton = useRef<HTMLButtonElement>(null)
   const attemptStartedAtRef = useRef(
@@ -127,7 +130,7 @@ export function ExerciseDialog({
     if (mode === 'practice') {
       setAnswer('')
       setResult('idle')
-      setRetryNote('Practice Mode không mất xu.')
+      setRetryNote('Luyện tập và thử lại đều miễn phí.')
       attemptStartedAtRef.current =
         typeof performance !== 'undefined' ? performance.now() : Date.now()
       requestAnimationFrame(() => answerInput.current?.focus())
@@ -207,7 +210,7 @@ export function ExerciseDialog({
           alt=""
         />
         <div className="exercise-guide">
-          <img src={gameAssets.production.student} alt="" />
+          <AvatarCharacter config={avatar} className="exercise-guide-avatar" decorative />
           <p>
             <Lightbulb size={19} aria-hidden="true" />
             Đọc kỹ đề và tính từng bước nhé.
@@ -348,7 +351,7 @@ export function ExerciseDialog({
           <div className="exercise-wallet" aria-label={'Ví hiện có ' + coins + ' xu'}>
             <Coins size={17} aria-hidden="true" />
             <span>{coins.toLocaleString('vi-VN')} xu</span>
-            {mode === 'practice' ? <small>Practice không mất xu</small> : null}
+            {mode === 'practice' ? <small>Luyện tập miễn phí</small> : null}
           </div>
         </form>
       </div>

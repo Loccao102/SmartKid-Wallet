@@ -1,3 +1,5 @@
+import { mapAssetPacks } from './mapPacks'
+export { mapAssetPacks } from './mapPacks'
 /**
  * Canonical asset paths for SmartKid Wallet.
  *
@@ -8,83 +10,86 @@
  *   scattering string paths throughout the app.
  */
 export const gameAssets = {
+  characterKits: {
+    chibiRpgV1: {
+      version: '1.0.0',
+      manifest: '/assets/characters/chibi-rpg/v1/manifest.json',
+      referenceSheet: '/assets/characters/chibi-rpg/v1/reference-sheet.png',
+    },
+  },
   production: {
-    party: '/assets/production/class-party.svg',
+    party: '/assets/maps/smartmart/environment/class-party.svg',
     employee: '/assets/production/employee.svg',
     employeeGreen: '/assets/production/employee-green.svg',
     customers: [1, 2, 3, 4, 5, 6].map((id) => `/assets/production/customer-${id}.svg`),
     products: {
-      'products.fruits.bananaBunch': '/assets/production/banana-bunch.svg',
-      'products.fruits.appleBag': '/assets/production/apple-bag.svg',
-      'products.fruits.orangeBag': '/assets/production/orange-bag.svg',
-      'products.fruits.grapeBox': '/assets/production/grape-box.svg',
-      'products.food.breadBasket': '/assets/production/bread-basket.svg',
-      'products.food.cupcakeBox': '/assets/production/cupcake-box.svg',
-      'products.food.yogurtPack': '/assets/production/yogurt-pack.svg',
-      'products.food.sandwichBox': '/assets/production/sandwich-box.svg',
-      'products.drinks.waterPack': '/assets/production/water-pack.svg',
-      'products.drinks.milkPack': '/assets/production/milk-pack.svg',
-      'products.drinks.teaPack': '/assets/production/tea-pack.svg',
-      'products.drinks.juicePack': '/assets/production/juice-pack.svg',
-      'products.supplies.paperCups': '/assets/production/paper-cups.svg',
-      'products.supplies.napkins': '/assets/production/napkins.svg',
+      'products.fruits.bananaBunch': '/assets/maps/smartmart/products/banana-bunch.svg',
+      'products.fruits.appleBag': '/assets/maps/smartmart/products/apple-bag.svg',
+      'products.fruits.orangeBag': '/assets/maps/smartmart/products/orange-bag.svg',
+      'products.fruits.grapeBox': '/assets/maps/smartmart/products/grape-box.svg',
+      'products.food.breadBasket': '/assets/maps/smartmart/products/bread-basket.svg',
+      'products.food.cupcakeBox': '/assets/maps/smartmart/products/cupcake-box.svg',
+      'products.food.yogurtPack': '/assets/maps/smartmart/products/yogurt-pack.svg',
+      'products.food.sandwichBox': '/assets/maps/smartmart/products/sandwich-box.svg',
+      'products.drinks.waterPack': '/assets/maps/smartmart/products/water-pack.svg',
+      'products.drinks.milkPack': '/assets/maps/smartmart/products/milk-pack.svg',
+      'products.drinks.teaPack': '/assets/maps/smartmart/products/tea-pack.svg',
+      'products.drinks.juicePack': '/assets/maps/smartmart/products/juice-pack.svg',
+      'products.supplies.paperCups': '/assets/maps/smartmart/products/paper-cups.svg',
+      'products.supplies.napkins': '/assets/maps/smartmart/products/napkins.svg',
     } as Record<string, string>,
     student: '/assets/production/student.svg',
     landscape: '/assets/production/world-landscape.svg',
-    hubFloor: '/assets/production/hub-floor.svg',
+    hubFloor: '/assets/maps/smartmart/environment/floor.svg',
     maps: {
-      smartmart: '/assets/production/smartmart.svg',
-      'tiny-bank': '/assets/production/tiny-bank.svg',
-      'happy-restaurant': '/assets/production/happy-restaurant.svg',
-      'weekend-market': '/assets/production/weekend-market.svg',
+      smartmart: mapAssetPacks['smartmart'].landmark,
+      'tiny-bank': mapAssetPacks['tiny-bank'].landmark,
+      'happy-restaurant': mapAssetPacks['happy-restaurant'].landmark,
+      'weekend-market': mapAssetPacks['weekend-market'].landmark,
     },
     stalls: {
-      produce: '/assets/production/stall-produce.svg',
-      food: '/assets/production/stall-food.svg',
-      drinks: '/assets/production/stall-drinks.svg',
-      supplies: '/assets/production/stall-supplies.svg',
-      promotion: '/assets/production/stall-promotion.svg',
+      produce: '/assets/maps/smartmart/stalls/produce.svg',
+      food: '/assets/maps/smartmart/stalls/food.svg',
+      drinks: '/assets/maps/smartmart/stalls/drinks.svg',
+      supplies: '/assets/maps/smartmart/stalls/supplies.svg',
+      promotion: '/assets/maps/smartmart/stalls/promotion.svg',
     },
-  },
-  brand: {
-    logo: '/assets/brand/logo.webp',
-    mascot: '/assets/brand/mascot/star-guide.webp',
   },
   maps: {
     smartmart: {
-      thumbnail: '/assets/maps/smartmart/thumbnail.webp',
-      background: '/assets/maps/smartmart/background.webp',
+      thumbnail: mapAssetPacks.smartmart.thumbnail,
+      background: mapAssetPacks.smartmart.scene,
     },
     tinyBank: {
-      thumbnail: '/assets/maps/tiny-bank/thumbnail-locked.webp',
+      thumbnail: mapAssetPacks['tiny-bank'].thumbnail,
     },
     happyRestaurant: {
-      thumbnail: '/assets/maps/happy-restaurant/thumbnail-locked.webp',
+      thumbnail: mapAssetPacks['happy-restaurant'].thumbnail,
     },
     weekendMarket: {
-      thumbnail: '/assets/maps/weekend-market/thumbnail-locked.webp',
+      thumbnail: mapAssetPacks['weekend-market'].thumbnail,
     },
   },
   stalls: {
     produce: {
-      icon: '/assets/stalls/produce/icon.webp',
-      booth: '/assets/stalls/produce/booth.webp',
+      icon: '/assets/maps/smartmart/stalls/produce.svg',
+      booth: '/assets/maps/smartmart/stalls/produce.svg',
     },
     food: {
-      icon: '/assets/stalls/food/icon.webp',
-      booth: '/assets/stalls/food/booth.webp',
+      icon: '/assets/maps/smartmart/stalls/food.svg',
+      booth: '/assets/maps/smartmart/stalls/food.svg',
     },
     drinks: {
-      icon: '/assets/stalls/drinks/icon.webp',
-      booth: '/assets/stalls/drinks/booth.webp',
+      icon: '/assets/maps/smartmart/stalls/drinks.svg',
+      booth: '/assets/maps/smartmart/stalls/drinks.svg',
     },
     supplies: {
-      icon: '/assets/stalls/supplies/icon.webp',
-      booth: '/assets/stalls/supplies/booth.webp',
+      icon: '/assets/maps/smartmart/stalls/supplies.svg',
+      booth: '/assets/maps/smartmart/stalls/supplies.svg',
     },
     promotion: {
-      icon: '/assets/stalls/promotion/icon.webp',
-      booth: '/assets/stalls/promotion/booth.webp',
+      icon: '/assets/maps/smartmart/stalls/promotion.svg',
+      booth: '/assets/maps/smartmart/stalls/promotion.svg',
     },
   },
 } as const

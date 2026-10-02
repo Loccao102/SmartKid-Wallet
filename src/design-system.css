@@ -3,17 +3,17 @@
    new tokens/components can progressively replace older ad-hoc rules. */
 
 :root {
-  --sk-bg: #f5f6ed;
-  --sk-bg-strong: #e9efe1;
-  --sk-surface: #fffdf7;
+  --sk-bg: #faf8f1;
+  --sk-bg-strong: #f0eee3;
+  --sk-surface: #fffef9;
   --sk-surface-raised: #ffffff;
   --sk-surface-soft: #eef3e8;
-  --sk-ink: #173f37;
-  --sk-ink-2: #34584f;
-  --sk-muted: #6f827b;
-  --sk-primary: #2f7d61;
-  --sk-primary-strong: #1f684f;
-  --sk-primary-soft: #dfeee4;
+  --sk-ink: #213e38;
+  --sk-ink-2: #3f5b53;
+  --sk-muted: #60746b;
+  --sk-primary: #26745b;
+  --sk-primary-strong: #195942;
+  --sk-primary-soft: #e0f0e5;
   --sk-gold: #eeb94d;
   --sk-gold-soft: #fff1c9;
   --sk-danger: #b05b43;
@@ -31,6 +31,18 @@
   --sk-radius-lg: 22px;
   --sk-radius-xl: 28px;
   --sk-content: 1220px;
+  --sk-lavender: #eee9f7;
+  --sk-lavender-ink: #645080;
+  --sk-coral: #fce8db;
+  --sk-coral-ink: #994b37;
+  --sk-sunflower: #fbefca;
+  --sk-sunflower-ink: #7c601f;
+  --sk-sky: #e8f3f1;
+  --sk-white: #ffffff;
+  --sk-button-shadow: 0 4px 0 #195942;
+  --sk-paper-shadow: 0 5px 0 #e8e9dd, 0 12px 32px #213e3808;
+  --sk-overlay: #213e3820;
+  --sk-font-display: 'Trebuchet MS', 'Segoe UI', sans-serif;
 }
 
 html {
@@ -663,4 +675,63 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: .001ms !important;
   }
+}
+
+/* Adventure edition: shared foundations, navigation and readable controls. */
+body { background: var(--sk-bg); }
+.production-shell { font-family: 'Segoe UI', system-ui, sans-serif; }
+.production-shell h1, .production-shell h2, .production-shell h3 { font-family: var(--sk-font-display); }
+.game-header { grid-template-columns: auto minmax(0, 1fr) auto; gap: 22px; padding: 15px max(24px, calc((100vw - var(--sk-content)) / 2)); background: var(--sk-surface); backdrop-filter: none; box-shadow: none; }
+.game-brand-mark { width: 46px; height: 46px; border-radius: var(--sk-radius-md); background: var(--sk-primary); box-shadow: var(--sk-button-shadow); }
+.game-brand strong { font-family: var(--sk-font-display); font-size: 20px; }
+.game-brand strong span { margin-left: 3px; }
+.game-brand small { font-size: 12px; color: var(--sk-muted); font-weight: 500; }
+.game-nav { border: 0; padding: 0; gap: 3px; border-radius: 0; background: transparent; }
+.game-nav button { min-width: 73px; min-height: 52px; padding: 8px 10px; gap: 5px; font-size: 13px; flex-direction: column; border-radius: var(--sk-radius-md); color: var(--sk-muted); }
+.game-nav button[aria-current='page'] { background: var(--sk-primary-soft); box-shadow: none; color: var(--sk-primary-strong); }
+.game-profile { border: 0; background: var(--sk-bg-strong); min-height: 48px; }
+.game-profile small { font-size: 12px; }
+.game-status-bar { border: 0; box-shadow: none; padding: 0; min-height: 38px; background: transparent; margin-top: 19px; }
+.game-status-bar > span { font-size: 13px; font-weight: 500; }
+.game-coins { background: var(--sk-gold-soft); color: var(--sk-sunflower-ink); }
+.game-coins, .game-xp { min-height: 36px; border-radius: var(--sk-radius-sm); font-size: 13px; }
+.game-xp > span { font-size: 12px; }
+.game-content { padding-top: 30px; }
+.eyebrow { font-size: 12px; letter-spacing: .1em; color: var(--sk-muted); font-weight: 750; }
+.adventure-button { min-height: 54px; border-radius: var(--sk-radius-md); padding: 13px 22px; box-shadow: var(--sk-button-shadow); font-size: 16px; }
+.adventure-button:hover:not(:disabled) { box-shadow: var(--sk-button-shadow); transform: translateY(-2px); }
+.adventure-button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.outline-button, .quiet-button { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; font-size: 14px; }
+.outline-button:disabled { color: var(--sk-muted); background: var(--sk-bg-strong); opacity: .8; }
+.icon-button { width: 46px; min-height: 46px; display: grid; place-items: center; }
+.production-shell button, .production-shell a { -webkit-tap-highlight-color: transparent; }
+.production-shell a:focus-visible, .production-shell select:focus-visible { outline: 3px solid var(--sk-ring); outline-offset: 4px; }
+.theme-mint { --chapter-tint: var(--sk-primary-soft); --chapter-ink: var(--sk-primary-strong); }
+.theme-lavender { --chapter-tint: var(--sk-lavender); --chapter-ink: var(--sk-lavender-ink); }
+.theme-coral { --chapter-tint: var(--sk-coral); --chapter-ink: var(--sk-coral-ink); }
+.theme-sunflower { --chapter-tint: var(--sk-sunflower); --chapter-ink: var(--sk-sunflower-ink); }
+@media (max-width: 1150px) {
+  .game-header { gap: 12px; }
+  .game-profile > span:last-child { display: none; }
+  .game-profile { grid-template-columns: 38px; padding-right: 6px; }
+  .game-nav button { min-width: 68px; }
+}
+@media (min-width: 761px) and (max-width: 1040px) {
+  .game-nav button span { display: block; }
+  .game-brand small { display: none; }
+  .game-brand strong { font-size: 17px; }
+  .game-nav button { min-width: 61px; padding-inline: 7px; font-size: 12px; }
+}
+@media (max-width: 760px) {
+  .game-header { min-height: 68px; grid-template-columns: 1fr auto; padding: 10px 16px; }
+  .game-brand strong { font-size: 19px; }
+  .game-brand-mark { width: 40px; height: 40px; }
+  .game-nav { gap: 0; padding: 6px 3px; border: 1px solid var(--sk-border); border-radius: var(--sk-radius-lg); background: var(--sk-surface); box-shadow: var(--sk-shadow-md); }
+  .game-nav button { min-width: 0; min-height: 52px; padding: 6px 2px; font-size: 11px; }
+  .game-nav button svg { width: 21px; height: 21px; }
+  .game-nav button[aria-current='page'] { border-radius: var(--sk-radius-sm); }
+  .game-status-bar { margin-top: 12px; }
+  .game-content { padding-top: 24px; }
+  .game-xp > span { font-size: 11px; }
+  .game-xp progress { width: 54px; }
 }

@@ -1,0 +1,4 @@
+# Approved character kit files are byte-for-byte snapshots with SHA-256 hashes.
+# Preserve their original line endings on every checkout platform.
+/public/assets/characters/chibi-rpg/v1/** -text
+/docs/kits/chibi-rpg-v1/source/** -text whitespace=trailing-space,space-before-tab,cr-at-eol

@@ -2,9 +2,9 @@
 
 ## 1. Trạng thái
 
-UI demo hiện tại được chấp nhận để chứng minh flow, nhưng **không phải production visual target**.
+Student UI đang dùng hướng phiêu lưu 2D dành cho lớp 4–5: màu kem/xanh, minh họa riêng theo map, nhân vật tùy chỉnh và một nhiệm vụ chính trên mỗi màn. Phạm vi triển khai, kiểm tra và giới hạn được ghi trong [UI_REDESIGN.md](UI_REDESIGN.md).
 
-Production cần giảm cảm giác dashboard SaaS và tăng cảm giác game/learning world.
+Các scene/gameplay cũ được giữ tương thích và tiếp tục dùng foundation chung. Không coi visual pass là bằng chứng đã hoàn thành pilot hoặc đã kiểm chứng với học sinh thật.
 
 ## 2. Hai visual mode
 
@@ -167,3 +167,7 @@ Palette:
 - map/stall có màu riêng.
 
 Asset thật phải thay vector placeholder trước pilot-facing demo.
+
+## Adventure edition — 2026-10-01
+
+Student shell, world/home, SmartMart, bài Toán, nhân vật/profile, nhiệm vụ và bảng xếp hạng đã có pass phiêu lưu 2D. Xem [UI_REDESIGN.md](UI_REDESIGN.md) để biết phạm vi, kiểm tra và giới hạn hiện tại. Foundation vẫn nằm trong design-system.css, composition trong screen-ui.css, work/supporting surfaces trong work-ui.css và avatar trong avatar-ui.css.

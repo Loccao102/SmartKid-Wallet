@@ -8,3 +8,4 @@ coverage
 !.vscode/extensions.json
 .vercel
 .env*
+output/ui-redesign/

@@ -1,0 +1,435 @@
+{
+  "schemaVersion": 1,
+  "id": "smartkid-chibi-rpg",
+  "version": "1.0.0",
+  "savedOn": "2026-10-02",
+  "description": "Chibi RPG 2D — SmartKid Wallet, học sinh lớp 4–5",
+  "canvas": {
+    "width": 240,
+    "height": 300
+  },
+  "portraitViewBox": "28 8 190 178",
+  "pose": "front-standing-static",
+  "transparentBackground": true,
+  "avatarPersistenceVersion": 2,
+  "sourceFiles": [
+    {
+      "path": "src/components/avatar/AvatarCharacter.tsx",
+      "snapshot": "source/src/components/avatar/AvatarCharacter.tsx",
+      "sha256": "3f4caee4cfedfe75d9a246e2f1787bf216c158b8173af95da67200f11824f412"
+    },
+    {
+      "path": "src/avatar/avatarCatalog.ts",
+      "snapshot": "source/src/avatar/avatarCatalog.ts",
+      "sha256": "fd1f860e389b707b3517c10067cc5afee24dfed773669f8b9906526b176cf5da"
+    },
+    {
+      "path": "src/game/avatarSvg.ts",
+      "snapshot": "source/src/game/avatarSvg.ts",
+      "sha256": "7a61d6bf680c5e4f06eadde7e1d912b801732fb9fee5cc8d70f31ba7a54df63d"
+    }
+  ],
+  "options": {
+    "bodyTypeOptions": [
+      {
+        "id": "balanced",
+        "label": "Cân đối"
+      },
+      {
+        "id": "slim",
+        "label": "Mảnh"
+      },
+      {
+        "id": "broad",
+        "label": "Khỏe khoắn"
+      }
+    ],
+    "skinToneOptions": [
+      {
+        "id": "#f6d1b5",
+        "label": "Sáng"
+      },
+      {
+        "id": "#eab890",
+        "label": "Ấm"
+      },
+      {
+        "id": "#d99b70",
+        "label": "Mật ong"
+      },
+      {
+        "id": "#ba7956",
+        "label": "Nâu ấm"
+      },
+      {
+        "id": "#89563f",
+        "label": "Nâu đậm"
+      }
+    ],
+    "hairStyleOptions": [
+      {
+        "id": "short",
+        "label": "Tóc ngắn"
+      },
+      {
+        "id": "side",
+        "label": "Rẽ bên"
+      },
+      {
+        "id": "bob",
+        "label": "Tóc bob"
+      },
+      {
+        "id": "ponytail",
+        "label": "Đuôi ngựa"
+      },
+      {
+        "id": "curly",
+        "label": "Tóc xoăn"
+      },
+      {
+        "id": "waves",
+        "label": "Tóc gợn"
+      },
+      {
+        "id": "crop",
+        "label": "Tóc tém"
+      },
+      {
+        "id": "bun",
+        "label": "Tóc búi"
+      }
+    ],
+    "hairColorOptions": [
+      {
+        "id": "#352923",
+        "label": "Đen nâu"
+      },
+      {
+        "id": "#5b3a2b",
+        "label": "Nâu hạt dẻ"
+      },
+      {
+        "id": "#8a5b35",
+        "label": "Nâu sáng"
+      },
+      {
+        "id": "#1f2a38",
+        "label": "Đen xanh"
+      },
+      {
+        "id": "#7a4038",
+        "label": "Nâu đỏ"
+      },
+      {
+        "id": "#c59a58",
+        "label": "Vàng nâu"
+      }
+    ],
+    "eyeStyleOptions": [
+      {
+        "id": "round",
+        "label": "Tròn"
+      },
+      {
+        "id": "soft",
+        "label": "Dịu"
+      },
+      {
+        "id": "bright",
+        "label": "Lanh lợi"
+      },
+      {
+        "id": "calm",
+        "label": "Điềm tĩnh"
+      }
+    ],
+    "topColorOptions": [
+      {
+        "id": "#3d8668",
+        "label": "Xanh lá"
+      },
+      {
+        "id": "#4f83bd",
+        "label": "Xanh biển"
+      },
+      {
+        "id": "#dc7969",
+        "label": "Cam san hô"
+      },
+      {
+        "id": "#a874b7",
+        "label": "Tím"
+      },
+      {
+        "id": "#e3ad3e",
+        "label": "Vàng"
+      },
+      {
+        "id": "#6f7d95",
+        "label": "Xanh xám"
+      },
+      {
+        "id": "#d6617e",
+        "label": "Hồng"
+      },
+      {
+        "id": "#52766b",
+        "label": "Xanh rêu"
+      }
+    ],
+    "bottomColorOptions": [
+      {
+        "id": "#304b63",
+        "label": "Xanh đậm"
+      },
+      {
+        "id": "#4c635d",
+        "label": "Xanh rêu"
+      },
+      {
+        "id": "#7a6858",
+        "label": "Nâu"
+      },
+      {
+        "id": "#5f5b73",
+        "label": "Tím xám"
+      },
+      {
+        "id": "#44505e",
+        "label": "Than"
+      },
+      {
+        "id": "#82705f",
+        "label": "Be nâu"
+      }
+    ],
+    "shoeColorOptions": [
+      {
+        "id": "#263843",
+        "label": "Than"
+      },
+      {
+        "id": "#f3eee2",
+        "label": "Kem"
+      },
+      {
+        "id": "#5a4a43",
+        "label": "Nâu"
+      },
+      {
+        "id": "#4e6b65",
+        "label": "Xanh rêu"
+      },
+      {
+        "id": "#9f554e",
+        "label": "Đỏ gạch"
+      }
+    ],
+    "accessoryOptions": [
+      {
+        "id": "none",
+        "label": "Không"
+      },
+      {
+        "id": "glasses",
+        "label": "Kính"
+      },
+      {
+        "id": "cap",
+        "label": "Mũ lưỡi trai"
+      },
+      {
+        "id": "headband",
+        "label": "Băng đô"
+      },
+      {
+        "id": "bag",
+        "label": "Túi đeo"
+      }
+    ]
+  },
+  "defaultConfig": {
+    "bodyType": "balanced",
+    "skinTone": "#eab890",
+    "hairStyle": "side",
+    "hairColor": "#352923",
+    "eyeStyle": "bright",
+    "topColor": "#3d8668",
+    "bottomColor": "#304b63",
+    "shoeColor": "#f3eee2",
+    "accessory": "none"
+  },
+  "expressions": [
+    "happy",
+    "neutral",
+    "thinking",
+    "confused",
+    "concerned"
+  ],
+  "presets": [
+    {
+      "id": "short",
+      "label": "Tóc ngắn",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#f6d1b5",
+        "hairStyle": "short",
+        "hairColor": "#352923",
+        "eyeStyle": "bright",
+        "topColor": "#3d8668",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "bag"
+      },
+      "full": "svg/short.svg",
+      "portrait": "portraits/short.svg"
+    },
+    {
+      "id": "side",
+      "label": "Rẽ bên",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#eab890",
+        "hairStyle": "side",
+        "hairColor": "#5b3a2b",
+        "eyeStyle": "bright",
+        "topColor": "#4f83bd",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "none"
+      },
+      "full": "svg/side.svg",
+      "portrait": "portraits/side.svg"
+    },
+    {
+      "id": "bob",
+      "label": "Tóc bob",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#d99b70",
+        "hairStyle": "bob",
+        "hairColor": "#8a5b35",
+        "eyeStyle": "bright",
+        "topColor": "#dc7969",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "headband"
+      },
+      "full": "svg/bob.svg",
+      "portrait": "portraits/bob.svg"
+    },
+    {
+      "id": "ponytail",
+      "label": "Đuôi ngựa",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#ba7956",
+        "hairStyle": "ponytail",
+        "hairColor": "#1f2a38",
+        "eyeStyle": "bright",
+        "topColor": "#a874b7",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "glasses"
+      },
+      "full": "svg/ponytail.svg",
+      "portrait": "portraits/ponytail.svg"
+    },
+    {
+      "id": "curly",
+      "label": "Tóc xoăn",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#89563f",
+        "hairStyle": "curly",
+        "hairColor": "#7a4038",
+        "eyeStyle": "bright",
+        "topColor": "#e3ad3e",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "cap"
+      },
+      "full": "svg/curly.svg",
+      "portrait": "portraits/curly.svg"
+    },
+    {
+      "id": "waves",
+      "label": "Tóc gợn",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#f6d1b5",
+        "hairStyle": "waves",
+        "hairColor": "#c59a58",
+        "eyeStyle": "bright",
+        "topColor": "#6f7d95",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "none"
+      },
+      "full": "svg/waves.svg",
+      "portrait": "portraits/waves.svg"
+    },
+    {
+      "id": "crop",
+      "label": "Tóc tém",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#eab890",
+        "hairStyle": "crop",
+        "hairColor": "#352923",
+        "eyeStyle": "bright",
+        "topColor": "#d6617e",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "bag"
+      },
+      "full": "svg/crop.svg",
+      "portrait": "portraits/crop.svg"
+    },
+    {
+      "id": "bun",
+      "label": "Tóc búi",
+      "config": {
+        "bodyType": "balanced",
+        "skinTone": "#d99b70",
+        "hairStyle": "bun",
+        "hairColor": "#5b3a2b",
+        "eyeStyle": "bright",
+        "topColor": "#52766b",
+        "bottomColor": "#304b63",
+        "shoeColor": "#f3eee2",
+        "accessory": "headband"
+      },
+      "full": "svg/bun.svg",
+      "portrait": "portraits/bun.svg"
+    }
+  ],
+  "assetSha256": {
+    "svg/short.svg": "e9b92a5ded6fe566564f5ee25e079365d4b11838ff77890070083c798c95733a",
+    "portraits/short.svg": "066f846945c7ab8c7e86a502f44233e8b3ea873ccce8ad28c384b5e3611d3adc",
+    "svg/side.svg": "1b3877d9d111b7497d83f8a5c7c713521674abb97db6a377a30c412add0e849d",
+    "portraits/side.svg": "b58ba23477cee7e27b1eb2163d9b837b1a63919456d216af23dc36bf02820ab7",
+    "svg/bob.svg": "78dbf69b182c52deeb5df88043e0a138f9621aaa38f29618138947f50973720e",
+    "portraits/bob.svg": "952a9f6abc5ab65dd129ae749067e3c3f4d4008afb5f9b8d4151f6642bdb8178",
+    "svg/ponytail.svg": "e266e6a76f18c88a3664595382c951761e155f84ed7c93ae7c96ff680326ced6",
+    "portraits/ponytail.svg": "0d459229f2a0517731da13ec76b04d1f9c041eb67d04b10a35a2128efa0ac426",
+    "svg/curly.svg": "ed79cc8f97a38ac978327882be11ec99304635b15165436142090d86491696d9",
+    "portraits/curly.svg": "8bdb25c7f56e3ea6da091657201f63c0888ed2e80b4bcd609d6f328040caac83",
+    "svg/waves.svg": "e19c9412ee292d5060fc323bec063ca4bd7ca37542b1bd0a8a48a67424e792a0",
+    "portraits/waves.svg": "efac5635f4f4e6d00e41075fa4de2b4bccfaf38274ea87173f0285754a566576",
+    "svg/crop.svg": "0210277402b6683cb58a93bffc8e9cf8e411b63bdfa591f96bcfc8fdc9db7054",
+    "portraits/crop.svg": "bd3c71b614c93ab2bf6411bf034d7aac1e4281825847bef7dc05bbe50bd66dbe",
+    "svg/bun.svg": "1f9560478b0caffb86a457a46cdb56328c64852cdac0ba4ec2da0d116336d447",
+    "portraits/bun.svg": "374c4a0c4961990d05cbb4c24d30a8892110065c2f16a28b6a8f9a516e5b5edf",
+    "expressions/happy.svg": "0f0937b188bd4cdef3105e1b29ec536ab45a11ac35abf988f463b065cd4fc096",
+    "expressions/neutral.svg": "7e820d17c96336201ffa30a24279da8baeb76b891e19da91b5150c27d6afa90a",
+    "expressions/thinking.svg": "fd4e1213dcb4782e77ffc917784af70ce84bfbc9f54ff43e0f3de1b36180bf29",
+    "expressions/confused.svg": "91dbe0ab64ed097596acb6045d7d8e62f7411fe9b560727b174e11e9cabdf4ea",
+    "expressions/concerned.svg": "9bba70ab97cb8e21a168dcaedb3b2bc098d04de000f873f523aacbc405ff1854",
+    "svg/default-student.svg": "208fe1b20081602aa6bf09613248c676d7e85d29c251e21f1fc7a9d382ec1a56",
+    "svg/smartmart-uniform.svg": "c3623f8b553886b6164205734ec8d6dacf3ad80eec5c16b71ea66fe3f4204738",
+    "reference-sheet.png": "effb1c21f67e0e87c283550de4880de056d9de270114425e93309a1003c9b134"
+  },
+  "referenceSheet": "reference-sheet.png"
+}

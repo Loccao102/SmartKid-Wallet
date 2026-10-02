@@ -7,7 +7,10 @@ import {
   CircleDot,
 } from 'lucide-react'
 import Phaser from 'phaser'
+import { AVATAR_ART_SIZE, AvatarCharacter } from '../components/avatar/AvatarCharacter'
+import { useAvatarProfileStore } from '../store/avatarProfile'
 import type { StallId } from '../domain/types'
+import { serializeAvatarSvg } from './avatarSvg'
 import { SmartMartScene } from './SmartMartScene'
 
 interface SmartMartGameProps {
@@ -23,6 +26,8 @@ export default function SmartMartGame({
   onInteractStall,
   onNearStallChange,
 }: SmartMartGameProps) {
+  const avatar = useAvatarProfileStore((state) => state.avatar)
+  const avatarSourceRef = useRef<HTMLDivElement | null>(null)
   const hostRef = useRef<HTMLDivElement | null>(null)
   const gameRef = useRef<Phaser.Game | null>(null)
   const sceneRef = useRef<SmartMartScene | null>(null)
@@ -64,7 +69,15 @@ export default function SmartMartGame({
   useEffect(() => {
     if (!hostRef.current || gameRef.current) return
 
+    // Reuse the React renderer, including every cosmetic layer, for the canvas.
+    // The SVG contains only catalog-controlled shapes and colors, no remote media.
+    const avatarSvg = avatarSourceRef.current?.querySelector('svg')
+    if (!avatarSvg) return
+    const avatarSvgUrl = serializeAvatarSvg(avatarSvg)
+
     const scene = new SmartMartScene({
+      avatarSvgUrl,
+      avatarArtSize: AVATAR_ART_SIZE,
       unlockedStalls,
       onInteractStall: (stallId) => interactRef.current(stallId),
       onNearStallChange: (stallId) => nearRef.current?.(stallId),
@@ -123,6 +136,9 @@ export default function SmartMartGame({
 
   return (
     <div className="smartmart-game-wrapper">
+      <div ref={avatarSourceRef} hidden aria-hidden="true" data-player-avatar-source>
+        <AvatarCharacter config={avatar} decorative />
+      </div>
       <div
         ref={hostRef}
         className="smartmart-phaser-host"

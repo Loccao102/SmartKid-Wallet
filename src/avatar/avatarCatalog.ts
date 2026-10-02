@@ -31,6 +31,19 @@ export interface AvatarConfig {
   accessory: AvatarAccessory
 }
 
+/** The persisted shape is intentionally small so it can move to a server profile later. */
+export const AVATAR_CONFIG_KEYS = [
+  'bodyType',
+  'skinTone',
+  'hairStyle',
+  'hairColor',
+  'eyeStyle',
+  'topColor',
+  'bottomColor',
+  'shoeColor',
+  'accessory',
+] as const
+
 export interface AvatarOption<T extends string> {
   id: T
   label: string
@@ -124,6 +137,51 @@ export const defaultStudentAvatar: AvatarConfig = {
   bottomColor: '#304b63',
   shoeColor: '#f3eee2',
   accessory: 'none',
+}
+
+const bodyTypeIds = new Set<AvatarBodyType>(bodyTypeOptions.map((option) => option.id))
+const hairStyleIds = new Set<AvatarHairStyle>(hairStyleOptions.map((option) => option.id))
+const eyeStyleIds = new Set<AvatarEyeStyle>(eyeStyleOptions.map((option) => option.id))
+const accessoryIds = new Set<AvatarAccessory>(accessoryOptions.map((option) => option.id))
+const skinToneIds = new Set<string>(skinToneOptions.map((option) => option.id))
+const hairColorIds = new Set<string>(hairColorOptions.map((option) => option.id))
+const topColorIds = new Set<string>(topColorOptions.map((option) => option.id))
+const bottomColorIds = new Set<string>(bottomColorOptions.map((option) => option.id))
+const shoeColorIds = new Set<string>(shoeColorOptions.map((option) => option.id))
+
+export function isAvatarConfig(value: unknown): value is AvatarConfig {
+  if (!value || typeof value !== 'object') return false
+  const config = value as Partial<AvatarConfig>
+  return (
+    bodyTypeIds.has(config.bodyType as AvatarBodyType) &&
+    skinToneIds.has(config.skinTone ?? '') &&
+    hairStyleIds.has(config.hairStyle as AvatarHairStyle) &&
+    hairColorIds.has(config.hairColor ?? '') &&
+    eyeStyleIds.has(config.eyeStyle as AvatarEyeStyle) &&
+    topColorIds.has(config.topColor ?? '') &&
+    bottomColorIds.has(config.bottomColor ?? '') &&
+    shoeColorIds.has(config.shoeColor ?? '') &&
+    accessoryIds.has(config.accessory as AvatarAccessory)
+  )
+}
+
+/** Drops unknown persisted options while keeping a safe, renderable avatar. */
+export function normalizeAvatarConfig(value: unknown): AvatarConfig {
+  if (isAvatarConfig(value)) return { ...value }
+  if (!value || typeof value !== 'object') return { ...defaultStudentAvatar }
+
+  const candidate = value as Partial<AvatarConfig>
+  return {
+    bodyType: bodyTypeIds.has(candidate.bodyType as AvatarBodyType) ? candidate.bodyType as AvatarBodyType : defaultStudentAvatar.bodyType,
+    skinTone: skinToneIds.has(candidate.skinTone ?? '') ? candidate.skinTone as string : defaultStudentAvatar.skinTone,
+    hairStyle: hairStyleIds.has(candidate.hairStyle as AvatarHairStyle) ? candidate.hairStyle as AvatarHairStyle : defaultStudentAvatar.hairStyle,
+    hairColor: hairColorIds.has(candidate.hairColor ?? '') ? candidate.hairColor as string : defaultStudentAvatar.hairColor,
+    eyeStyle: eyeStyleIds.has(candidate.eyeStyle as AvatarEyeStyle) ? candidate.eyeStyle as AvatarEyeStyle : defaultStudentAvatar.eyeStyle,
+    topColor: topColorIds.has(candidate.topColor ?? '') ? candidate.topColor as string : defaultStudentAvatar.topColor,
+    bottomColor: bottomColorIds.has(candidate.bottomColor ?? '') ? candidate.bottomColor as string : defaultStudentAvatar.bottomColor,
+    shoeColor: shoeColorIds.has(candidate.shoeColor ?? '') ? candidate.shoeColor as string : defaultStudentAvatar.shoeColor,
+    accessory: accessoryIds.has(candidate.accessory as AvatarAccessory) ? candidate.accessory as AvatarAccessory : defaultStudentAvatar.accessory,
+  }
 }
 
 export const npcAvatarPresets: AvatarConfig[] = [

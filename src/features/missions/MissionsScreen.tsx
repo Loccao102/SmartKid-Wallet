@@ -19,7 +19,7 @@ import { useWorkShiftStore } from '../../store/workShift'
 function StarBadge({ stars }: { stars: number }) {
   if (!stars) return null
   return (
-    <span className="mission-best-stars" aria-label={'Kỷ lục ' + stars + '/5 sao'}>
+    <span className="mission-best-stars" aria-label={'Số sao tốt nhất ' + stars + '/5'}>
       <Star size={14} fill="currentColor" />
       {stars}/5
     </span>
@@ -60,20 +60,36 @@ export function MissionsScreen({
   const managerUnlocked = expertCompleted && level >= 8
 
   return (
-    <section className="missions-screen">
+    <section className="missions-screen" aria-labelledby="missions-title">
       <header className="missions-page-heading">
         <div className="world-heading-icon" aria-hidden="true">
           <Target size={28} strokeWidth={1.9} />
         </div>
         <div>
           <p className="page-kicker">NHIỆM VỤ CỦA EM</p>
-          <h1>Mỗi cấp độ mở thêm một thử thách</h1>
+          <h1 id="missions-title">Mở từng chặng, học từng điều hay</h1>
           <p>
-            Hoàn thành Toán để mở gian, chinh phục nhiệm vụ để lấy sao, rồi
-            bước vào những ca làm việc có trade-off và hậu quả thật sự.
+            Giải Toán để mở gian hàng, hoàn thành nhiệm vụ để nhận sao, rồi
+            thử sức ở những ca làm việc thú vị.
           </p>
         </div>
       </header>
+
+      <div className="mission-progress-banner" aria-label="Tiến trình của em">
+        <div>
+          <span className="mission-progress-label">HÀNH TRÌNH HIỆN TẠI</span>
+          <strong>{completedMissionIds.length}/{missions.length} nhiệm vụ</strong>
+          <p>{completedMissionIds.length ? 'Em đang tiến bộ từng bước.' : 'Chọn một chặng để bắt đầu nhé.'}</p>
+        </div>
+        <div className="mission-progress-stat">
+          <strong>{unlockedStalls.length}/{stalls.length}</strong>
+          <span>gian hàng đã mở</span>
+        </div>
+        <div className="mission-progress-stat">
+          <strong>Cấp {level}</strong>
+          <span>cấp độ hiện tại</span>
+        </div>
+      </div>
 
       <div className="mission-journey-list">
         {missions.map((mission, index) => {
@@ -109,7 +125,7 @@ export function MissionsScreen({
 
               <div className="journey-mission-copy">
                 <div className="journey-status-row">
-                  <span>SHOPPING MISSION · CẤP {mission.unlockLevel}+</span>
+                  <span>NHIỆM VỤ MUA SẮM · MỞ Ở CẤP {mission.unlockLevel}</span>
                   {completed ? (
                     <em className="journey-status complete">
                       <Check size={12} /> Đã hoàn thành
@@ -140,9 +156,9 @@ export function MissionsScreen({
                 ) : null}
 
                 <div className="journey-mission-meta">
-                  <span>{mission.people} người</span>
-                  <span>{mission.budget.toLocaleString('vi-VN')}đ</span>
-                  <span>{mission.requiredStalls.length} nhóm hàng</span>
+              <span>{mission.people} người chơi</span>
+              <span>Ngân sách {mission.budget.toLocaleString('vi-VN')}đ</span>
+              <span>{mission.requiredStalls.length} nhóm hàng</span>
                 </div>
               </div>
 
@@ -182,7 +198,7 @@ export function MissionsScreen({
           </div>
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>WORK MODE · NHÂN VIÊN TẬP SỰ</span>
+                <span>CA LÀM · NHÂN VIÊN TẬP SỰ</span>
               <em
                 className={
                   'journey-status ' +
@@ -209,13 +225,13 @@ export function MissionsScreen({
             </div>
             <h2>{traineeShift.title} · Nhân viên tập sự</h2>
             <p>
-              Phục vụ khách, tính toán khi công việc yêu cầu và đưa ra lựa chọn
-              mà không được biết trước điểm số.
+              Phục vụ khách, tính toán khi cần và chọn cách xử lý phù hợp cho
+              từng tình huống.
             </p>
             <div className="journey-mission-meta">
-              <span>3 khách</span>
-              <span>Trade-off ẩn</span>
-              <span>Chấm 1–5 sao cuối ca</span>
+              <span>{traineeShift.customers.length} khách</span>
+              <span>Tình huống bất ngờ</span>
+              <span>Tổng kết sao cuối ca</span>
             </div>
           </div>
           <button
@@ -228,7 +244,7 @@ export function MissionsScreen({
               ? 'Chơi lại nâng sao'
               : workModeUnlocked
                 ? 'Bắt đầu ca làm'
-                : 'Hoàn thành Mission đầu'}
+                : 'Hoàn thành nhiệm vụ đầu'}
           </button>
         </article>
 
@@ -250,7 +266,7 @@ export function MissionsScreen({
           </div>
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>WORK MODE · QUẦY ĐÔNG KHÁCH</span>
+                <span>CA LÀM · QUẦY ĐÔNG KHÁCH</span>
               <em
                 className={
                   'journey-status ' +
@@ -277,13 +293,13 @@ export function MissionsScreen({
             </div>
             <h2>{advancedShift.title}</h2>
             <p>
-              6 khách, 4 tình huống và nhiều trade-off hơn. Mỗi lựa chọn có thể
-              tác động tới khách sau hoặc cuối ca.
+              Nhiều khách hơn và nhiều tình huống hơn. Mỗi cách xử lý có thể
+              làm thay đổi những gì xảy ra ở phần sau của ca.
             </p>
             <div className="journey-mission-meta">
-              <span>6 khách</span>
-              <span>4 tình huống</span>
-              <span>Seed cá nhân</span>
+              <span>{advancedShift.customers.length} khách</span>
+              <span>Nhiều tình huống</span>
+              <span>Ca làm riêng của em</span>
             </div>
           </div>
           <button
@@ -318,7 +334,7 @@ export function MissionsScreen({
           </div>
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>WORK MODE · CUỐI TUẦN CAO ĐIỂM · CẤP 6+</span>
+                <span>CA LÀM · NGÀY ĐÔNG KHÁCH · CẤP 6+</span>
               <em
                 className={
                   'journey-status ' +
@@ -347,13 +363,13 @@ export function MissionsScreen({
             </div>
             <h2>{expertShift.title}</h2>
             <p>
-              8 khách, 5 tình huống và có thể xuất hiện đổi trả, hàng lỗi,
-              coupon, so sánh đơn giá hoặc sự cố bảo quản.
+              Một ca bận rộn với các tình huống như đổi hàng, sản phẩm lỗi,
+              khuyến mãi và so sánh giá.
             </p>
             <div className="journey-mission-meta">
-              <span>8 khách</span>
-              <span>5 tình huống</span>
-              <span>Độ khó 1–3</span>
+              <span>{expertShift.customers.length} khách</span>
+              <span>Nhiều tình huống</span>
+              <span>Có thử thách mới</span>
             </div>
           </div>
           <button
@@ -390,7 +406,7 @@ export function MissionsScreen({
           </div>
           <div className="journey-mission-copy">
             <div className="journey-status-row">
-              <span>SHIFT MANAGER · ĐIỀU PHỐI NGUỒN LỰC · CẤP 8+</span>
+                <span>CA LÀM · NGƯỜI ĐIỀU PHỐI · CẤP 8+</span>
               <em
                 className={
                   'journey-status ' +
@@ -419,14 +435,13 @@ export function MissionsScreen({
             </div>
             <h2>{managerShift.title}</h2>
             <p>
-              Trước khi mở ca, em phải chọn khu vực được ưu tiên nguồn lực.
-              Quyết định này có thể chặn một sự cố tương ứng nhưng chỉ dùng
-              được một lần trong cả ca.
+              Trước khi mở ca, em chọn khu vực cần được ưu tiên. Lựa chọn này
+              giúp em chuẩn bị tốt hơn cho một tình huống trong ca.
             </p>
             <div className="journey-mission-meta">
-              <span>10 khách</span>
-              <span>6 tình huống</span>
-              <span>Planning + simulation</span>
+              <span>{managerShift.customers.length} khách</span>
+              <span>Nhiều tình huống</span>
+              <span>Lập kế hoạch trước ca</span>
             </div>
           </div>
           <button

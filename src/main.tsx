@@ -1,8 +1,7 @@
-import { StrictMode } from 'react'
+import { lazy, StrictMode, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { App } from './App'
-import { TeacherApp } from './teacher/TeacherApp'
 import './styles.css'
 import './production-ui.css'
 import './shopping-ui.css'
@@ -18,6 +17,7 @@ import './teacher-ui.css'
 import './classroom-ui.css'
 
 const queryClient = new QueryClient()
+const TeacherApp = lazy(() => import('./teacher/TeacherApp').then(m => ({ default: m.TeacherApp })))
 
 function resetDemoStorageFromUrl() {
   const url = new URL(window.location.href)
@@ -46,7 +46,9 @@ if (!resetDemoStorageFromUrl()) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      {window.location.pathname.startsWith('/teacher') ? <TeacherApp /> : <App />}
+      <Suspense fallback={<p role="status">Đang mở SmartKid Wallet…</p>}>
+        {window.location.pathname.startsWith('/teacher') ? <TeacherApp /> : <App />}
+      </Suspense>
     </QueryClientProvider>
   </StrictMode>,
 )

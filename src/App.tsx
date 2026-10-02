@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import {
   BriefcaseBusiness,
   Coins,
@@ -22,29 +22,32 @@ import { getWorkShiftById } from './data/workShiftInstances'
 import { xpNeededForNextLevel } from './domain/progression'
 import { buildWorkShiftFingerprint } from './domain/workShiftGenerator'
 import type { MapId, ProductStallId } from './domain/types'
-import { TinyBankScreen } from './features/bank/TinyBankScreen'
-import { DailyChallengeScreen } from './features/challenges/DailyChallengeScreen'
-import { WeeklyChallengeScreen } from './features/challenges/WeeklyChallengeScreen'
-import { ClassroomScreen } from './features/classroom/ClassroomScreen'
 import { StudentAccountBridge } from './features/classroom/StudentAccountBridge'
 import { HomeScreen } from './features/home/HomeScreen'
-import { HappyRestaurantScreen } from './features/restaurant/HappyRestaurantScreen'
-import { LeaderboardScreen } from './features/leaderboard/LeaderboardScreen'
-import { ClassPartyMissionScreen } from './features/missions/ClassPartyMissionScreen'
-import { MissionsScreen } from './features/missions/MissionsScreen'
-import { WeekendMarketScreen } from './features/market/WeekendMarketScreen'
-import { ProfileScreen } from './features/profile/ProfileScreen'
 import { ResearchSyncBridge } from './features/research/ResearchSyncBridge'
 import { AudioExperience } from './features/system/AudioExperience'
 import { AudioSettingsModal } from './features/system/AudioSettingsModal'
 import { FeatureErrorBoundary } from './features/system/FeatureErrorBoundary'
-import { SmartMartScreen } from './features/smartmart/SmartMartScreen'
-import { WorkModeScreen } from './features/work/WorkModeScreen'
 import { WorldMapScreen } from './features/world/WorldMapScreen'
 import { useAvatarProfileStore } from './store/avatarProfile'
 import { useLearningProfileStore } from './store/learningProfile'
 import { useProgressionStore } from './store/progression'
 import { useStudentAccountStore } from './store/studentAccount'
+
+// Load each destination when visited; Phaser stays in its own scene chunks.
+const SmartMartScreen = lazy(() => import('./features/smartmart/SmartMartScreen').then(m => ({ default: m.SmartMartScreen })))
+const WorkModeScreen = lazy(() => import('./features/work/WorkModeScreen').then(m => ({ default: m.WorkModeScreen })))
+const TinyBankScreen = lazy(() => import('./features/bank/TinyBankScreen').then(m => ({ default: m.TinyBankScreen })))
+const HappyRestaurantScreen = lazy(() => import('./features/restaurant/HappyRestaurantScreen').then(m => ({ default: m.HappyRestaurantScreen })))
+const WeekendMarketScreen = lazy(() => import('./features/market/WeekendMarketScreen').then(m => ({ default: m.WeekendMarketScreen })))
+const DailyChallengeScreen = lazy(() => import('./features/challenges/DailyChallengeScreen').then(m => ({ default: m.DailyChallengeScreen })))
+const WeeklyChallengeScreen = lazy(() => import('./features/challenges/WeeklyChallengeScreen').then(m => ({ default: m.WeeklyChallengeScreen })))
+const ClassroomScreen = lazy(() => import('./features/classroom/ClassroomScreen').then(m => ({ default: m.ClassroomScreen })))
+const LeaderboardScreen = lazy(() => import('./features/leaderboard/LeaderboardScreen').then(m => ({ default: m.LeaderboardScreen })))
+const ClassPartyMissionScreen = lazy(() => import('./features/missions/ClassPartyMissionScreen').then(m => ({ default: m.ClassPartyMissionScreen })))
+const MissionsScreen = lazy(() => import('./features/missions/MissionsScreen').then(m => ({ default: m.MissionsScreen })))
+const ProfileScreen = lazy(() => import('./features/profile/ProfileScreen').then(m => ({ default: m.ProfileScreen })))
+const AvatarCustomizer = lazy(() => import('./features/profile/AvatarCustomizer').then(m => ({ default: m.AvatarCustomizer })))
 
 type StudentPage =
   | 'home'
@@ -73,12 +76,13 @@ const navItems: Array<{
   { id: 'classroom', icon: School, label: 'Lớp học' },
   { id: 'missions', icon: Target, label: 'Nhiệm vụ' },
   { id: 'leaderboard', icon: Trophy, label: 'Xếp hạng' },
-  { id: 'profile', icon: User, label: 'Hồ sơ' },
+  { id: 'profile', icon: User, label: 'Nhân vật' },
 ]
 
 export function App() {
   const [page, setPage] = useState<StudentPage>('maps')
   const [audioSettingsOpen, setAudioSettingsOpen] = useState(false)
+  const [avatarOpen, setAvatarOpen] = useState(false)
   const avatar = useAvatarProfileStore((state) => state.avatar)
   const classStudent = useStudentAccountStore((state) => state.student)
   const classRoom = useStudentAccountStore((state) => state.classroom)
@@ -174,6 +178,7 @@ export function App() {
               key={id}
               type="button"
               aria-current={activeNavPage === id ? 'page' : undefined}
+              aria-label={label}
               onClick={() => setPage(id)}
             >
               <Icon size={20} aria-hidden="true" />
@@ -251,6 +256,7 @@ export function App() {
         tabIndex={-1}
       >
         <FeatureErrorBoundary resetKey={page} onRecover={() => setPage('maps')}>
+          <Suspense fallback={<div className="destination-loading" role="status"><Compass size={32} /><h2>Đang chuẩn bị chuyến đi…</h2><p>Chờ một chút nhé!</p></div>}>
           {page === 'daily-challenge' ? (
             <DailyChallengeScreen onBack={() => setPage('home')} />
           ) : page === 'weekly-challenge' ? (
@@ -259,6 +265,7 @@ export function App() {
             <ClassroomScreen />
           ) : page === 'maps' ? (
             <WorldMapScreen
+              onEditAvatar={() => setAvatarOpen(true)}
               onOpenMap={(mapId: MapId) => {
                 if (mapId === 'smartmart') setPage('smartmart')
                 if (mapId === 'tiny-bank') setPage('tiny-bank')
@@ -308,7 +315,7 @@ export function App() {
               onOpenWeeklyChallenge={() => setPage('weekly-challenge')}
             />
           ) : page === 'profile' ? (
-            <ProfileScreen onMap={() => setPage('smartmart')} onLeaderboard={() => setPage('leaderboard')} />
+            <ProfileScreen displayName={profileName} classLabel={profileClassName} onMap={() => setPage('smartmart')} onLeaderboard={() => setPage('leaderboard')} />
           ) : (
             <HomeScreen
               onContinueSmartMart={() => setPage('smartmart')}
@@ -319,11 +326,13 @@ export function App() {
               onOpenWeeklyChallenge={() => setPage('weekly-challenge')}
             />
           )}
+          </Suspense>
         </FeatureErrorBoundary>
       </main>
       {audioSettingsOpen ? (
         <AudioSettingsModal onClose={() => setAudioSettingsOpen(false)} />
       ) : null}
+      {avatarOpen ? <FeatureErrorBoundary resetKey="avatar" onRecover={() => setAvatarOpen(false)}><Suspense fallback={<p className="avatar-loading-note" role="status">Đang mở phòng nhân vật…</p>}><AvatarCustomizer onClose={() => setAvatarOpen(false)} /></Suspense></FeatureErrorBoundary> : null}
       <footer className="game-footer">
         <span>SmartKid Wallet</span>
         <span>Học từng chút · Lớn mỗi ngày</span>

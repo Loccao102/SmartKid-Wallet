@@ -18,6 +18,8 @@ interface StallZone {
 }
 
 interface SmartMartSceneOptions {
+  avatarSvgUrl: string
+  avatarArtSize: { width: number; height: number }
   unlockedStalls: StallId[]
   onInteractStall: (stallId: StallId) => void
   onNearStallChange?: (stallId: StallId | null) => void
@@ -66,6 +68,8 @@ const boothColors: Record<StallId, number> = {
 
 export class SmartMartScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container
+  private readonly avatarSvgUrl: string
+  private readonly avatarArtSize: { width: number; height: number }
   private keys!: {
     cursors: Phaser.Types.Input.Keyboard.CursorKeys
     w: Phaser.Input.Keyboard.Key
@@ -90,6 +94,8 @@ export class SmartMartScene extends Phaser.Scene {
 
   constructor(options: SmartMartSceneOptions) {
     super({ key: 'SmartMartScene' })
+    this.avatarSvgUrl = options.avatarSvgUrl
+    this.avatarArtSize = options.avatarArtSize
     this.unlockedStalls = new Set(options.unlockedStalls)
     this.onInteractStall = options.onInteractStall
     this.onNearStallChange = options.onNearStallChange
@@ -97,9 +103,9 @@ export class SmartMartScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.svg('student-production', gameAssets.production.student, {
-      width: 160,
-      height: 190,
+    this.load.svg('student-production', this.avatarSvgUrl, {
+      width: this.avatarArtSize.width,
+      height: this.avatarArtSize.height,
     })
     for (const id of stallOrder) {
       this.load.svg(
@@ -331,7 +337,7 @@ export class SmartMartScene extends Phaser.Scene {
     const shadow = this.add.ellipse(0, 13, 30, 12, 0x24483e, 0.18)
     const character = this.add
       .image(0, -10, 'student-production')
-      .setDisplaySize(48, 57)
+      .setDisplaySize(52, 65)
     this.player = this.add.container(400, 250, [shadow, character])
     this.player.setDepth(20)
   }

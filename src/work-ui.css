@@ -1156,3 +1156,119 @@
     width: 100%;
   }
 }
+
+/* Supporting learning screens: clear journey hierarchy and child-friendly copy. */
+.missions-screen { gap: 24px; }
+.missions-page-heading {
+  margin-bottom: 0;
+  padding: 24px;
+  border: 1px solid var(--sk-border);
+  border-radius: var(--sk-radius-xl);
+  background: var(--sk-surface);
+  box-shadow: var(--sk-shadow-sm);
+}
+.missions-page-heading h1 { margin-top: 4px; font-size: clamp(28px, 3.8vw, 42px); line-height: 1.12; }
+.missions-page-heading > div:last-child > p:last-child { max-width: 720px; margin: 9px 0 0; color: var(--sk-muted); font-size: 14px; line-height: 1.6; }
+.mission-progress-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(150px, .55fr));
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid var(--sk-border);
+  border-radius: var(--sk-radius-lg);
+  background: var(--sk-primary-soft);
+}
+.mission-progress-banner > div { min-width: 0; padding: 12px 14px; border-radius: var(--sk-radius-md); background: rgba(255,255,255,.68); }
+.mission-progress-banner > div:first-child { background: var(--sk-surface); }
+.mission-progress-label { display: block; margin-bottom: 3px; color: var(--sk-primary-strong); font-size: 12px; font-weight: 850; letter-spacing: .06em; }
+.mission-progress-banner strong { display: block; color: var(--sk-ink); font-size: 18px; }
+.mission-progress-banner p, .mission-progress-stat span { display: block; margin: 3px 0 0; color: var(--sk-muted); font-size: 12px; line-height: 1.45; }
+.mission-progress-stat { display: flex; flex-direction: column; justify-content: center; }
+.mission-progress-stat strong { font-size: 17px; }
+.journey-mission-card { min-height: 164px; gap: 17px; padding: 20px; border-color: var(--sk-border); border-radius: var(--sk-radius-lg); background: var(--sk-surface); box-shadow: var(--sk-shadow-sm); }
+.journey-mission-card.is-locked { background: var(--sk-surface-soft); box-shadow: none; }
+.journey-mission-card.is-unlocked { border-color: var(--sk-border-strong); }
+.journey-mission-card.work-mode-card { background: var(--sk-surface); }
+.journey-mission-card.work-mode-card.is-unlocked { border-color: #d2c98d; }
+.journey-status-row > span, .journey-status, .teacher-challenge-chip { font-size: 12px; }
+.journey-status-row > span { color: var(--sk-muted); }
+.journey-status { min-height: 30px; padding: 5px 10px; }
+.journey-mission-copy h2 { margin: 9px 0 6px; font-size: 20px; line-height: 1.25; }
+.journey-mission-copy > p { max-width: 760px; font-size: 14px; line-height: 1.6; }
+.journey-mission-meta { gap: 7px; margin-top: 12px; }
+.journey-mission-meta span { padding: 6px 9px; font-size: 12px; }
+.journey-action { min-width: 148px; min-height: 52px; padding-inline: 15px; border-radius: 14px; font-size: 14px; }
+
+/* Weekly leaderboard */
+.weekly-leaderboard-page .adventure-heading { margin: 0; padding: 24px; border: 1px solid var(--sk-border); border-radius: var(--sk-radius-xl); background: var(--sk-surface); box-shadow: var(--sk-shadow-sm); }
+.weekly-leaderboard-page .adventure-heading h1 { margin-top: 5px; font-size: clamp(28px, 3.8vw, 42px); }
+.weekly-leaderboard-page .adventure-heading > div > p:last-child { margin-top: 8px; color: var(--sk-muted); font-size: 14px; }
+.weekly-leaderboard-page .adventure-heading .adventure-button, .weekly-leaderboard-page .weekly-board-empty .adventure-button { min-height: 52px; }
+.weekly-fair-play { min-height: 70px; padding: 15px 17px; border-color: var(--sk-border-strong); border-radius: var(--sk-radius-lg); background: var(--sk-gold-soft); }
+.weekly-fair-play > svg { flex: 0 0 auto; color: var(--sk-primary-strong); }
+.weekly-fair-play strong { display: block; color: var(--sk-ink); font-size: 15px; }
+.weekly-fair-play p { margin: 3px 0 0; color: var(--sk-ink-2); font-size: 13px; line-height: 1.55; }
+.weekly-board-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.weekly-board-section-heading .eyebrow { margin-bottom: 4px; }
+.weekly-board-section-heading h2 { margin: 0; font-size: 23px; }
+.weekly-board-section-heading > span { color: var(--sk-muted); font-size: 12px; }
+.weekly-podium { gap: 14px; padding: 18px; border-radius: var(--sk-radius-xl); background: var(--sk-surface); box-shadow: var(--sk-shadow-sm); }
+.weekly-podium .class-podium-place { min-width: 0; text-align: center; }
+.weekly-podium .podium-person { width: 56px; height: 56px; margin: 0 auto 8px; }
+.weekly-podium h2 { margin: 0; overflow: hidden; color: var(--sk-ink); font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-podium p { display: inline-flex; align-items: center; gap: 5px; margin: 6px 0 10px; color: var(--sk-primary-strong); font-size: 13px; font-weight: 780; }
+.weekly-podium .podium-step { min-height: 112px; border-radius: var(--sk-radius-md); background: var(--sk-surface-soft); }
+.weekly-podium .place-1 .podium-step { min-height: 150px; background: var(--sk-gold-soft); }
+.weekly-podium .podium-step strong { font-size: 24px; color: var(--sk-ink); }
+.weekly-ranking > * { min-height: 64px; padding-block: 10px; }
+.weekly-ranking .ranking-avatar { width: 40px; height: 40px; font-size: 12px; }
+.weekly-ranking .ranking-name strong { display: block; font-size: 14px; }
+.weekly-ranking .ranking-name span { display: block; margin-top: 3px; color: var(--sk-muted); font-size: 12px; line-height: 1.4; }
+.weekly-ranking .ranking-points { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; }
+.weekly-ranking .weekly-rank-time { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+.ranking-note { display: flex; align-items: flex-start; gap: 11px; padding: 15px 17px; border: 1px solid var(--sk-border); border-radius: var(--sk-radius-lg); background: var(--sk-surface-soft); }
+.ranking-note > svg { flex: 0 0 auto; color: var(--sk-primary); }
+.ranking-note strong { display: block; color: var(--sk-ink); font-size: 14px; }
+.ranking-note p { margin: 3px 0 0; color: var(--sk-muted); font-size: 12px; line-height: 1.55; }
+
+@media (max-width: 760px) {
+  .missions-page-heading, .weekly-leaderboard-page .adventure-heading { padding: 20px; }
+  .mission-progress-banner { grid-template-columns: 1fr 1fr; }
+  .mission-progress-banner > div:first-child { grid-column: 1 / -1; }
+  .weekly-board-section-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .weekly-podium { padding: 12px; gap: 8px; }
+  .weekly-podium .podium-step { min-height: 104px; padding: 10px 6px; }
+  .weekly-podium .place-1 .podium-step { min-height: 132px; }
+  .weekly-podium h2 { font-size: 13px; }
+  .weekly-podium p { display: flex; font-size: 12px; }
+  .weekly-ranking > * { grid-template-columns: 32px 40px minmax(0, 1fr) auto; gap: 8px; }
+  .weekly-ranking .weekly-rank-time { display: none; }
+}
+
+@media (max-width: 600px) {
+  .mission-progress-banner { grid-template-columns: 1fr; }
+  .mission-progress-banner > div:first-child { grid-column: auto; }
+  .journey-mission-card { gap: 12px; padding: 17px; }
+  .journey-mission-copy h2 { font-size: 18px; }
+  .journey-mission-copy > p { font-size: 13px; }
+  .journey-action { min-height: 52px; font-size: 14px; }
+  .weekly-leaderboard-page .adventure-heading .adventure-button { width: 100%; }
+  .weekly-podium .podium-person { width: 48px; height: 48px; }
+  .weekly-ranking .ranking-points { font-size: 14px; }
+}
+/* Work uses a distinct darker shell with the same readable controls. */
+.mode-work .game-profile { background: var(--sk-primary-strong); color: var(--sk-surface); border: 1px solid var(--sk-primary); }
+.mode-work .game-profile strong, .mode-work .game-profile small { color: var(--sk-surface); }
+.work-production small, .work-result-production small, .manager-plan-screen small { font-size: max(12px, .75rem); }
+.work-production table { font-size: 14px; }
+.work-production th { font-size: 12px; }
+.work-production .pos-receipt th, .work-production .pos-receipt td { font-size: 14px; }
+.work-production .pos-receipt thead th { font-size: 12px; }
+.work-production .pos-wallet, .work-production .pos-hint, .work-production .pos-payment span, .work-production .checkout-counter-front { font-size: 12px; }
+.work-production .scenario-options strong { font-size: 15px; }
+.work-production .compact-customer-queue > div strong, .work-production .compact-customer-queue > div span { font-size: 12px; }
+.work-result-production .simulation-metrics span, .work-result-production .run-score-breakdown > span { font-size: 12px; }
+@media (max-width: 680px) {
+  .work-production .pos-receipt th, .work-production .pos-receipt td { padding-inline: 9px; font-size: 13px; }
+  .work-production .pos-receipt thead th { font-size: 11px; }
+}

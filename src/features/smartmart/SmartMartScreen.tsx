@@ -11,6 +11,8 @@ import {
   X,
 } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
+import { AvatarCharacter } from '../../components/avatar/AvatarCharacter'
+import { useAvatarProfileStore } from '../../store/avatarProfile'
 import { getExerciseFamilyById } from '../../data/exerciseFamilies'
 import { stalls } from '../../data/stalls'
 import { generateExercise } from '../../domain/exerciseEngine'
@@ -122,6 +124,7 @@ export function SmartMartScreen({
   onBack: () => void
   onStartMission: (stall?: ProductStallId) => void
 }) {
+  const avatar = useAvatarProfileStore((state) => state.avatar)
   const unlockedStalls = useProgressionStore((state) => state.unlockedStalls)
   const stallExerciseProgress = useProgressionStore(
     (state) => state.stallExerciseProgress,
@@ -325,10 +328,7 @@ export function SmartMartScreen({
             ))}
           </div>
           <div className="hub-student">
-            <img
-              src={gameAssets.production.student}
-              alt="Minh Anh đang khám phá SmartMart"
-            />
+            <AvatarCharacter config={avatar} className="hub-avatar" label="Nhân vật của em đang khám phá SmartMart" />
             <span>
               {missionUnlocked ? 'Sẵn sàng mua sắm!' : 'Chọn gian để khám phá!'}
             </span>

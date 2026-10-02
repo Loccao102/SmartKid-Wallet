@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { getNpcAvatarConfig, type AvatarConfig } from '../avatar/avatarCatalog'
+import type { AvatarExpression } from '../avatar/avatarCatalog'
 import type {
   WorkCustomerDefinition,
   WorkScenarioChoice,
@@ -14,6 +14,10 @@ interface WorkModeSceneOptions {
   stage: WorkVisualStage
   selectedChoice?: WorkScenarioChoice
   worldFlags: WorkWorldFlag[]
+  avatarSvgUrls: Record<string, string>
+  fallbackAvatarSvgUrl: string
+  avatarArtSize: { width: number; height: number }
+  reducedMotion: boolean
 }
 
 interface DynamicView {
@@ -26,6 +30,10 @@ interface DynamicView {
 
 export class WorkModeScene extends Phaser.Scene {
   private readonly customers: WorkCustomerDefinition[]
+  private readonly avatarSvgUrls: Record<string, string>
+  private readonly fallbackAvatarSvgUrl: string
+  private readonly avatarArtSize: { width: number; height: number }
+  private readonly reducedMotion: boolean
   private dynamicLayer!: Phaser.GameObjects.Container
   private view: DynamicView
   private statusText!: Phaser.GameObjects.Text
@@ -39,6 +47,25 @@ export class WorkModeScene extends Phaser.Scene {
       stage: options.stage,
       selectedChoice: options.selectedChoice,
       worldFlags: options.worldFlags,
+    }
+    this.avatarSvgUrls = options.avatarSvgUrls
+    this.fallbackAvatarSvgUrl = options.fallbackAvatarSvgUrl
+    this.avatarArtSize = options.avatarArtSize
+    this.reducedMotion = options.reducedMotion
+  }
+
+  preload() {
+    this.load.svg('npc-avatar-fallback', this.fallbackAvatarSvgUrl, {
+      width: this.avatarArtSize.width,
+      height: this.avatarArtSize.height,
+    })
+
+    for (const [key, url] of Object.entries(this.avatarSvgUrls)) {
+      if (key === 'fallback') continue
+      this.load.svg(`npc-avatar-${key}`, url, {
+        width: this.avatarArtSize.width,
+        height: this.avatarArtSize.height,
+      })
     }
   }
 
@@ -166,10 +193,11 @@ export class WorkModeScene extends Phaser.Scene {
       const x = isCurrent ? 342 : 112
       const y = isCurrent ? 318 : 104 + waitingPosition * 62
 
+      const expression = isCurrent ? this.getCurrentCustomerExpression() : 'happy'
       const npc = this.createNpc(
         x,
         y,
-        getNpcAvatarConfig(customer.id, index),
+        this.getAvatarTextureKey(index, expression),
         isCurrent,
       )
 
@@ -207,7 +235,7 @@ export class WorkModeScene extends Phaser.Scene {
 
     this.dynamicLayer.add(label)
 
-    if (animateCustomer) {
+    if (animateCustomer && !this.reducedMotion) {
       const currentNpc = this.dynamicLayer.list.find(
         (item) =>
           item instanceof Phaser.GameObjects.Container &&
@@ -336,7 +364,7 @@ export class WorkModeScene extends Phaser.Scene {
       alert.add([panel, text, sub])
       this.dynamicLayer.add(alert)
 
-      this.tweens.add({
+      if (!this.reducedMotion) this.tweens.add({
         targets: alert,
         y: 106,
         duration: 700,
@@ -417,100 +445,20 @@ export class WorkModeScene extends Phaser.Scene {
   private createNpc(
     x: number,
     y: number,
-    avatar: AvatarConfig,
+    textureKey: string,
     isCurrent: boolean,
   ) {
-    const toColor = (hex: string) => Number.parseInt(hex.slice(1), 16)
-    const skin = toColor(avatar.skinTone)
-    const hair = toColor(avatar.hairColor)
-    const top = toColor(avatar.topColor)
-    const bottom = toColor(avatar.bottomColor)
-    const shoes = toColor(avatar.shoeColor)
-    const bodyWidth =
-      avatar.bodyType === 'slim' ? 28 : avatar.bodyType === 'broad' ? 39 : 34
+    const character = this.add
+      .image(0, -8, textureKey)
+      .setDisplaySize(isCurrent ? 88 : 44, isCurrent ? 110 : 55)
 
-    const graphics = this.add.graphics()
-    graphics.fillStyle(0x27483e, 0.14)
-    graphics.fillEllipse(0, 48, 48, 13)
-
-    // Legs: thigh, knee, lower leg, shoe.
-    graphics.lineStyle(11, bottom, 1)
-    graphics.lineBetween(-9, 15, -10, 31)
-    graphics.lineBetween(-10, 31, -11, 45)
-    graphics.lineBetween(9, 15, 10, 31)
-    graphics.lineBetween(10, 31, 11, 45)
-    graphics.fillStyle(bottom, 1)
-    graphics.fillCircle(-10, 31, 5)
-    graphics.fillCircle(10, 31, 5)
-    graphics.fillStyle(shoes, 1)
-    graphics.fillRoundedRect(-20, 42, 17, 7, 3)
-    graphics.fillRoundedRect(3, 42, 17, 7, 3)
-
-    // Arms: upper arm, elbow, forearm, hand.
-    graphics.lineStyle(10, top, 1)
-    graphics.lineBetween(-bodyWidth / 2 + 2, -2, -bodyWidth / 2 - 7, 15)
-    graphics.lineBetween(bodyWidth / 2 - 2, -2, bodyWidth / 2 + 7, 15)
-    graphics.fillStyle(skin, 1)
-    graphics.fillCircle(-bodyWidth / 2 - 7, 15, 4.5)
-    graphics.fillCircle(bodyWidth / 2 + 7, 15, 4.5)
-    graphics.lineStyle(7, skin, 1)
-    graphics.lineBetween(-bodyWidth / 2 - 7, 15, -bodyWidth / 2 - 3, 31)
-    graphics.lineBetween(bodyWidth / 2 + 7, 15, bodyWidth / 2 + 3, 31)
-    graphics.fillStyle(skin, 1)
-    graphics.fillCircle(-bodyWidth / 2 - 3, 33, 4.5)
-    graphics.fillCircle(bodyWidth / 2 + 3, 33, 4.5)
-
-    // Torso and neck.
-    graphics.fillStyle(skin, 1)
-    graphics.fillRoundedRect(-5, -22, 10, 12, 4)
-    graphics.fillStyle(top, 1)
-    graphics.fillRoundedRect(-bodyWidth / 2, -12, bodyWidth, 38, 8)
-
-    // Head and hair.
-    graphics.fillStyle(skin, 1)
-    graphics.fillEllipse(0, -38, 34, 40)
-    graphics.fillStyle(hair, 1)
-    graphics.fillEllipse(0, -49, 35, 22)
-
-    if (avatar.hairStyle === 'bob' || avatar.hairStyle === 'waves') {
-      graphics.fillRoundedRect(-18, -48, 8, 28, 4)
-      graphics.fillRoundedRect(10, -48, 8, 28, 4)
-    }
-    if (avatar.hairStyle === 'ponytail') {
-      graphics.fillEllipse(21, -36, 14, 24)
-    }
-    if (avatar.hairStyle === 'bun') {
-      graphics.fillCircle(11, -61, 9)
-    }
-    if (avatar.hairStyle === 'curly') {
-      graphics.fillCircle(-12, -53, 9)
-      graphics.fillCircle(0, -58, 10)
-      graphics.fillCircle(12, -53, 9)
-    }
-
-    // Face.
-    graphics.fillStyle(0x293b39, 1)
-    graphics.fillCircle(-6, -39, 1.8)
-    graphics.fillCircle(6, -39, 1.8)
-    graphics.lineStyle(1.8, 0x9c574f, 1)
-    graphics.beginPath()
-    graphics.arc(0, -32, 5, 0.2, Math.PI - 0.2, false)
-    graphics.strokePath()
-
-    if (avatar.accessory === 'glasses') {
-      graphics.lineStyle(1.6, 0x415158, 1)
-      graphics.strokeRoundedRect(-12, -44, 10, 8, 3)
-      graphics.strokeRoundedRect(2, -44, 10, 8, 3)
-      graphics.lineBetween(-2, -40, 2, -40)
-    }
-
-    const npc = this.add.container(x, y, [graphics])
+    const npc = this.add.container(x, y, [character])
     npc.setData('isCurrent', isCurrent)
 
     if (isCurrent) {
       npc.setDepth(5)
       npc.setScale(1.18)
-      this.tweens.add({
+      if (!this.reducedMotion) this.tweens.add({
         targets: npc,
         scaleX: 1.22,
         scaleY: 1.22,
@@ -522,6 +470,20 @@ export class WorkModeScene extends Phaser.Scene {
     }
 
     return npc
+  }
+
+  private getAvatarTextureKey(index: number, expression: AvatarExpression) {
+    const key = `customer-${index}-${expression}`
+    return this.avatarSvgUrls[key] ? `npc-avatar-${key}` : 'npc-avatar-fallback'
+  }
+
+  private getCurrentCustomerExpression(): AvatarExpression {
+    if (this.view.stage === 'done') return 'happy'
+    if (this.view.stage === 'scenario' || this.view.stage === 'follow-up') {
+      return 'concerned'
+    }
+    if (this.view.stage === 'change') return 'neutral'
+    return 'happy'
   }
 
   private fitCamera() {
