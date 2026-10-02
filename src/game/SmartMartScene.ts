@@ -68,6 +68,8 @@ const boothColors: Record<StallId, number> = {
 
 export class SmartMartScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container
+  private character!: Phaser.GameObjects.Image
+  private avatarTextureVersion = 0
   private readonly avatarSvgUrl: string
   private readonly avatarArtSize: { width: number; height: number }
   private keys!: {
@@ -198,6 +200,15 @@ export class SmartMartScene extends Phaser.Scene {
   setUnlockedStalls(stallIds: StallId[]) {
     this.unlockedStalls = new Set(stallIds)
     this.refreshStalls()
+  }
+
+  updateAvatarImage(image: HTMLImageElement) {
+    if (!this.character?.active) return
+    const previousKey = this.character.texture.key
+    const nextKey = `student-custom-${++this.avatarTextureVersion}`
+    if (!this.textures.addImage(nextKey, image)) return
+    this.character.setTexture(nextKey).setDisplaySize(52, 65)
+    if (previousKey.startsWith('student-custom-')) this.textures.remove(previousKey)
   }
 
   setVirtualMove(x: number, y: number) {
@@ -338,6 +349,7 @@ export class SmartMartScene extends Phaser.Scene {
     const character = this.add
       .image(0, -10, 'student-production')
       .setDisplaySize(52, 65)
+    this.character = character
     this.player = this.add.container(400, 250, [shadow, character])
     this.player.setDepth(20)
   }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowDown,
   ArrowLeft,
@@ -27,6 +27,7 @@ export default function SmartMartGame({
   onNearStallChange,
 }: SmartMartGameProps) {
   const avatar = useAvatarProfileStore((state) => state.avatar)
+  const [ready, setReady] = useState(false)
   const avatarSourceRef = useRef<HTMLDivElement | null>(null)
   const hostRef = useRef<HTMLDivElement | null>(null)
   const gameRef = useRef<Phaser.Game | null>(null)
@@ -81,7 +82,10 @@ export default function SmartMartGame({
       unlockedStalls,
       onInteractStall: (stallId) => interactRef.current(stallId),
       onNearStallChange: (stallId) => nearRef.current?.(stallId),
-      onReady: () => applyPausedState(),
+      onReady: () => {
+        setReady(true)
+        applyPausedState()
+      },
     })
 
     sceneRef.current = scene
@@ -110,6 +114,20 @@ export default function SmartMartGame({
       sceneRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    const svg = avatarSourceRef.current?.querySelector('svg')
+    const scene = sceneRef.current
+    if (!ready || !svg || !scene) return
+
+    // Update only the character texture: preserve position, camera and progress.
+    // Clear the pending callback on another save/unmount so an older image
+    // cannot replace a newer choice after asynchronous decoding.
+    const image = new Image(AVATAR_ART_SIZE.width, AVATAR_ART_SIZE.height)
+    image.onload = () => scene.updateAvatarImage(image)
+    image.src = serializeAvatarSvg(svg)
+    return () => { image.onload = null }
+  }, [avatar, ready])
 
   useEffect(() => {
     sceneRef.current?.setUnlockedStalls(unlockedStalls)

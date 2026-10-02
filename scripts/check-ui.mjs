@@ -48,7 +48,7 @@ try {
     assert.equal(saved.avatar.hairStyle, 'bob')
     assert.equal(saved.avatar.accessory, 'glasses')
     assert.equal(saved.avatar.topColor, '#dc7969')
-    assert.equal(saved.avatar.expression, undefined, 'Preview expression must not change the saved avatar')
+    assert.equal(saved.avatar.expression, 'thinking', 'Saved expression must survive reload')
     assert.equal(saved.hasCreatedAvatar, true)
     await page.locator('.explorer-avatar-link').click()
     await page.getByRole('dialog').waitFor()

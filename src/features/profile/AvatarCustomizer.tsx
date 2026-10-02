@@ -48,7 +48,7 @@ const tabDescriptions: Record<CustomizerTab, string> = {
   face: 'Chọn nét gần với em nhất. Mỗi lựa chọn đều được chào đón.',
   hair: 'Kết hợp kiểu tóc và phụ kiện để tạo dấu ấn riêng.',
   outfit: 'Phối màu theo phong cách của em. Trang phục không ảnh hưởng điểm số.',
-  mood: 'Thử biểu cảm (xem trước). Biểu cảm này chưa được lưu vào hồ sơ.',
+  mood: 'Chọn biểu cảm cho nhân vật của em. Bấm Lưu nhân vật để giữ lựa chọn này.',
 }
 
 function ColorOptions({
@@ -168,7 +168,7 @@ export function AvatarCustomizer({ onClose, onSaved, initialTab = 'face' }: Avat
   const setAvatar = useAvatarProfileStore((state) => state.setAvatar)
   const markAvatarCreated = useAvatarProfileStore((state) => state.markAvatarCreated)
   const [draft, setDraft] = useState<AvatarConfig>(() => ({ ...avatar }))
-  const [expression, setExpression] = useState<AvatarExpression>('happy')
+  const expression = draft.expression ?? 'happy'
   const [activeTab, setActiveTab] = useState<CustomizerTab>(initialTab)
 
   const patch = <K extends keyof AvatarConfig>(key: K, value: AvatarConfig[K]) => {
@@ -289,7 +289,7 @@ export function AvatarCustomizer({ onClose, onSaved, initialTab = 'face' }: Avat
               <ColorOptions label="Màu giày" value={draft.shoeColor} options={shoeColorOptions} onChange={(value) => patch('shoeColor', value)} />
             </> : null}
 
-            {activeTab === 'mood' ? <ExpressionOptions value={expression} onChange={setExpression} draft={draft} /> : null}
+            {activeTab === 'mood' ? <ExpressionOptions value={expression} onChange={(value) => patch('expression', value)} draft={draft} /> : null}
           </section>
 
           <div className="avatar-step-controls">

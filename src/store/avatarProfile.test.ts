@@ -23,7 +23,7 @@ describe('avatar profile persistence', () => {
     expect(migrated.hasCreatedAvatar).toBe(true)
   })
 
-  it('recovers invalid v2 options without breaking the renderer', () => {
+  it('recovers invalid options without breaking the renderer', () => {
     const migrated = migrateAvatarProfile({
       avatar: { ...defaultStudentAvatar, hairStyle: 'unknown' },
       hasCreatedAvatar: true,
@@ -33,7 +33,7 @@ describe('avatar profile persistence', () => {
     expect(migrated.hasCreatedAvatar).toBe(true)
   })
 
-  it('normalizes malformed payloads even when storage is already on v2', () => {
+  it('normalizes malformed payloads even on the current storage version', () => {
     const current = {
       avatar: defaultStudentAvatar,
       hasCreatedAvatar: false,
@@ -65,5 +65,22 @@ describe('avatar profile persistence', () => {
     }, current)
 
     expect(merged.hasCreatedAvatar).toBe(true)
+  })
+
+  it('also infers creation when upgrading a v2 payload without the marker', () => {
+    const migrated = migrateAvatarProfile({
+      avatar: { ...defaultStudentAvatar, expression: undefined, hairStyle: 'curly' },
+    }, 2)
+    expect(migrated.hasCreatedAvatar).toBe(true)
+    expect(migrated.avatar.expression).toBe('happy')
+  })
+
+  it('replaces an unknown expression while retaining valid saved colors', () => {
+    const migrated = migrateAvatarProfile({
+      avatar: { ...defaultStudentAvatar, expression: 'unknown', hairColor: '#c59a58' },
+      hasCreatedAvatar: true,
+    }, AVATAR_PROFILE_STORAGE_VERSION)
+    expect(migrated.avatar.expression).toBe('happy')
+    expect(migrated.avatar.hairColor).toBe('#c59a58')
   })
 })

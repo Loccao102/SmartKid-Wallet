@@ -6,7 +6,7 @@ import {
   type AvatarConfig,
 } from '../avatar/avatarCatalog'
 
-export const AVATAR_PROFILE_STORAGE_VERSION = 2
+export const AVATAR_PROFILE_STORAGE_VERSION = 3
 
 export interface AvatarProfileState {
   avatar: AvatarConfig
@@ -21,14 +21,14 @@ export interface PersistedAvatarProfileV1 {
   avatar?: unknown
 }
 
-export interface PersistedAvatarProfileV2 {
+export interface PersistedAvatarProfile {
   avatar: AvatarConfig
   hasCreatedAvatar: boolean
 }
 
 function persistedProfileSource(value: unknown) {
   return value && typeof value === 'object'
-    ? value as Partial<PersistedAvatarProfileV2>
+    ? value as Partial<PersistedAvatarProfile>
     : {}
 }
 
@@ -40,11 +40,12 @@ function persistedProfileSource(value: unknown) {
 export function migrateAvatarProfile(
   persisted: unknown,
   version: number,
-): PersistedAvatarProfileV2 {
+): PersistedAvatarProfile {
   const source = persistedProfileSource(persisted)
   const avatar = normalizeAvatarConfig(source.avatar)
-  const hasCreatedAvatar = version >= AVATAR_PROFILE_STORAGE_VERSION
-    ? Boolean(source.hasCreatedAvatar)
+  // V2 already stored this flag. Adding expression in V3 must preserve it.
+  const hasCreatedAvatar = version >= 2 && typeof source.hasCreatedAvatar === 'boolean'
+    ? source.hasCreatedAvatar
     : JSON.stringify(avatar) !== JSON.stringify(defaultStudentAvatar)
 
   return { avatar, hasCreatedAvatar }

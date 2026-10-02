@@ -121,7 +121,7 @@ function HeadAccessory({ config }: { config: AvatarConfig }) {
   return null
 }
 
-export function AvatarCharacter({ config, age = 'child', expression = 'happy', uniform = 'none', className, label = 'Nhân vật', decorative = false, framing = 'full' }: AvatarCharacterProps) {
+export function AvatarCharacter({ config, age = 'child', expression = config.expression ?? 'happy', uniform = 'none', className, label = 'Nhân vật', decorative = false, framing = 'full' }: AvatarCharacterProps) {
   const bodyScale = config.bodyType === 'slim' ? .9 : config.bodyType === 'broad' ? 1.12 : 1
   const top = uniform === 'smartmart' ? '#3d8668' : config.topColor
   const topDark = shade(top, -.3)
@@ -133,6 +133,7 @@ export function AvatarCharacter({ config, age = 'child', expression = 'happy', u
     className={['avatar-character', className].filter(Boolean).join(' ')}
     viewBox={framing === 'portrait' ? '28 8 190 178' : `0 0 ${AVATAR_ART_SIZE.width} ${AVATAR_ART_SIZE.height}`}
     data-avatar-age={age}
+    data-avatar-expression={expression}
     data-avatar-uniform={uniform}
     role={decorative ? undefined : 'img'}
     aria-hidden={decorative ? true : undefined}

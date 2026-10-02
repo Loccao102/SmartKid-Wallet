@@ -65,6 +65,7 @@ Sau khi có production account, config này có thể sync lên Supabase student
 `src/features/profile/AvatarCustomizer.tsx`
 
 Player hiện custom được:
+- expression;
 - body type;
 - skin tone;
 - eye style;
@@ -82,14 +83,17 @@ chỉ xuất hiện ở preview cho tới khi học sinh bấm `Lưu nhân vật
 đóng modal bỏ toàn bộ draft. UI chia thành bốn tab (khuôn mặt, tóc & phụ kiện,
 trang phục, biểu cảm), các lựa chọn hình dáng dùng thumbnail renderer để học
 sinh lớp 4–5 có thể nhận ra kết quả trước khi chọn. Các nút chính có kích thước
-touch tối thiểu 44px và tablist hỗ trợ phím mũi tên/Home/End. Biểu cảm chỉ là
-preview trong customizer, không được ghi vào profile avatar.
+touch tối thiểu 44px và tablist hỗ trợ phím mũi tên/Home/End. Biểu cảm được lưu
+cùng màu sắc và diện mạo khi bấm `Lưu nhân vật`; Hủy/đóng bỏ toàn bộ thay đổi.
+Renderer dùng biểu cảm đã lưu khi không có biểu cảm theo ngữ cảnh được truyền vào.
 
 ### First-run và persistence
 
 `src/store/avatarProfile.ts` giữ `hasCreatedAvatar` cùng config. Storage key vẫn
 là `smartkid-wallet-avatar-v1` để không làm mất profile cũ; schema hiện tại là
-version 2. Migration chuẩn hóa các option không còn tồn tại về `defaultStudentAvatar`.
+version 3. Migration bổ sung `expression: happy` cho profile cũ, giữ các màu hợp lệ
+và giữ nguyên `hasCreatedAvatar` của version 2. Migration chuẩn hóa các option
+không còn tồn tại về `defaultStudentAvatar`.
 Với payload version 1, avatar đã được đổi khác mẫu mặc định được xem là đã tạo;
 payload chưa đổi mẫu sẽ mở được flow tạo lần đầu.
 
@@ -168,11 +172,15 @@ Không biến cosmetic thành pay-to-win hoặc competitive advantage.
 
 Nhân vật trong chế độ đi dạo SmartMart và NPC Work Mode dùng cùng `AvatarCharacter`
 với React: serialize SVG nội bộ sang data URL base64 UTF-8 và tải thành texture Phaser
-khi vào scene. Giữ tỷ lệ canvas, không kéo dài thân nhân vật để vừa khung cũ. Không
+khi vào scene. Sau khi lưu nhân vật, SmartMart cập nhật texture từ SVG mới ngay
+trong scene đang mở, giữ vị trí nhân vật và giải phóng texture cũ. Callback tải
+ảnh bị hủy khi lưu tiếp hoặc rời scene để tránh ghi đè bằng lựa chọn cũ.
+Giữ tỷ lệ canvas, không kéo dài thân nhân vật để vừa khung cũ. Không
 cần thư viện render phía server, không thay logic di chuyển hoặc tương tác.
 
 Art pass chibi chỉ thay renderer và framing; vẫn giữ nguyên option ID và persistence
-version 2. Avatar đã lưu giữ nguyên tóc, màu, dáng và phụ kiện khi chuyển sang nét vẽ mới.
+version 2 ở thời điểm art pass; bản sửa lưu biểu cảm nâng lên version 3 như trên.
+Avatar đã lưu giữ nguyên tóc, màu, dáng và phụ kiện khi chuyển sang nét vẽ mới.
 Biểu cảm preview dùng chính diện mạo đang chỉnh, không thay về nhân vật mặc định.
 
 Visual review: `scripts/capture-avatar-art.mjs` tạo contact sheet từ production renderer;

@@ -20,6 +20,8 @@ export type AvatarEyeStyle = 'round' | 'soft' | 'bright' | 'calm'
 export type AvatarAccessory = 'none' | 'glasses' | 'cap' | 'headband' | 'bag'
 
 export interface AvatarConfig {
+  /** Older profiles and NPC presets may omit this; normalization supplies happy. */
+  expression?: AvatarExpression
   bodyType: AvatarBodyType
   skinTone: string
   hairStyle: AvatarHairStyle
@@ -33,6 +35,7 @@ export interface AvatarConfig {
 
 /** The persisted shape is intentionally small so it can move to a server profile later. */
 export const AVATAR_CONFIG_KEYS = [
+  'expression',
   'bodyType',
   'skinTone',
   'hairStyle',
@@ -128,6 +131,7 @@ export const accessoryOptions: AvatarOption<AvatarAccessory>[] = [
 ]
 
 export const defaultStudentAvatar: AvatarConfig = {
+  expression: 'happy',
   bodyType: 'balanced',
   skinTone: '#eab890',
   hairStyle: 'side',
@@ -140,6 +144,7 @@ export const defaultStudentAvatar: AvatarConfig = {
 }
 
 const bodyTypeIds = new Set<AvatarBodyType>(bodyTypeOptions.map((option) => option.id))
+const expressionIds = new Set<AvatarExpression>(['neutral', 'happy', 'thinking', 'confused', 'concerned'])
 const hairStyleIds = new Set<AvatarHairStyle>(hairStyleOptions.map((option) => option.id))
 const eyeStyleIds = new Set<AvatarEyeStyle>(eyeStyleOptions.map((option) => option.id))
 const accessoryIds = new Set<AvatarAccessory>(accessoryOptions.map((option) => option.id))
@@ -153,6 +158,7 @@ export function isAvatarConfig(value: unknown): value is AvatarConfig {
   if (!value || typeof value !== 'object') return false
   const config = value as Partial<AvatarConfig>
   return (
+    expressionIds.has(config.expression as AvatarExpression) &&
     bodyTypeIds.has(config.bodyType as AvatarBodyType) &&
     skinToneIds.has(config.skinTone ?? '') &&
     hairStyleIds.has(config.hairStyle as AvatarHairStyle) &&
@@ -172,6 +178,7 @@ export function normalizeAvatarConfig(value: unknown): AvatarConfig {
 
   const candidate = value as Partial<AvatarConfig>
   return {
+    expression: expressionIds.has(candidate.expression as AvatarExpression) ? candidate.expression : defaultStudentAvatar.expression,
     bodyType: bodyTypeIds.has(candidate.bodyType as AvatarBodyType) ? candidate.bodyType as AvatarBodyType : defaultStudentAvatar.bodyType,
     skinTone: skinToneIds.has(candidate.skinTone ?? '') ? candidate.skinTone as string : defaultStudentAvatar.skinTone,
     hairStyle: hairStyleIds.has(candidate.hairStyle as AvatarHairStyle) ? candidate.hairStyle as AvatarHairStyle : defaultStudentAvatar.hairStyle,
