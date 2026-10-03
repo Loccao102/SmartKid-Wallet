@@ -35,6 +35,8 @@ export function ExerciseDialog({
   const avatar = useAvatarProfileStore((state) => state.avatar)
   const answerInput = useRef<HTMLInputElement>(null)
   const continueButton = useRef<HTMLButtonElement>(null)
+  const retryButton = useRef<HTMLButtonElement>(null)
+  const actionTaken = useRef(false)
   const attemptStartedAtRef = useRef(
     typeof performance !== 'undefined' ? performance.now() : Date.now(),
   )
@@ -54,6 +56,7 @@ export function ExerciseDialog({
     (state) => state.ensureShiftSession,
   )
   const currentRetryCost = mode === 'practice' ? 0 : retryCost(wrongAttempts)
+  const retryIsFree = mode === 'practice' || coins < currentRetryCost
 
   useEffect(() => {
     const element = dialog.current
@@ -64,7 +67,6 @@ export function ExerciseDialog({
     const previousOverflow = document.body.style.overflow
     element?.showModal()
     document.body.style.overflow = 'hidden'
-    answerInput.current?.focus()
     return () => {
       element?.close()
       document.body.style.overflow = previousOverflow
@@ -73,11 +75,15 @@ export function ExerciseDialog({
   }, [])
 
   useEffect(() => {
+    actionTaken.current = false
     if (result === 'correct') continueButton.current?.focus()
+    else if (result === 'wrong') retryButton.current?.focus()
+    else answerInput.current?.focus()
   }, [result])
 
   const submit = () => {
-    if (!answer.trim() || result !== 'idle') return
+    if (!answer.trim() || result !== 'idle' || actionTaken.current) return
+    actionTaken.current = true
     const numericAnswer = Number(answer.replace(/[.,\sđ]/gi, ''))
     const correct = numericAnswer === exercise.answer
     const attemptNumber = wrongAttempts + 1
@@ -127,13 +133,14 @@ export function ExerciseDialog({
   }
 
   const retry = () => {
+    if (result !== 'wrong' || actionTaken.current) return
+    actionTaken.current = true
     if (mode === 'practice') {
       setAnswer('')
       setResult('idle')
       setRetryNote('Luyện tập và thử lại đều miễn phí.')
       attemptStartedAtRef.current =
         typeof performance !== 'undefined' ? performance.now() : Date.now()
-      requestAnimationFrame(() => answerInput.current?.focus())
       return
     }
 
@@ -145,7 +152,7 @@ export function ExerciseDialog({
       setRetryNote('Đã dùng ' + cost + ' xu để mở lượt thử tiếp theo.')
     } else {
       setRetryNote(
-        'Em chưa đủ xu. Hệ thống mở một lượt hỗ trợ miễn phí để việc học không bị khóa.',
+        'Em cứ thử lại nhé! Lượt hỗ trợ này miễn phí.',
       )
     }
 
@@ -153,10 +160,11 @@ export function ExerciseDialog({
     setResult('idle')
     attemptStartedAtRef.current =
       typeof performance !== 'undefined' ? performance.now() : Date.now()
-    requestAnimationFrame(() => answerInput.current?.focus())
   }
 
   const finishCorrect = () => {
+    if (result !== 'correct' || actionTaken.current) return
+    actionTaken.current = true
     if (mode === 'unlock') {
       const gained = awardXpOnce(
         'unlock-family:' + exercise.familyId,
@@ -328,15 +336,16 @@ export function ExerciseDialog({
             </button>
           ) : result === 'wrong' ? (
             <button
+              ref={retryButton}
               type="button"
               className="adventure-button retry-button"
               onClick={retry}
             >
               <RotateCcw size={19} aria-hidden="true" />
-              {mode === 'practice'
+              {retryIsFree
                 ? 'Thử lại miễn phí'
                 : 'Thử lại · ' + currentRetryCost + ' xu'}
-              {mode !== 'practice' ? <Coins size={18} aria-hidden="true" /> : null}
+              {!retryIsFree ? <Coins size={18} aria-hidden="true" /> : null}
             </button>
           ) : (
             <button
