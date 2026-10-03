@@ -49,6 +49,10 @@ Bản đồ dài hạn:
 
 Production v1 ưu tiên làm SmartMart đủ sâu trước khi mở map mới.
 
+Cập nhật phạm vi 2026-10-03 theo yêu cầu chủ dự án: mở đợt phát triển Tiny Bank
+trên nền chapter có sẵn. Điều kiện vào map vẫn là Cấp 5 + Liên hoan lớp;
+không đổi SmartMart hoặc mở rộng Restaurant/Market. Xem [TINY_BANK.md](TINY_BANK.md).
+
 ## 4. SmartMart curriculum
 
 1. Rau củ & Hoa quả — khối lượng, đơn giá, nhân/chia, đổi đơn vị.

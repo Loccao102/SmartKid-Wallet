@@ -123,3 +123,7 @@ Chưa coi là hoàn thành:
 - cloud persistence cho XP/xu/star/progression.
 
 Tiny Bank / Restaurant / Weekend Market **chủ động đóng băng gameplay** cho tới khi SmartMart đạt depth gate trong `docs/SMARTMART_DEPTH.md`.
+
+Ngoại lệ phạm vi 2026-10-03: chủ dự án yêu cầu bắt đầu map tiếp theo, Tiny Bank.
+Đợt phát triển hiện tại nối tiếp chapter sẵn có, giữ unlock level/prerequisite và
+scoring; xem [TINY_BANK.md](TINY_BANK.md). Restaurant/Market chưa mở rộng.

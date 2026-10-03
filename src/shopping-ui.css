@@ -9,6 +9,8 @@
 .student-modal { width: min(530px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; padding: 22px; background: #fffaf0; color: #254b43; border: 3px solid #f6e6b4; border-radius: 24px; box-shadow: 0 20px 80px #153e3844; }
 .student-modal::backdrop { background: #153e3877; backdrop-filter: blur(5px); }
 .student-modal > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.student-modal > header h2 { min-width: 0; overflow-wrap: anywhere; }
+.student-modal > header .icon-button { flex: 0 0 44px; }
 .student-modal h2 { font-size: 22px; margin: 0; }
 .student-modal p { font-size: 16px; line-height: 1.6; }
 .student-modal button { min-height: 46px; }
@@ -106,7 +108,7 @@
 .mission-result > img { width: 100%; }
 .mission-result > div > svg { color: #488757; margin-bottom: 20px; }
 .mission-result p:not(.eyebrow) { font-size: 16px; line-height: 1.7; color: #6b7252; }
-.mission-result-summary { display: flex; gap: 30px; padding: 20px 0; }
+.mission-result-summary { display: flex; flex-wrap: wrap; gap: 18px 30px; padding: 20px 0; }
 .mission-result-summary span { font-size: 14px; color: #697750; }
 .mission-result-summary strong { display: block; font-size: 26px; margin-top: 5px; color: #397347; }
 .mission-result .quiet-button { display: block; margin-top: 15px; }
@@ -114,7 +116,7 @@
   .shopping-layout { grid-template-columns: 1fr; }
   .desktop-basket { display: none; }
   .party-mission:not(.mission-finished) { padding-bottom: 96px; }
-  .mobile-basket-bar { position: fixed; display: flex; justify-content: space-between; align-items: center; gap: 16px; bottom: var(--nav-height); left: 0; right: 0; z-index: 25; background: #fffaf0f7; backdrop-filter: blur(12px); border-top: 1px solid #d1dec5; padding: 12px max(18px, calc((100vw - 900px) / 2)); box-shadow: 0 -8px 25px #3356330c; }
+  .mobile-basket-bar { position: fixed; display: flex; justify-content: space-between; align-items: center; gap: 16px; bottom: var(--nav-height, 0px); left: 0; right: 0; z-index: 25; background: #fffaf0f7; backdrop-filter: blur(12px); border-top: 1px solid #d1dec5; padding: 12px max(18px, calc((100vw - 900px) / 2)); box-shadow: 0 -8px 25px #3356330c; }
   .mobile-basket-bar > div > span { font-size: 12px; color: #6c7c5d; }
   .mobile-basket-bar strong { display: block; font-size: 21px; margin-top: 4px; }
   .basket-sheet { width: min(620px, 100%); max-height: min(90dvh, 900px); margin: auto auto 0; border-radius: 25px 25px 0 0; padding: 22px max(20px,env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)); }
@@ -433,6 +435,14 @@
     left: 8px;
     top: 8px;
   }
+
+  /* The illustration is narrower than both quantity/status badges together. */
+  .shelf-product .product-count {
+    top: auto;
+    bottom: 8px;
+    right: 8px;
+    z-index: 2;
+  }
 }
 
 @media (max-width: 390px) {
@@ -446,7 +456,34 @@
   }
 
   .quantity-control button {
-    width: 42px;
-    min-width: 42px;
+    width: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Tablets use the bottom basket without the phone navigation dock. */
+@media (min-width: 761px) and (max-width: 1000px) {
+  .mobile-basket-bar {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .party-mission:not(.mission-finished) {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 360px) {
+  .party-mission:not(.mission-finished) {
+    padding-bottom: 148px;
+  }
+
+  .mobile-basket-bar {
+    flex-wrap: wrap;
+  }
+
+  .mobile-basket-bar > div {
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
   }
 }

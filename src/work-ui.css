@@ -798,6 +798,7 @@
 
 .work-mastery-result {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 16px;
   padding: 17px 20px;
@@ -1109,7 +1110,7 @@
   }
 
   .work-result-production > header {
-    grid-template-columns: 78px 1fr;
+    grid-template-columns: 78px minmax(0, 1fr);
     padding: 16px;
   }
 
@@ -1118,7 +1119,13 @@
     height: 74px;
   }
 
-  .work-result-production > header > svg {
+  /* The production avatar is an SVG, not the legacy img above. */
+  .work-result-production > header > svg.work-result-avatar {
+    width: 74px;
+    height: 92px;
+  }
+
+  .work-result-production > header > svg:not(.work-result-avatar) {
     display: none;
   }
 
@@ -1155,6 +1162,11 @@
   .work-result-actions > button {
     width: 100%;
   }
+}
+
+/* Narrow/short windows must be able to scroll the entire task past the header. */
+@media (max-height: 760px) {
+  .pos-action { position: static; }
 }
 
 /* Supporting learning screens: clear journey hierarchy and child-friendly copy. */

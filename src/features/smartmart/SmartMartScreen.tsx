@@ -64,11 +64,19 @@ function StallDestination({
           <ArrowRight size={19} aria-hidden="true" />
         )}
       </span>
+      <span className="hub-stall-steps" aria-hidden="true">
+        {stall.unlockFamilyIds.map((familyId, index) => (
+          <span
+            key={familyId}
+            className={state === 'open' || index < completedCount ? 'is-complete' : ''}
+          />
+        ))}
+      </span>
       <span className="hub-stall-caption">
         {state === 'open'
           ? 'Đã mở · Vào gian hàng'
           : state === 'available'
-            ? `Giải Toán để mở · ${completedCount}/${stall.unlockFamilyIds.length} bài`
+            ? `Cùng mở gian · Bài ${completedCount + 1}/${stall.unlockFamilyIds.length}`
             : 'Hoàn thành gian trước'}
       </span>
     </button>
@@ -306,9 +314,19 @@ export function SmartMartScreen({
             src={gameAssets.production.hubFloor}
             alt=""
           />
-          <div className="hub-welcome-sign">
-            <strong>SmartMart</strong>
-            <span>Học Toán qua mua sắm</span>
+          <div className="hub-scene-heading">
+            <div className="hub-welcome-sign">
+              <strong>SmartMart</strong>
+              <span>Học Toán qua mua sắm</span>
+            </div>
+            <div className="hub-student">
+              <AvatarCharacter config={avatar} className="hub-avatar" label="Nhân vật của em đang khám phá SmartMart" />
+              <span>
+                {nextLockedStall
+                  ? <>Cùng khám phá gian <strong>{nextLockedStall.name}</strong> nhé!</>
+                  : 'Các gian đã mở rồi. Cùng chuẩn bị liên hoan lớp nhé!'}
+              </span>
+            </div>
           </div>
           <div className="hub-destinations">
             {stalls.map((stall) => (
@@ -326,12 +344,6 @@ export function SmartMartScreen({
                 onOpen={() => interactWithStall(stall.id)}
               />
             ))}
-          </div>
-          <div className="hub-student">
-            <AvatarCharacter config={avatar} className="hub-avatar" label="Nhân vật của em đang khám phá SmartMart" />
-            <span>
-              {missionUnlocked ? 'Sẵn sàng mua sắm!' : 'Chọn gian để khám phá!'}
-            </span>
           </div>
         </div>
       ) : (
