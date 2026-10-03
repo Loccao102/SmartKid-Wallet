@@ -1,5 +1,18 @@
 # UI adventure edition — 2026-10-01
 
+## Luồng bài Toán và nhiệm vụ — 2026-10-04
+
+- Bài Toán chuyển focus sang nút thử lại sau đáp án sai, rồi trở về ô nhập
+  sau khi mở lượt mới. Khi ví không đủ xu, nút nói rõ lượt hỗ trợ miễn phí
+  vốn có; không thay mức phí 5–30 xu, XP hoặc điều kiện mở gian.
+- Chặn kích hoạt lặp trong cùng bước để một lần bấm liên tiếp không ghi hai
+  math attempt, trừ phí hai lần hoặc gọi hoàn thành bài hai lần.
+- Màn mua sắm dùng tên nhiệm vụ đang chọn, lời dẫn phù hợp với gian bắt buộc
+  hoặc tùy chọn. Focus theo tiêu đề khi vào màn, hoàn thành và chơi lại,
+  kể cả thanh toán từ giỏ hàng dạng modal.
+- DOM integration kiểm tra free recovery, phí tăng dần, practice miễn phí,
+  thao tác lặp, tên nhiệm vụ và chuyển focus. Không thay đổi scoring/domain.
+
 ## Pass responsive và màn chơi — 2026-10-03
 
 Theo phản hồi chủ dự án, giữ hướng minh họa và overview SmartMart, chỉnh trang
@@ -24,10 +37,11 @@ Sửa các lỗi xác định từ source/CSS:
   các nút hoạt động trang chủ có cột icon/chữ/mũi tên rõ ràng, chuyển thành
   danh sách ở tablet hẹp. Nhiệm vụ đủ điều kiện không còn hiện icon khóa.
 
-Chương Ngân hàng được ghi riêng ở [TINY_BANK.md](TINY_BANK.md). Đây là thay đổi
-trên feature branch, chưa xác nhận visual desktop/tablet/mobile: công cụ browser
-đã chặn URL local. DOM integration, CSS parse và build không thay thế kiểm tra
-hình ảnh/thao tác chạm thực tế. Cần hoàn tất gate này trước khi đưa lên main.
+Chương Ngân hàng được ghi riêng ở [TINY_BANK.md](TINY_BANK.md). Pass này đã lên
+main qua PR #26 theo yêu cầu trực tiếp của chủ dự án sau khi được thông báo
+giới hạn kiểm chứng. Visual desktop/tablet/mobile và console vẫn chưa xác nhận:
+công cụ browser đã từ chối URL local. DOM integration, CSS parse và build không
+thay thế kiểm tra hình ảnh/thao tác chạm thực tế; phần này còn cần kiểm tra.
 
 ## Hướng thiết kế
 
