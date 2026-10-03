@@ -1,5 +1,12 @@
 # Roadmap — Production v1
 
+## Cập nhật phạm vi — 2026-10-03
+
+Theo yêu cầu chủ dự án, bắt đầu đợt Tiny Bank: sảnh khám phá, ba chặng Toán,
+kế hoạch bốn tuần và tiếp tục lượt đang làm. Giữ các điều kiện mở map và domain
+SmartMart; không coi depth gate/pilot đã đạt. Xem [TINY_BANK.md](TINY_BANK.md)
+cho trạng thái kiểm tra trước khi hợp nhất/phát hành.
+
 ## Baseline — Demo v0
 
 Demo được coi là **đã chốt để làm nền**, không tiếp tục mở rộng breadth trước khi production quality đạt yêu cầu.

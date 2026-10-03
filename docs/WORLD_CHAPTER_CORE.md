@@ -91,6 +91,22 @@ createWorldChapterProgressStore<LessonId>(
 
 Storage key là contract ổn định. Không đổi key nếu chưa có migration.
 
+### Lượt chơi đang làm (schema 2)
+
+Factory giữ thêm `savedRunsByLessonId`: mỗi lesson có seed đã cấp và checkpoint
+do runner sở hữu. Migration từ schema 1 giữ completed IDs, best stars và run count,
+khởi tạo danh sách lượt đang làm rỗng; không đổi storage key.
+
+`useWorldChapterController({ resumeRuns: true })` dùng lại seed/checkpoint khi
+vào lại lesson, chỉ tăng replay count khi tạo lượt mới. Hoàn tất lượt sẽ xóa
+checkpoint. Tiny Bank bật tùy chọn này; Restaurant/Market giữ mặc định cũ.
+Quiz lưu câu hiện tại, câu trả lời đang nhập, số lần sai và feedback; mission
+Tiny Bank lưu ID lựa chọn từng tuần rồi tính lại số dư bằng dữ liệu cùng seed.
+Checkpoint là local/offline state, chưa phải cloud progress hay score authoritative.
+
+Quiz dùng nút Câu tiếp theo sau khi kiểm tra đúng để học sinh đọc feedback;
+không dùng timer tự nhảy câu (tránh gửi lặp làm bỏ qua câu hỏi).
+
 ## 4. Procedural quiz
 
 Map cung cấp:

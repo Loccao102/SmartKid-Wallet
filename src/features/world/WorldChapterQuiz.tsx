@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { scoreProceduralQuiz } from '../../core/worldChapter/runtime'
+import { restoreQuizProgress, type QuizProgress } from '../../core/worldChapter/quizProgress'
 import type { WorldChapterQuestion } from '../../core/worldChapter/types'
 
 export type WorldChapterQuizTheme = 'bank' | 'restaurant' | 'market'
@@ -57,6 +58,8 @@ export function WorldChapterQuiz({
   copy,
   onExit,
   onComplete,
+  checkpoint,
+  onCheckpoint,
 }: {
   theme: WorldChapterQuizTheme
   lessonTitle: string
@@ -66,43 +69,41 @@ export function WorldChapterQuiz({
   copy: WorldChapterQuizCopy
   onExit: () => void
   onComplete: (stars: number) => void
+  checkpoint?: unknown
+  onCheckpoint?: (state: QuizProgress) => void
 }) {
-  const [index, setIndex] = useState(0)
-  const [answer, setAnswer] = useState('')
-  const [mistakes, setMistakes] = useState(0)
-  const [feedback, setFeedback] = useState<string | null>(null)
+  const [progress, setProgress] = useState(() => restoreQuizProgress(checkpoint, questions.length))
+  const { index, answer, mistakes, feedback } = progress
+  const update = (patch: Partial<QuizProgress>) => {
+    const next = { ...progress, ...patch }
+    setProgress(next)
+    onCheckpoint?.(next)
+  }
   const [finished, setFinished] = useState(false)
+  const finishOnce = useRef(false)
+  const answerRef = useRef<HTMLInputElement>(null)
+  const resultRef = useRef<HTMLHeadingElement>(null)
   const question = questions[index]
+  useEffect(() => {
+    if (finished) resultRef.current?.focus()
+    else answerRef.current?.focus()
+  }, [index, finished])
 
   if (!question) {
     throw new Error('WorldChapterQuiz requires at least one question')
   }
 
   const submit = () => {
+    if (finished || feedback === 'correct' || !answer.trim()) return
     const parsed = Number(answer.replace(/[.\s,]/g, ''))
     if (!Number.isFinite(parsed)) return
 
     if (parsed !== question.answer) {
-      setMistakes((current) => current + 1)
-      setFeedback(question.hint)
-      setAnswer('')
+      update({ mistakes: mistakes + 1, feedback: 'hint', answer: '' })
       return
     }
 
-    setFeedback(copy.correctFeedback)
-
-    if (index < questions.length - 1) {
-      window.setTimeout(() => {
-        setIndex((current) => current + 1)
-        setAnswer('')
-        setFeedback(null)
-      }, 450)
-      return
-    }
-
-    const stars = scoreProceduralQuiz(mistakes)
-    setFinished(true)
-    onComplete(stars)
+    update({ feedback: 'correct' })
   }
 
   const stars = scoreProceduralQuiz(mistakes)
@@ -115,7 +116,7 @@ export function WorldChapterQuiz({
             <Check size={34} aria-hidden="true" />
           </span>
           <p className="eyebrow">{copy.completeEyebrow}</p>
-          <h2>{lessonTitle}</h2>
+          <h2 ref={resultRef} tabIndex={-1}>{lessonTitle}</h2>
           <WorldChapterStars value={stars} />
           <p>{copy.completeDescription}</p>
           <button type="button" className="adventure-button" onClick={onExit}>
@@ -163,10 +164,12 @@ export function WorldChapterQuiz({
         <label htmlFor="chapter-quiz-answer">{copy.inputLabel}</label>
         <div className="chapter-quiz-answer">
           <input
+            ref={answerRef}
             id="chapter-quiz-answer"
             inputMode="numeric"
             value={answer}
-            onChange={(event) => setAnswer(event.target.value)}
+            onChange={(event) => update({ answer: event.target.value.slice(0, 30) })}
+            readOnly={feedback === 'correct'}
             placeholder={copy.inputPlaceholder}
             autoFocus
             onKeyDown={(event) => {
@@ -179,7 +182,7 @@ export function WorldChapterQuiz({
         {feedback ? (
           <div className="chapter-quiz-hint" role="status">
             <Sparkles size={17} aria-hidden="true" />
-            <span>{feedback}</span>
+            <span>{feedback === 'correct' ? copy.correctFeedback : question.hint}</span>
           </div>
         ) : (
           <p className="chapter-quiz-tip">{copy.idleTip}</p>
@@ -189,9 +192,19 @@ export function WorldChapterQuiz({
           type="button"
           className="adventure-button chapter-quiz-submit"
           disabled={!answer.trim()}
-          onClick={submit}
+          onClick={() => {
+            if (feedback !== 'correct') { submit(); return }
+            if (index < questions.length - 1) {
+              update({ index: index + 1, answer: '', feedback: null })
+            } else {
+              if (finishOnce.current) return
+              finishOnce.current = true
+              setFinished(true)
+              onComplete(stars)
+            }
+          }}
         >
-          Kiểm tra <ArrowRight size={18} aria-hidden="true" />
+          {feedback === 'correct' ? index < questions.length - 1 ? 'Câu tiếp theo' : 'Xem kết quả' : 'Kiểm tra'} <ArrowRight size={18} aria-hidden="true" />
         </button>
       </div>
     </section>

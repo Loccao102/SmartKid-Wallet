@@ -1,5 +1,27 @@
 # UI adventure edition — 2026-10-01
 
+## Pass responsive và màn chơi — 2026-10-03
+
+Theo phản hồi chủ dự án, giữ hướng minh họa và overview SmartMart, chỉnh trang
+bản đồ đầu tiên thân thiện hơn: lời dẫn ngắn, CTA rõ, Ngân hàng làm điểm đến
+nổi bật khi đủ Cấp 5 + Liên hoan lớp, các map còn lại luôn hiện thành danh sách
+trên mobile thay vì phải đoán thao tác vuốt ngang. SmartMart vẫn truy cập được.
+
+Sửa các lỗi xác định từ source/CSS:
+- nav tablet bị `order` cũ đẩy sai vị trí, nhãn mobile chật và tên hồ sơ dài;
+- giỏ hàng tablet thiếu bottom anchor, badge sản phẩm chồng và vùng chạm 42px;
+- profile tablet bị rule cuối file ghi đè bố cục một cột;
+- avatar kết quả Work Mode bị selector SVG ẩn nhầm trên mobile;
+- modal dài khó tìm nút đóng, hàng thanh âm lượng bị flex ghi đè grid;
+- step controls avatar ở 320px chật, footer sticky chiếm màn hình thấp;
+- quiz/chặng Ngân hàng: chữ hướng dẫn quá nhỏ, heading/nút cần wrap, focus cần
+  theo câu/tuần mới khi nút cũ biến mất.
+
+Chương Ngân hàng được ghi riêng ở [TINY_BANK.md](TINY_BANK.md). Đây là thay đổi
+trên feature branch, chưa xác nhận visual desktop/tablet/mobile: công cụ browser
+đã chặn URL local. DOM integration, CSS parse và build không thay thế kiểm tra
+hình ảnh/thao tác chạm thực tế. Cần hoàn tất gate này trước khi đưa lên main.
+
 ## Hướng thiết kế
 
 Phiêu lưu 2D, minh họa như game cho học sinh lớp 4–5. Bảng màu kem, xanh lá, vàng nắng; ngân hàng có màu tím nhạt, nhà hàng màu đào, chợ màu vàng. UI dùng Lucide; artwork không chứa chữ nên nội dung vẫn có thể đọc bằng trình đọc màn hình.

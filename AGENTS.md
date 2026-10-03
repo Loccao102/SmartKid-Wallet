@@ -44,6 +44,12 @@ SmartKid Wallet có hai pha tách biệt:
 
 Chi tiết: docs/SMARTMART_DEPTH.md
 
+Ngoại lệ theo yêu cầu trực tiếp của chủ dự án ngày 2026-10-03: bắt đầu phát triển
+map tiếp theo, Tiny Bank. Phạm vi mở gồm sảnh khám phá, bài Toán và kế hoạch
+tiết kiệm; giữ điều kiện Cấp 5 + Liên hoan lớp và toàn bộ domain SmartMart.
+Đây không phải xác nhận SmartMart đã đạt depth gate; Restaurant/Market vẫn đóng
+băng. Chi tiết và giới hạn kiểm chứng: docs/TINY_BANK.md.
+
 ## 3. Stall curriculum
 
 - Produce: measurement, unit price, multiplication/division.

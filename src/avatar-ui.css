@@ -463,6 +463,23 @@
   .customer-scene .work-customer-avatar { position: absolute; left: 6px; bottom: 40px; width: 135px; height: 150px; }
 }
 
+/* Small phones need the step counter on its own row, rather than squeezing
+   two icon buttons and the counter into less than 280px of content width. */
+@media (max-width: 390px) {
+  .avatar-step-controls { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .avatar-step-controls > span { grid-column: 1 / -1; grid-row: 1; text-align: center; }
+  .avatar-step-controls .quiet-button { grid-row: 2; width: 100%; min-width: 0; padding-inline: 8px; }
+  .avatar-customizer-actions .adventure-button { min-width: 0; }
+  .avatar-current-look { flex-wrap: wrap; }
+  .avatar-current-look strong { margin-left: 0; }
+}
+
+/* A landscape phone or open keyboard must not be covered by a tall sticky footer. */
+@media (max-height: 500px) {
+  .avatar-customizer-actions { position: static; }
+  .avatar-preview-panel { position: static; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .avatar-customizer-modal *,
   .avatar-customizer-modal *::before,

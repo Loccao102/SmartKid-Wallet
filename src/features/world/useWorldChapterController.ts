@@ -16,10 +16,12 @@ export function useWorldChapterController<LessonId extends string>({
   chapter,
   lessons,
   progressStore,
+  resumeRuns = false,
 }: {
   chapter: WorldChapterDefinition<LessonId>
   lessons: readonly WorldChapterLessonDefinition<LessonId>[]
   progressStore: UseBoundStore<StoreApi<WorldChapterProgressState<LessonId>>>
+  resumeRuns?: boolean
 }) {
   const completedLessonIds = progressStore(
     (state) => state.completedLessonIds,
@@ -29,6 +31,9 @@ export function useWorldChapterController<LessonId extends string>({
   )
   const nextRun = progressStore((state) => state.nextRun)
   const completeLesson = progressStore((state) => state.completeLesson)
+  const savedRunsByLessonId = progressStore((state) => state.savedRunsByLessonId)
+  const saveRun = progressStore((state) => state.saveRun)
+  const clearRun = progressStore((state) => state.clearRun)
 
   const awardXpOnce = useProgressionStore((state) => state.awardXpOnce)
   const awardCoinsOnce = useProgressionStore(
@@ -51,8 +56,17 @@ export function useWorldChapterController<LessonId extends string>({
   const chapterCompleted = completedWorldChapterIds.includes(chapter.mapId)
 
   const startLesson = (lessonId: LessonId) => {
+    if (!isChapterLessonUnlocked(chapter, lessonId, completedLessonIds)) return
+    const saved = resumeRuns ? savedRunsByLessonId[lessonId] : undefined
+    if (saved && Number.isSafeInteger(saved.seed)) {
+      setRunSeed(saved.seed)
+      setActiveLessonId(lessonId)
+      return
+    }
     const runNumber = nextRun(lessonId)
-    setRunSeed(createChapterRunSeed(chapter, lessonId, runNumber))
+    const seed = createChapterRunSeed(chapter, lessonId, runNumber)
+    setRunSeed(seed)
+    if (resumeRuns) saveRun(lessonId, seed, null)
     setActiveLessonId(lessonId)
   }
 
@@ -75,6 +89,7 @@ export function useWorldChapterController<LessonId extends string>({
       stars,
       stars * 20,
     )
+    if (resumeRuns) clearRun(lessonId)
 
     if (!outcome.passed) return outcome
 
@@ -110,5 +125,10 @@ export function useWorldChapterController<LessonId extends string>({
     startLesson,
     finishLesson,
     isLessonUnlocked,
+    savedRunsByLessonId,
+    checkpoint: activeLessonId ? savedRunsByLessonId[activeLessonId]?.checkpoint : undefined,
+    saveCheckpoint: (checkpoint: unknown) => {
+      if (resumeRuns && activeLessonId) saveRun(activeLessonId, runSeed, checkpoint)
+    },
   }
 }

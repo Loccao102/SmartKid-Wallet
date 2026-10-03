@@ -810,3 +810,107 @@
     animation: none;
   }
 }
+
+/* Adventure pass: shared cream/lavender tokens, the bank's own landscape. */
+.bank-arrival { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.bank-arrival h1 { margin: 4px 0; font: 800 clamp(30px, 4vw, 46px)/1.15 var(--sk-font-display); }
+.bank-arrival p { margin: 8px 0; color: var(--sk-muted); }
+.bank-arrival > span { display: flex; align-items: center; gap: 10px; color: var(--sk-lavender-ink); font-weight: 700; }
+.bank-adventure .bank-chapter-progress { font-size: 13px; background: var(--sk-lavender); color: var(--sk-lavender-ink); }
+.bank-explore-scene { position: relative; aspect-ratio: 2/1; border: 1px solid var(--sk-border); border-radius: var(--sk-radius-xl); overflow: hidden; background: var(--sk-lavender); box-shadow: var(--sk-shadow-sm); }
+.bank-landscape { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 56%; }
+.bank-stop { position: absolute; width: 240px; min-height: 78px; display: flex; gap: 12px; align-items: center; text-align: left; padding: 12px 16px; border: 2px solid var(--sk-border); border-radius: var(--sk-radius-md); background: var(--sk-surface); color: var(--sk-ink); box-shadow: var(--sk-paper-shadow); }
+.bank-stop[aria-pressed="true"] { border-color: var(--sk-lavender-ink); background: var(--sk-lavender); }
+.bank-stop:hover { border-color: var(--sk-lavender-ink); }
+.bank-stop small, .bank-stop strong { display: block; }
+.bank-stop small { font-size: 11px; color: var(--sk-muted); margin-bottom: 4px; }
+.bank-stop strong { font-size: 16px; line-height: 1.3; }
+.bank-stop-icon { color: var(--sk-lavender-ink); flex-shrink: 0; }
+.bank-stop-button-1 { left: 4%; top: 14%; }
+.bank-stop-button-2 { right: 4%; top: 14%; }
+.bank-stop-button-3 { left: 4%; top: 64%; }
+.bank-stop-button-4 { right: 4%; top: 64%; }
+.bank-traveler { position: absolute; width: 110px; left: calc(50% - 55px); bottom: 10%; display: grid; justify-items: center; transition: left .5s ease, bottom .5s ease; pointer-events: none; }
+.bank-traveler svg { width: 94px; height: 118px; filter: drop-shadow(0 6px 3px var(--sk-overlay)); }
+.bank-traveler > span { width: 175px; padding: 7px 10px; border-radius: var(--sk-radius-sm); background: var(--sk-surface); box-shadow: var(--sk-shadow-xs); color: var(--sk-ink); font-size: 12px; font-weight: 700; text-align: center; }
+.bank-stop-1 .bank-traveler { left: 29%; bottom: 22%; }
+.bank-stop-2 .bank-traveler { left: 59%; bottom: 24%; }
+.bank-stop-3 .bank-traveler { left: 30%; bottom: 7%; }
+.bank-stop-4 .bank-traveler { left: 58%; bottom: 8%; }
+.bank-next-stop { display: flex; justify-content: space-between; align-items: center; gap: 28px; padding: 22px 26px; border: 1px solid var(--sk-border); border-radius: var(--sk-radius-lg); background: var(--sk-surface); }
+.bank-next-stop > div { max-width: 690px; }
+.bank-next-stop h2 { margin: 5px 0; font: 800 clamp(21px, 2.4vw, 28px)/1.25 var(--sk-font-display); }
+.bank-next-stop p { margin: 8px 0; color: var(--sk-muted); }
+.bank-next-stop .adventure-button { flex-shrink: 0; min-height: 54px; }
+.bank-next-stop .bank-stop-requirement { display: flex; align-items: flex-start; gap: 10px; max-width: 310px; color: var(--sk-lavender-ink); }
+.bank-stop-requirement svg { flex-shrink: 0; margin-top: 3px; }
+.bank-adventure .bank-learning-note { background: transparent; padding: 6px 12px; }
+.bank-adventure .bank-learning-note p { font-size: 14px; }
+.bank-planner { display: grid; gap: 20px; max-width: 960px; margin-inline: auto; color: var(--sk-ink); }
+.bank-plan-heading h1 { font: 800 clamp(27px, 3vw, 38px)/1.2 var(--sk-font-display); margin: 10px 0; }
+.bank-plan-heading p { color: var(--sk-muted); }
+.bank-planner .bank-play-heading { flex-wrap: wrap; }
+.bank-planner .bank-play-heading > span { font-size: 13px; }
+.bank-planner .bank-mission-stats span { font-size: 14px; color: var(--sk-muted); }
+.bank-planner .bank-mission-stats strong { font-size: 21px; }
+.bank-planner .bank-mission-stats > div { background: var(--sk-surface); border-color: var(--sk-border); border-radius: var(--sk-radius-md); }
+.bank-goal-track { display: grid; gap: 8px; font-size: 14px; color: var(--sk-lavender-ink); font-weight: 700; }
+.bank-goal-track progress { width: 100%; height: 12px; accent-color: var(--sk-lavender-ink); }
+.bank-week-track { display: grid; grid-template-columns: repeat(4, 1fr); list-style: none; padding: 0; margin: 0; gap: 8px; }
+.bank-week-track li { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; background: var(--sk-surface-soft); border-radius: var(--sk-radius-sm); font-size: 14px; }
+.bank-week-track li[aria-current] { background: var(--sk-lavender); color: var(--sk-lavender-ink); font-weight: 800; }
+.bank-week-track li > span { display: none; }
+.bank-planner .bank-story-card { background: var(--sk-surface); border-radius: var(--sk-radius-lg); }
+.bank-planner .bank-story-card h2 { font-size: clamp(21px, 2.6vw, 28px); }
+.bank-planner .bank-choice-grid button { border-color: var(--sk-border); border-radius: var(--sk-radius-md); background: var(--sk-surface); }
+.bank-planner .bank-choice-grid strong { font-size: 16px; }
+.bank-planner .bank-choice-grid small, .bank-planner .bank-consequence p { font-size: 15px; color: var(--sk-muted); }
+.bank-planner .bank-consequence { background: var(--sk-lavender); border-radius: var(--sk-radius-lg); }
+.bank-choice-result-title { margin: 0; font-size: 18px; line-height: 1.4; }
+.bank-plan-outcome { display: grid; justify-items: start; gap: 12px; padding: 24px; border-radius: var(--sk-radius-lg); background: var(--sk-surface); }
+.bank-plan-outcome p { margin: 0; }
+.bank-passbook { padding: 16px 20px; border-block: 1px solid var(--sk-border); }
+.bank-passbook summary { min-height: 44px; align-content: center; cursor: pointer; font-weight: 800; }
+.bank-passbook summary svg { vertical-align: middle; margin-right: 7px; color: var(--sk-lavender-ink); }
+.bank-passbook > p, .bank-passbook li p, .bank-passbook small { font-size: 14px; color: var(--sk-muted); }
+.bank-passbook ol { list-style: none; margin: 0; padding: 0; }
+.bank-passbook li { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; padding: 16px 0; border-top: 1px dashed var(--sk-border); }
+.bank-passbook li p { margin: 6px 0 0; }
+.bank-passbook small { display: block; font-weight: 400; }
+@media (max-width: 1000px) {
+  .bank-explore-scene { aspect-ratio: 1.65; }
+  .bank-stop { width: 205px; padding: 10px 12px; gap: 8px; }
+  .bank-stop strong { font-size: 14px; }
+  .bank-arrival > span { display: none; }
+  .bank-next-stop { align-items: stretch; flex-direction: column; gap: 12px; }
+  .bank-next-stop .adventure-button { align-self: start; }
+}
+@media (max-width: 700px) {
+  .bank-adventure { gap: 16px; }
+  .bank-explore-scene { aspect-ratio: auto; overflow: visible; background: var(--sk-surface); }
+  .bank-landscape { height: 250px; border-radius: var(--sk-radius-xl) var(--sk-radius-xl) 0 0; }
+  .bank-destinations { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+  .bank-stop { position: static; width: auto; min-width: 0; flex-direction: column; align-items: flex-start; min-height: 105px; box-shadow: var(--sk-shadow-xs); }
+  .bank-stop small { font-size: 10px; }
+  .bank-stop strong { font-size: 14px; }
+  .bank-explore-scene .bank-traveler { left: calc(50% - 55px); top: 105px; bottom: auto; }
+  .bank-traveler svg { width: 80px; height: 100px; }
+  .bank-traveler > span { font-size: 11px; }
+  .bank-next-stop { padding: 18px; }
+  .bank-next-stop .adventure-button { width: 100%; }
+  .bank-toolbar { flex-wrap: wrap; }
+  .bank-planner { padding: 16px; }
+  .bank-planner .bank-mission-stats { grid-template-columns: 1fr; }
+  .bank-planner .bank-mission-stats > div { grid-template-columns: auto 1fr auto; }
+  .bank-planner .bank-mission-stats svg { grid-row: auto; }
+  .bank-planner .bank-mission-stats strong { font-size: 18px; }
+  .bank-week-track { gap: 5px; }
+  .bank-week-track li { padding: 10px 4px; font-size: 12px; }
+  .bank-planner .bank-story-card { padding: 16px; }
+  .bank-passbook { padding: 10px 0; }
+  .bank-passbook li { grid-template-columns: auto 1fr; gap: 10px; }
+  .bank-passbook li > strong { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bank-traveler { transition: none; }
+}
