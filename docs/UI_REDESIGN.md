@@ -16,6 +16,13 @@ Sửa các lỗi xác định từ source/CSS:
 - step controls avatar ở 320px chật, footer sticky chiếm màn hình thấp;
 - quiz/chặng Ngân hàng: chữ hướng dẫn quá nhỏ, heading/nút cần wrap, focus cần
   theo câu/tuần mới khi nút cũ biến mất.
+- SmartMart mobile kế thừa padding-top 118px của map cũ dù biển hiệu đã về
+  document flow, tạo khoảng trống thừa trước các gian. Đã reset padding, đưa
+  nhân vật/hướng dẫn lên đầu khu chơi, làm nổi gian tiếp theo và hiển thị ba
+  nấc bài Toán theo tiến trình sẵn có.
+- Trang ngoài: tên gian dưới đường tiến trình dễ đọc hơn khi xuống dòng;
+  các nút hoạt động trang chủ có cột icon/chữ/mũi tên rõ ràng, chuyển thành
+  danh sách ở tablet hẹp. Nhiệm vụ đủ điều kiện không còn hiện icon khóa.
 
 Chương Ngân hàng được ghi riêng ở [TINY_BANK.md](TINY_BANK.md). Đây là thay đổi
 trên feature branch, chưa xác nhận visual desktop/tablet/mobile: công cụ browser
