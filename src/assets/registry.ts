@@ -62,6 +62,9 @@ export const gameAssets = {
     },
     tinyBank: {
       thumbnail: mapAssetPacks['tiny-bank'].thumbnail,
+      playground: '/assets/maps/tiny-bank/playground-v1.webp',
+      playgroundSmall: '/assets/maps/tiny-bank/playground-v1-small.webp',
+      playgroundDescription: 'Khu vườn ngân hàng với hũ tiết kiệm, quầy gửi rút, vườn đồng xu và bàn kế hoạch quanh quảng trường.',
     },
     happyRestaurant: {
       thumbnail: mapAssetPacks['happy-restaurant'].thumbnail,

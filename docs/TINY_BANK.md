@@ -5,11 +5,14 @@ SmartMart depth gate/pilot đã hoàn tất. Restaurant và Weekend Market khôn
 
 ## Trải nghiệm
 
-- Sảnh dùng cảnh ngân hàng mái tím trong `mapAssetPacks['tiny-bank']`, nhân vật
+- Sảnh dùng cảnh vườn ngân hàng trong `gameAssets.maps.tinyBank`, nhân vật
   đã tùy chỉnh và bốn điểm khám phá. Chọn điểm đến để xem nội dung/điều kiện;
   nhân vật chuyển vị trí nhẹ trên cảnh. Không thêm joystick hoặc thay app shell.
 - Hũ mục tiêu → Quầy gửi/rút → Vườn phần trăm: mỗi chặng có ba bài Toán có seed.
 - Hoàn thành cả ba chặng mở Kế hoạch tiết kiệm 4 tuần.
+- Bàn kế hoạch: chọn một phương án để xem thay đổi tiền, sau đó bấm
+  **Xác nhận kế hoạch** mới ghi tuần. Có thể đổi phương án trước khi xác nhận;
+  lựa chọn tạm chưa được lưu khi rời màn. Hũ tiền luôn phản ánh số đã ghi.
 - Sổ theo dõi ghi lựa chọn, khoản để dành và quỹ dự phòng mỗi tuần. Chỉ trình bày
   tổng kết sao ở cuối kế hoạch. Đây là mô phỏng kế hoạch cá nhân, không tạo
   employee/store world flags hoặc hậu quả persistent trong Learning Mode.
@@ -39,15 +42,23 @@ Kết quả đợt 2026-10-03: 25 test files / 112 tests đạt, production buil
 7 file CSS đã sửa parse thành công. DOM integration chạy trong Happy DOM,
 kiểm tra focus theo tuần và hoàn thành/chơi lại; không thay thế trình duyệt thật.
 
+Đợt hình ảnh/bàn kế hoạch 2026-10-04: 28 test files / 122 tests đạt,
+build/typecheck đạt. Ba test mới kiểm tra đổi lựa chọn chưa ghi tiền, xác nhận
+lặp, rời màn trước xác nhận, khôi phục biên nhận và hoàn thành đúng một lần.
+Hai file CSS liên quan parse thành công, không có token nền tảng thiếu.
+
 Kiểm tra trình duyệt desktop/tablet/mobile và console còn chờ: công cụ duyệt
-chặn URL local trong phiên phát triển này. Chưa đánh dấu visual/pilot đạt;
-giữ trên feature branch cho đến khi hoàn tất kiểm tra giao diện.
+chặn URL local trong phiên phát triển này. Chủ dự án đã yêu cầu cập nhật main
+sau test dù giới hạn này còn tồn tại; chưa đánh dấu visual/pilot đạt.
+Thiết kế hình ảnh và bàn kế hoạch đợt 2026-10-04:
+[TINY_BANK_DESIGN.md](TINY_BANK_DESIGN.md).
 
 Thử nghiệm thủ công khi trình duyệt truy cập được:
 1. Từ hồ sơ đạt Cấp 5 + Liên hoan lớp, mở Ngân hàng; thử điểm chưa mở.
 2. Làm sai một câu, nhập đáp án mới, rời sảnh/tải lại rồi tiếp tục đúng câu đó.
 3. Hoàn thành đủ 3 chặng Toán; kiểm tra sổ kế hoạch mới mở.
-4. Chọn một phương án ở tuần 1, tải lại; xem đúng lựa chọn/số dư, không cộng hai lần.
+4. Chọn thử rồi đổi phương án ở tuần 1: số dư chưa đổi. Xác nhận rồi tải lại;
+   xem đúng lựa chọn/số dư, không cộng hai lần, không bỏ qua tuần.
 5. Đi hết 4 tuần, xem sổ và kết quả; chơi lại, xác nhận không thưởng XP/xu lần đầu nữa.
 6. Kiểm tra ở 1440×900, 820×1180, 390×844 và 320px; phím Tab/Enter, focus,
    vùng chạm, tràn ngang, reduced motion và console.

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Banknote, Check, CircleDollarSign, Landmark, LockKeyhole, PiggyBank, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
-import { mapAssetPacks } from '../../assets/registry'
+import { gameAssets } from '../../assets/registry'
 import { AvatarCharacter } from '../../components/avatar/AvatarCharacter'
 import { createTinyBankMission, createTinyBankQuiz, tinyBankChapter, tinyBankLessons, type TinyBankLessonId } from '../../data/tinyBank'
 import { useAvatarProfileStore } from '../../store/avatarProfile'
@@ -11,6 +11,13 @@ import { BankMission } from './BankMission'
 
 const lessonIcons = { 'saving-goal': Target, 'balance-counter': Banknote, 'growth-bonus': TrendingUp, 'four-week-mission': ShieldCheck }
 const stopNames = { 'saving-goal': 'Hũ mục tiêu', 'balance-counter': 'Quầy gửi · rút', 'growth-bonus': 'Vườn phần trăm', 'four-week-mission': 'Kế hoạch 4 tuần' }
+const stopSteps = {
+  'saving-goal': ['Đọc mục tiêu tiết kiệm', 'Tính khoản tiền còn thiếu', 'Chia tiền để dành theo tuần'],
+  'balance-counter': ['Theo dõi tiền gửi vào', 'Tính khoản tiền đã rút', 'Kiểm tra số dư còn lại'],
+  'growth-bonus': ['Đọc tỉ lệ phần trăm', 'Tính khoản tiền tăng thêm', 'Tìm số tiền sau khi tăng'],
+  'four-week-mission': ['Nhận tình huống mỗi tuần', 'Chọn phương án rồi xác nhận', 'Xem sổ sau bốn tuần'],
+}
+const bankArt = gameAssets.maps.tinyBank
 
 export function TinyBankScreen({ onBack }: { onBack: () => void }) {
   const avatar = useAvatarProfileStore(state => state.avatar)
@@ -28,6 +35,7 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
   const selectedIndex = tinyBankLessons.indexOf(selected)
   const selectedStars = bestStarsByLessonId[selected.id] ?? 0
   const saved = savedRunsByLessonId[selected.id]
+  const SelectedIcon = lessonIcons[selected.id]
 
   if (activeLessonId && activeLessonId !== 'four-week-mission') {
     const lesson = tinyBankLessons.find(item => item.id === activeLessonId)!
@@ -49,9 +57,16 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
       <h1 id="bank-title">Ngân hàng tí hon</h1><p>Gom từng chút hôm nay, chạm ước mơ ngày mai.</p></div>
       <span><PiggyBank size={22} /> Học tiết kiệm qua 4 chặng</span></header>
     {chapterCompleted ? <div className="bank-chapter-banner" role="status"><Sparkles size={24} /><div><strong>Em đã hoàn thành Ngân hàng tí hon!</strong><span>Nhà hàng vui vẻ đang chờ em ở Cấp 8. Em vẫn có thể quay lại luyện thêm.</span></div></div> : null}
+    <div className="bank-exploration">
     <div className={'bank-explore-scene bank-stop-' + (selectedIndex + 1)}>
-      <img className="bank-landscape" src={mapAssetPacks['tiny-bank'].scene} width="1280" height="853" alt={mapAssetPacks['tiny-bank'].description} />
-      <div className="bank-traveler"><AvatarCharacter config={avatar} label="Nhân vật của em đang khám phá ngân hàng" /><span>Cùng đến {stopNames[selected.id].toLocaleLowerCase('vi-VN')}!</span></div>
+      <div className="bank-scene-art">
+        <img className="bank-landscape" src={bankArt.playground}
+          srcSet={`${bankArt.playgroundSmall} 600w, ${bankArt.playground} 1280w`}
+          sizes="(max-width: 700px) 100vw, (max-width: 1100px) 85vw, 70vw"
+          width="1280" height="853" alt={bankArt.playgroundDescription} />
+        <div className="bank-traveler"><AvatarCharacter config={avatar} label="Nhân vật của em đang khám phá ngân hàng" /></div>
+        <p className="bank-scene-hint">Chạm một điểm đến để cùng khám phá</p>
+      </div>
       <nav className="bank-destinations" aria-label="Các điểm khám phá ngân hàng">
         {tinyBankLessons.map((lesson, index) => {
           const unlocked = isLessonUnlocked(lesson.id)
@@ -67,12 +82,15 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
       </nav>
     </div>
     <section className="bank-next-stop" aria-label="Chặng đã chọn" aria-live="polite">
-      <div><p className="eyebrow">{saved ? 'ĐANG CHỜ EM TIẾP TỤC' : selected.skillLabel}</p><h2>{selected.id === 'four-week-mission' ? 'Kế hoạch tiết kiệm 4 tuần' : selected.title}</h2><p>{selected.description}</p>
+      <div className="bank-stop-intro"><span className="bank-selected-seal" aria-hidden="true"><SelectedIcon size={30} /></span>
+        <p className="eyebrow">{saved ? 'ĐANG CHỜ EM TIẾP TỤC' : `CHẶNG ${selectedIndex + 1} · ${selected.skillLabel}`}</p><h2>{selected.id === 'four-week-mission' ? 'Kế hoạch tiết kiệm 4 tuần' : selected.title}</h2><p>{selected.description}</p>
         {selectedStars ? <WorldChapterStars value={selectedStars} /> : null}</div>
+      <ol className="bank-stop-steps" aria-label="Cách khám phá chặng này">{stopSteps[selected.id].map(step => <li key={step}>{step}</li>)}</ol>
       {isLessonUnlocked(selected.id) ? <button type="button" className="adventure-button" onClick={() => { setSelectedId(null); startLesson(selected.id) }}>
         {saved ? 'Tiếp tục chặng này' : completedLessonIds.includes(selected.id) ? 'Luyện lại' : selected.id === 'four-week-mission' ? 'Mở sổ kế hoạch' : 'Bắt đầu khám phá'}<ArrowRight size={20} /></button>
         : <p className="bank-stop-requirement"><LockKeyhole size={19} />{selected.id === 'four-week-mission' ? 'Hoàn thành 3 chặng Toán để mở sổ kế hoạch.' : `Hoàn thành “${stopNames[tinyBankLessons[selectedIndex - 1].id]}” để mở chặng này.`}</p>}
     </section>
+    </div>
     <aside className="bank-learning-note"><ShieldCheck size={22} /><div><strong>Một nơi để thử và học</strong><p>Tiền trong bài là tiền mô phỏng, tách biệt với xu của em. Tỉ lệ phần trăm dùng để luyện Toán, không phải lãi suất ngoài đời.</p></div></aside>
   </section>
 }
