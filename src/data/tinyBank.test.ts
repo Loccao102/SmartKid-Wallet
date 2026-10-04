@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createHash } from 'node:crypto'
 import {
   createTinyBankMission,
   createTinyBankQuiz,
@@ -6,6 +7,17 @@ import {
 } from './tinyBank'
 
 describe('Tiny Bank generators', () => {
+  it('preserves issued question content for existing saved seeds', () => {
+    // Recorded before adding visual metadata: changes must not reroll saved runs.
+    const issued = [101, 202, 20260930].flatMap(seed =>
+      (['saving-goal', 'balance-counter', 'growth-bonus'] as const).flatMap(lesson =>
+        createTinyBankQuiz(lesson, seed).map(({ id, prompt, answer, unit, hint }) =>
+          ({ id, prompt, answer, unit, hint })),
+      ),
+    )
+    expect(createHash('sha256').update(JSON.stringify(issued)).digest('hex')).toMatchInlineSnapshot(`"0bbec528fa5e597f98fea75321f3f56d5da2a69a715ba53fa6d083e21e7abde7"`)
+  })
+
   it('generates deterministic but seed-varying saving questions', () => {
     const first = createTinyBankQuiz('saving-goal', 101)
     const same = createTinyBankQuiz('saving-goal', 101)

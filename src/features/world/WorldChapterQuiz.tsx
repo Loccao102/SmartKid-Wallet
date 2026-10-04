@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,6 +12,18 @@ import { restoreQuizProgress, type QuizProgress } from '../../core/worldChapter/
 import type { WorldChapterQuestion } from '../../core/worldChapter/types'
 
 export type WorldChapterQuizTheme = 'bank' | 'restaurant' | 'market'
+
+/** Read-only presentation hook; the shared runner still owns all quiz behavior. */
+export interface WorldChapterQuizSceneState {
+  questionIndex: number
+  questionId: string
+  completedCount: number
+  totalQuestions: number
+  isCorrect: boolean
+  finished: boolean
+  /** Only a correct answer in this mount celebrates; restored progress stays settled. */
+  celebrate: boolean
+}
 
 export interface WorldChapterQuizCopy {
   exitLabel: string
@@ -60,6 +72,7 @@ export function WorldChapterQuiz({
   onComplete,
   checkpoint,
   onCheckpoint,
+  renderScene,
 }: {
   theme: WorldChapterQuizTheme
   lessonTitle: string
@@ -71,6 +84,7 @@ export function WorldChapterQuiz({
   onComplete: (stars: number) => void
   checkpoint?: unknown
   onCheckpoint?: (state: QuizProgress) => void
+  renderScene?: (state: WorldChapterQuizSceneState) => ReactNode
 }) {
   const [progress, setProgress] = useState(() => restoreQuizProgress(checkpoint, questions.length))
   const { index, answer, mistakes, feedback } = progress
@@ -80,6 +94,7 @@ export function WorldChapterQuiz({
     onCheckpoint?.(next)
   }
   const [finished, setFinished] = useState(false)
+  const [celebrate, setCelebrate] = useState(false)
   const finishOnce = useRef(false)
   const answerRef = useRef<HTMLInputElement>(null)
   const resultRef = useRef<HTMLHeadingElement>(null)
@@ -99,19 +114,34 @@ export function WorldChapterQuiz({
     if (!Number.isFinite(parsed)) return
 
     if (parsed !== question.answer) {
+      setCelebrate(false)
       update({ mistakes: mistakes + 1, feedback: 'hint', answer: '' })
       return
     }
 
+    setCelebrate(true)
     update({ feedback: 'correct' })
   }
 
   const stars = scoreProceduralQuiz(mistakes)
+  const sceneState: WorldChapterQuizSceneState = {
+    questionIndex: index,
+    questionId: question.id,
+    completedCount: finished ? questions.length : Math.min(questions.length, index + (feedback === 'correct' ? 1 : 0)),
+    totalQuestions: questions.length,
+    isCorrect: feedback === 'correct',
+    finished,
+    celebrate: celebrate && !finished,
+  }
+  const quizClassName = 'chapter-quiz chapter-theme-' + theme + (renderScene ? ' chapter-quiz-has-scene' : '')
+  const renderPlay = (content: ReactNode) => renderScene
+    ? <div className="chapter-quiz-play">{renderScene(sceneState)}{content}</div>
+    : content
 
   if (finished) {
     return (
-      <section className={'chapter-quiz chapter-theme-' + theme}>
-        <div className="chapter-quiz-finish">
+      <section className={quizClassName}>
+        {renderPlay(<div className="chapter-quiz-finish">
           <span className="chapter-quiz-finish-icon">
             <Check size={34} aria-hidden="true" />
           </span>
@@ -122,13 +152,13 @@ export function WorldChapterQuiz({
           <button type="button" className="adventure-button" onClick={onExit}>
             {copy.backLabel} <ArrowRight size={18} aria-hidden="true" />
           </button>
-        </div>
+        </div>)}
       </section>
     )
   }
 
   return (
-    <section className={'chapter-quiz chapter-theme-' + theme}>
+    <section className={quizClassName}>
       <header className="chapter-quiz-heading">
         <button type="button" className="quiet-button" onClick={onExit}>
           <ArrowLeft size={18} aria-hidden="true" />
@@ -154,7 +184,7 @@ export function WorldChapterQuiz({
         ))}
       </div>
 
-      <div className="chapter-quiz-card">
+      {renderPlay(<div className="chapter-quiz-card">
         <span className="chapter-quiz-icon">
           <Icon size={28} aria-hidden="true" />
         </span>
@@ -195,10 +225,12 @@ export function WorldChapterQuiz({
           onClick={() => {
             if (feedback !== 'correct') { submit(); return }
             if (index < questions.length - 1) {
+              setCelebrate(false)
               update({ index: index + 1, answer: '', feedback: null })
             } else {
               if (finishOnce.current) return
               finishOnce.current = true
+              setCelebrate(false)
               setFinished(true)
               onComplete(stars)
             }
@@ -206,7 +238,7 @@ export function WorldChapterQuiz({
         >
           {feedback === 'correct' ? index < questions.length - 1 ? 'Câu tiếp theo' : 'Xem kết quả' : 'Kiểm tra'} <ArrowRight size={18} aria-hidden="true" />
         </button>
-      </div>
+      </div>)}
     </section>
   )
 }

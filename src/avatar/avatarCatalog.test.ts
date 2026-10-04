@@ -49,4 +49,13 @@ describe('avatar catalog', () => {
 
     expect(signatures.size).toBeGreaterThanOrEqual(4)
   })
+
+  it('keeps customer avatar presentation aligned with Vietnamese honorifics', () => {
+    const femaleStyles = new Set(['bob', 'ponytail', 'waves', 'bun'])
+    const maleStyles = new Set(['short', 'curly', 'crop', 'side'])
+    expect(femaleStyles.has(getNpcAvatarConfig('customer-huong:Cô Hương').hairStyle)).toBe(true)
+    expect(femaleStyles.has(getNpcAvatarConfig('customer-mai:Chị Mai').hairStyle)).toBe(true)
+    expect(maleStyles.has(getNpcAvatarConfig('customer-dung:Anh Dũng').hairStyle)).toBe(true)
+    expect(maleStyles.has(getNpcAvatarConfig('customer-nam:Chú Nam').hairStyle)).toBe(true)
+  })
 })

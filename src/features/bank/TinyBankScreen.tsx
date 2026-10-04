@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, ArrowRight, Banknote, Check, CircleDollarSign, Landmark, LockKeyhole, PiggyBank, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Banknote, Check, Landmark, LockKeyhole, PiggyBank, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { gameAssets } from '../../assets/registry'
 import { AvatarCharacter } from '../../components/avatar/AvatarCharacter'
 import { createTinyBankMission, createTinyBankQuiz, tinyBankChapter, tinyBankLessons, type TinyBankLessonId } from '../../data/tinyBank'
@@ -8,6 +8,7 @@ import { useTinyBankProgressStore } from '../../store/tinyBankProgress'
 import { WorldChapterQuiz, WorldChapterStars } from '../world/WorldChapterQuiz'
 import { useWorldChapterController } from '../world/useWorldChapterController'
 import { BankMission } from './BankMission'
+import { BankQuizScene } from './BankQuizScene'
 
 const lessonIcons = { 'saving-goal': Target, 'balance-counter': Banknote, 'growth-bonus': TrendingUp, 'four-week-mission': ShieldCheck }
 const stopNames = { 'saving-goal': 'Hũ mục tiêu', 'balance-counter': 'Quầy gửi · rút', 'growth-bonus': 'Vườn phần trăm', 'four-week-mission': 'Kế hoạch 4 tuần' }
@@ -39,8 +40,10 @@ export function TinyBankScreen({ onBack }: { onBack: () => void }) {
 
   if (activeLessonId && activeLessonId !== 'four-week-mission') {
     const lesson = tinyBankLessons.find(item => item.id === activeLessonId)!
+    const questions = createTinyBankQuiz(activeLessonId, runSeed)
     return <WorldChapterQuiz key={activeLessonId + ':' + runSeed} theme="bank"
-      lessonTitle={lesson.title} skillLabel={lesson.skillLabel} questions={createTinyBankQuiz(activeLessonId, runSeed)} icon={CircleDollarSign}
+      lessonTitle={lesson.title} skillLabel={lesson.skillLabel} questions={questions} icon={lessonIcons[activeLessonId]}
+      renderScene={state => <BankQuizScene question={questions[state.questionIndex]} state={state} />}
       checkpoint={checkpoint} onCheckpoint={saveCheckpoint}
       copy={{ exitLabel: 'Về sảnh · Giữ bài đang làm', counterLabel: 'Câu', inputLabel: 'Câu trả lời của em', inputPlaceholder: 'Nhập số tiền', idleTip: 'Em có thể nháp từng bước. Bài đang làm được lưu trên thiết bị.', correctFeedback: 'Chính xác! Cùng sang bước tiếp theo nhé.', completeEyebrow: 'HOÀN THÀNH BÀI LUYỆN', completeDescription: 'Em đã mở chặng tiếp theo. Khi chơi lại, số tiền sẽ đổi để em luyện thêm.', backLabel: 'Về sảnh ngân hàng' }}
       onExit={() => setActiveLessonId(null)} onComplete={stars => finishLesson(activeLessonId, stars)} />

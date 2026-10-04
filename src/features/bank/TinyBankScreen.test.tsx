@@ -90,6 +90,60 @@ describe('Tiny Bank complete student flow', () => {
     expect(state().savedRunsByLessonId['saving-goal']).toBeUndefined()
   })
 
+  it('restores a solved scene without replaying celebration and awards the lesson only after the final question', async () => {
+    const startingXp = useProgressionStore.getState().totalXp
+    const startingCoins = useProgressionStore.getState().coins
+    await click('Bắt đầu khám phá')
+    const issued = state().savedRunsByLessonId['saving-goal']!
+    const questions = createTinyBankQuiz('saving-goal', issued.seed)
+    await input('1')
+    await click('Kiểm tra')
+    expect(host.querySelector('.bank-scene-result')).toBeNull()
+    expect(host.querySelector('.bank-quiz-scene--celebrate')).toBeNull()
+    expect(state().savedRunsByLessonId['saving-goal']!.checkpoint).toMatchObject({ index: 0, mistakes: 1, feedback: 'hint' })
+
+    await input(String(questions[0].answer))
+    await click('Kiểm tra')
+    expect(host.querySelector('.bank-scene-result')?.textContent).toContain(questions[0].answer.toLocaleString('vi-VN') + 'đ')
+    expect(host.querySelector('.bank-quiz-scene--celebrate')).not.toBeNull()
+    expect(host.querySelector('.chapter-stars')).toBeNull()
+    expect(state().completedLessonIds).toEqual([])
+    expect(state().bestStarsByLessonId).toEqual({})
+    expect(useProgressionStore.getState().totalXp).toBe(startingXp)
+    expect(useProgressionStore.getState().coins).toBe(startingCoins)
+    const checkpoint = state().savedRunsByLessonId['saving-goal']!.checkpoint
+
+    await act(async () => root.unmount())
+    await mount()
+    await click('Tiếp tục chặng này')
+    expect(state().savedRunsByLessonId['saving-goal']!.seed).toBe(issued.seed)
+    expect(state().savedRunsByLessonId['saving-goal']!.checkpoint).toEqual(checkpoint)
+    expect(state().runCountByLessonId['saving-goal']).toBe(1)
+    expect(host.querySelector('.bank-scene-result')?.textContent).toContain(questions[0].answer.toLocaleString('vi-VN') + 'đ')
+    expect(host.querySelector('.bank-quiz-scene--celebrate')).toBeNull()
+    expect(host.querySelector('input')?.readOnly).toBe(true)
+    expect(host.querySelector('.chapter-stars')).toBeNull()
+
+    await click('Câu tiếp theo')
+    expect(state().savedRunsByLessonId['saving-goal']!.checkpoint).toMatchObject({ index: 1, mistakes: 1, feedback: null })
+    expect(host.querySelector('.bank-scene-result')).toBeNull()
+    expect(host.querySelector('.bank-quiz-scene--celebrate')).toBeNull()
+    expect(host.querySelector('figure')?.getAttribute('data-kind')).toBe('saving-weekly')
+    for (const [index, question] of questions.slice(1).entries()) {
+      await input(String(question.answer))
+      await click('Kiểm tra')
+      expect(host.querySelector('.chapter-stars')).toBeNull()
+      expect(state().completedLessonIds).toEqual([])
+      await click(index === 0 ? 'Câu tiếp theo' : 'Xem kết quả')
+    }
+    expect(state().completedLessonIds).toEqual(['saving-goal'])
+    expect(state().bestStarsByLessonId['saving-goal']).toBe(4)
+    expect(useProgressionStore.getState().totalXp).toBe(startingXp + 35)
+    expect(useProgressionStore.getState().coins).toBe(startingCoins)
+    expect(state().savedRunsByLessonId['saving-goal']).toBeUndefined()
+    expect(host.querySelector('.chapter-stars')?.getAttribute('aria-label')).toBe('4 trên 5 sao')
+  })
+
   it('unlocks all lessons, resumes a reviewed week and awards chapter rewards only once', async () => {
     for (const id of ['saving-goal', 'balance-counter', 'growth-bonus'] as const) {
       await click('Bắt đầu khám phá')

@@ -108,7 +108,7 @@ export function WorkCounter({ shift, progress, stage, activeFollowUp, answer, fe
 }) {
   const [sceneOpen, setSceneOpen] = useState(false)
   const customer = shift.customers[progress.customerIndex]
-  const customerAvatar = getNpcAvatarConfig(customer.id, progress.customerIndex)
+  const customerAvatar = getNpcAvatarConfig(`${customer.id}:${customer.name}`, progress.customerIndex)
   const customerExpression = stage === 'done' ? 'happy' : stage === 'scenario' || stage === 'follow-up' ? 'concerned' : stage === 'change' ? 'neutral' : 'happy'
   const scenario = customer.scenarioId ? getWorkScenario(customer.scenarioId) : null
   const orderedScenarioChoices = scenario
@@ -172,7 +172,7 @@ export function WorkCounter({ shift, progress, stage, activeFollowUp, answer, fe
       </>}
     </section></div>
     {lastConsequence ? <aside className="context-warning"><CircleAlert size={22} /><div><strong>{lastConsequence.title}</strong><p>{lastConsequence.description}</p></div></aside> : null}
-    <details className="work-secondary"><summary>Hàng chờ và trạng thái mô phỏng · {Math.max(0, shift.customers.length - progress.customerIndex - 1)} khách đang chờ</summary><div className="compact-customer-queue">{shift.customers.map((item,index) => <div key={item.id}><AvatarCharacter config={getNpcAvatarConfig(item.id,index)} age="adult" expression={index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'happy' : index === progress.customerIndex ? 'neutral' : 'happy'} className="queue-avatar" decorative /><strong>{item.name}</strong><span>{index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'Đã phục vụ' : index === progress.customerIndex ? 'Đang tại quầy' : 'Đang chờ'}</span></div>)}</div><p>Điểm sao và các chỉ số mô phỏng chỉ được tổng kết sau khi kết thúc ca.</p></details>
+    <details className="work-secondary"><summary>Hàng chờ và trạng thái mô phỏng · {Math.max(0, shift.customers.length - progress.customerIndex - 1)} khách đang chờ</summary><div className="compact-customer-queue">{shift.customers.map((item,index) => <div key={item.id}><AvatarCharacter config={getNpcAvatarConfig(`${item.id}:${item.name}`, index)} age="adult" expression={index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'happy' : index === progress.customerIndex ? 'neutral' : 'happy'} className="queue-avatar" decorative /><strong>{item.name}</strong><span>{index < progress.customerIndex || index === progress.customerIndex && stage === 'done' ? 'Đã phục vụ' : index === progress.customerIndex ? 'Đang tại quầy' : 'Đang chờ'}</span></div>)}</div><p>Điểm sao và các chỉ số mô phỏng chỉ được tổng kết sau khi kết thúc ca.</p></details>
     <button className="quiet-button scene-toggle" type="button" aria-expanded={sceneOpen} onClick={() => setSceneOpen(!sceneOpen)}>{sceneOpen ? 'Thu gọn không gian quầy' : 'Xem không gian quầy'}</button>
     {sceneOpen ? <Suspense fallback={<p>Đang mở không gian quầy…</p>}><WorkModeGame customers={shift.customers} customerIndex={progress.customerIndex} stage={stage} selectedChoice={selectedChoice} worldFlags={progress.worldState.flags} /></Suspense> : null}
   </section>
