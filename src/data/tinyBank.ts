@@ -18,7 +18,16 @@ export type TinyBankLessonId =
 export interface TinyBankLessonDefinition
   extends WorldChapterLessonDefinition<TinyBankLessonId> {}
 
-export type TinyBankQuestion = WorldChapterQuestion
+/** Given values for illustrations; no extra RNG or persisted quiz state. */
+export type TinyBankQuestionVisual =
+  | { kind: 'saving-gap'; goal: number; current: number }
+  | { kind: 'saving-weekly'; remaining: number; weeks: number }
+  | { kind: 'balance'; start: number; deposit: number; withdraw: number }
+  | { kind: 'growth'; amount: number; rate: number }
+
+export interface TinyBankQuestion extends WorldChapterQuestion {
+  visual: TinyBankQuestionVisual
+}
 
 export interface TinyBankMissionChoice {
   id: string
@@ -111,6 +120,9 @@ export function createTinyBankQuiz(
       const goal = current + remaining
       return {
         id: `saving-goal-${seed}-${index}`,
+        visual: index % 2 === 0
+          ? { kind: 'saving-gap', goal, current }
+          : { kind: 'saving-weekly', remaining, weeks },
         prompt:
           index % 2 === 0
             ? `Em muốn có ${goal.toLocaleString('vi-VN')}đ. Hiện đã có ${current.toLocaleString('vi-VN')}đ. Em còn thiếu bao nhiêu?`
@@ -132,6 +144,7 @@ export function createTinyBankQuiz(
       const withdraw = pickSeededInt(rng, 10_000, 50_000, 5_000)
       return {
         id: `balance-${seed}-${index}`,
+        visual: { kind: 'balance', start, deposit, withdraw: index === 0 ? 0 : withdraw },
         prompt:
           index === 0
             ? `Tài khoản có ${start.toLocaleString('vi-VN')}đ. Em gửi thêm ${deposit.toLocaleString('vi-VN')}đ. Số dư mới là bao nhiêu?`
@@ -153,6 +166,7 @@ export function createTinyBankQuiz(
     const bonus = Math.round((amount * rate) / 100)
     return {
       id: `bonus-${seed}-${index}`,
+      visual: { kind: 'growth', amount, rate },
       prompt: `Trong mô phỏng, khoản ${amount.toLocaleString('vi-VN')}đ được cộng thêm ${rate}%. Phần được cộng thêm là bao nhiêu?`,
       answer: bonus,
       unit: 'đ',

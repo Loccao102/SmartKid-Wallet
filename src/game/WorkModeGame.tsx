@@ -106,7 +106,7 @@ export default function WorkModeGame({
               data-avatar-key={`customer-${index}-${expression}`}
             >
               <AvatarCharacter
-                config={getNpcAvatarConfig(customer.id, index)}
+                config={getNpcAvatarConfig(`${customer.id}:${customer.name}`, index)}
                 age="adult"
                 expression={expression}
                 decorative

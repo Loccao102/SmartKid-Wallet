@@ -313,7 +313,23 @@ function hashKey(value: string) {
   return hash >>> 0
 }
 
+const femaleNpcPresetIndexes = [0, 2, 5, 6, 8] as const
+const maleNpcPresetIndexes = [1, 3, 4, 7, 9] as const
+
+function npcGenderPool(key: string) {
+  const normalized = key
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('vi-VN')
+  // Work customers carry their Vietnamese honorific in the display name.
+  // Unknown keys keep the old mixed pool so legacy callers remain varied.
+  if (/(^|[\s:,-])(co|chi|ba)(?=[\s:,-]|$)/u.test(normalized)) return femaleNpcPresetIndexes
+  if (/(^|[\s:,-])(anh|chu|ong|bac)(?=[\s:,-]|$)/u.test(normalized)) return maleNpcPresetIndexes
+  return npcAvatarPresets.map((_, index) => index)
+}
+
 export function getNpcAvatarConfig(key: string, offset = 0): AvatarConfig {
-  const index = (hashKey(key) + Math.max(0, offset)) % npcAvatarPresets.length
-  return npcAvatarPresets[index]
+  const pool = npcGenderPool(key)
+  const index = (hashKey(key) + Math.max(0, offset)) % pool.length
+  return npcAvatarPresets[pool[index]]
 }

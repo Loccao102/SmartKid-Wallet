@@ -1,0 +1,134 @@
+/* Data-led learning illustrations, independent from wallet funds and lesson scoring. */
+.bank-quiz-scene {
+  min-width: 0;
+  margin: 0;
+  padding: 23px 20px 17px;
+  border: 1px solid var(--sk-border);
+  border-radius: var(--sk-radius-xl);
+  background: radial-gradient(ellipse at 50% 28%, var(--sk-surface) 0 30%, transparent 70%), var(--sk-lavender);
+  color: var(--sk-ink);
+  text-align: center;
+  overflow: hidden;
+  align-self: start;
+}
+.bank-scene-heading { display: flex; justify-content: center; align-items: center; gap: 9px; color: var(--sk-lavender-ink); font-size: 17px; }
+.bank-scene-heading strong { font-family: var(--sk-font-display); }
+.bank-quiz-scene p { margin: 0; }
+.bank-scene-goal { display: flex; justify-content: center; align-items: center; gap: 7px; margin-top: 13px; font-size: 14px; }
+.bank-scene-goal strong { color: var(--sk-lavender-ink); white-space: nowrap; }
+.bank-scene-shadow { fill: var(--sk-overlay); }
+.bank-scene-coin > circle:first-child { fill: var(--sk-gold); stroke: var(--sk-sunflower-ink); stroke-width: 1.5; }
+.bank-scene-coin > circle:nth-child(2) { fill: none; stroke: var(--sk-gold-soft); stroke-width: 1.5; }
+.bank-scene-coin > path { fill: none; stroke: var(--sk-sunflower-ink); stroke-width: 1.5; stroke-linecap: round; }
+.bank-jar-stage { position: relative; margin: 1px auto 12px; max-width: 260px; }
+.bank-jar-drawing { display: block; width: 100%; height: 185px; }
+.bank-jar-glass { fill: var(--sk-surface); stroke: var(--sk-lavender-ink); stroke-width: 3; }
+.bank-jar-fill { fill: var(--sk-gold-soft); transform-origin: 120px 175px; transform: scaleY(.28); }
+.bank-jar-fill.is-full { transform: scaleY(1); }
+.bank-jar-shine { fill: none; stroke: var(--sk-white); stroke-width: 7; stroke-linecap: round; }
+.bank-jar-lid { fill: var(--sk-lavender); stroke: var(--sk-lavender-ink); stroke-width: 3; }
+.bank-jar-slot { stroke: var(--sk-lavender-ink); stroke-width: 4; stroke-linecap: round; }
+.bank-jar-ribbon { fill: var(--sk-primary); }
+.bank-jar-ribbon-mark { fill: none; stroke: var(--sk-white); stroke-width: 2.5; }
+.bank-jar-label { display: grid; gap: 2px; }
+.bank-jar-label span, .bank-teller-balance > span { font-size: 13px; color: var(--sk-ink-2); }
+.bank-jar-label strong, .bank-teller-balance > strong { font-size: 23px; line-height: 1.2; color: var(--sk-lavender-ink); font-variant-numeric: tabular-nums; }
+.bank-scene-result, .bank-scene-instruction { display: block; margin: 10px 0 0; font-size: 14px; line-height: 1.6; text-wrap: pretty; }
+.bank-scene-result { color: var(--sk-primary-strong); }
+.bank-scene-result strong { white-space: nowrap; }
+.bank-quiz-scene .bank-scene-simulation { margin-top: 11px; color: var(--sk-muted); font-size: 12px; line-height: 1.4; }
+.bank-quiz-scene .bank-scene-weekly-total { margin-top: 18px; font-size: 15px; line-height: 1.7; }
+.bank-scene-weekly-total strong { color: var(--sk-lavender-ink); white-space: nowrap; }
+.bank-week-envelopes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; padding: 21px 0; }
+.bank-week-envelope { position: relative; min-width: 0; display: grid; justify-items: center; gap: 11px; padding: 9px 3px 11px; border: 1px solid var(--sk-border-strong); border-radius: var(--sk-radius-sm); background: var(--sk-surface); box-shadow: var(--sk-shadow-xs); }
+.bank-week-envelope::before { content: ''; position: absolute; top: 28px; left: 11%; width: 78%; height: 1px; background: var(--sk-border); }
+.bank-week-envelope span { color: var(--sk-ink-2); font-size: 12px; white-space: nowrap; }
+.bank-week-envelope strong { font-size: 13px; line-height: 1.5; color: var(--sk-lavender-ink); white-space: nowrap; }
+.bank-quiz-scene--revealed .bank-week-envelope { background: var(--sk-gold-soft); border-color: var(--sk-gold); }
+.bank-quiz-scene .bank-teller-balance { display: grid; gap: 3px; margin: 17px 0 0; }
+.bank-teller-drawing { display: block; width: 100%; height: 139px; }
+.bank-teller-wall { fill: var(--sk-surface); stroke: var(--sk-lavender-ink); stroke-width: 2.5; }
+.bank-teller-roof { fill: var(--sk-lavender); stroke: var(--sk-lavender-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.bank-teller-stripes { fill: none; stroke: var(--sk-lavender-ink); stroke-width: 10; }
+.bank-teller-window { fill: var(--sk-primary-soft); }
+.bank-teller-window-mark { stroke: var(--sk-primary); stroke-width: 3; stroke-linecap: round; }
+.bank-teller-counter { fill: var(--sk-lavender-ink); }
+.bank-teller-check { stroke: var(--sk-gold-soft); stroke-width: 3; fill: none; }
+.bank-transfer-path { stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.bank-transfer-in { stroke: var(--sk-primary); }
+.bank-transfer-out { stroke: var(--sk-coral-ink); }
+.bank-teller-transactions { display: flex; justify-content: center; gap: 10px; }
+.bank-teller-transactions p { display: grid; gap: 3px; flex: 1; padding: 9px 6px; border-radius: var(--sk-radius-sm); }
+.bank-teller-deposit { background: var(--sk-primary-soft); color: var(--sk-primary-strong); }
+.bank-teller-withdraw { background: var(--sk-coral); color: var(--sk-coral-ink); }
+.bank-teller-transactions span { font-size: 12px; }
+.bank-teller-transactions strong { font-size: 16px; white-space: nowrap; }
+.bank-quiz-scene[data-kind='growth'] { background: radial-gradient(ellipse at 50% 25%, var(--sk-surface) 0 25%, transparent 70%), var(--sk-sky); }
+.bank-quiz-scene[data-kind='growth'] .bank-scene-heading { color: var(--sk-primary-strong); }
+.bank-garden-givens { display: flex; justify-content: center; gap: 16px; margin-top: 17px; }
+.bank-garden-givens > span { display: grid; gap: 3px; color: var(--sk-ink-2); font-size: 12px; }
+.bank-garden-givens strong { color: var(--sk-primary-strong); font-size: 20px; }
+.bank-garden-stage { margin-top: 6px; }
+.bank-garden-drawing { display: block; width: 100%; height: 172px; }
+.bank-garden-bed { fill: var(--sk-coral); stroke: var(--sk-coral-ink); stroke-width: 2.5; }
+.bank-garden-soil { fill: var(--sk-sunflower-ink); }
+.bank-garden-seed { fill: var(--sk-gold); stroke: var(--sk-gold-soft); stroke-width: 1.5; }
+.bank-garden-stem { fill: none; stroke: var(--sk-primary-strong); stroke-width: 5; stroke-linecap: round; }
+.bank-garden-leaf, .bank-garden-ground-leaf { fill: var(--sk-primary); }
+.bank-garden-leaf-top { fill: var(--sk-primary-strong); }
+.bank-garden-pot-mark { fill: none; stroke: var(--sk-coral-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.bank-quiz-scene .bank-garden-progress { display: inline-block; padding: 5px 12px; border-radius: var(--sk-radius-sm); background: var(--sk-surface); color: var(--sk-primary-strong); font-size: 13px; }
+
+/* Only a live correct submission adds this class; resumed answers render settled. */
+.bank-quiz-scene--celebrate .bank-jar-fill.is-full { animation: bank-jar-fill-in 580ms ease-out both; }
+.bank-quiz-scene--celebrate .bank-jar-drop { animation: bank-jar-coin-in 580ms ease-out both; }
+.bank-quiz-scene--celebrate .bank-week-envelope { animation: bank-envelope-fill 380ms ease-out both; }
+.bank-quiz-scene--celebrate .bank-transfer-coin-in { animation: bank-deposit-transfer 750ms ease-in-out both; }
+.bank-quiz-scene--celebrate .bank-transfer-coin-out { animation: bank-withdraw-transfer 750ms ease-in-out both; animation-delay: 180ms; }
+.bank-quiz-scene--celebrate .bank-garden-growth { transform-origin: 140px 130px; animation: bank-plant-grow 620ms ease-out both; }
+@keyframes bank-jar-fill-in { from { transform: scaleY(.28); } to { transform: scaleY(1); } }
+@keyframes bank-jar-coin-in { from { translate: 0 -48px; opacity: 0; } to { translate: 0 0; opacity: 1; } }
+@keyframes bank-envelope-fill { from { translate: 0 5px; } to { translate: 0 0; } }
+@keyframes bank-deposit-transfer { 0% { translate: 0 0; } 70% { translate: 88px 38px; opacity: 0; } 71% { translate: 0 0; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
+@keyframes bank-withdraw-transfer { 0% { translate: -65px 37px; opacity: 0; } 20% { opacity: 1; } 100% { translate: 0 0; opacity: 1; } }
+@keyframes bank-plant-grow { from { transform: scaleY(.68); } to { transform: scaleY(1); } }
+
+@media (max-width: 700px) {
+  .bank-quiz-scene { padding: 14px 14px 11px; border-radius: var(--sk-radius-lg); }
+  .bank-scene-heading { font-size: 16px; }
+  .bank-scene-goal { margin-top: 7px; font-size: 13px; }
+  .bank-jar-stage { max-width: none; display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 0; }
+  .bank-jar-drawing { width: 140px; height: 114px; flex: 0 0 140px; }
+  .bank-jar-label { min-width: 0; text-align: left; }
+  .bank-jar-label strong, .bank-teller-balance > strong { font-size: 21px; }
+  .bank-scene-result, .bank-scene-instruction { margin-top: 6px; font-size: 13px; line-height: 1.5; }
+  .bank-quiz-scene .bank-scene-simulation { margin-top: 7px; }
+  .bank-quiz-scene .bank-scene-weekly-total { margin-top: 8px; font-size: 14px; }
+  .bank-week-envelopes { gap: 7px; padding: 12px 0 5px; }
+  .bank-week-envelope { gap: 8px; padding: 7px 2px; }
+  .bank-week-envelope::before { top: 25px; }
+  .bank-week-envelope strong { font-size: 12px; }
+  .bank-quiz-scene .bank-teller-balance { margin-top: 8px; }
+  .bank-teller-drawing { height: 100px; margin-top: -3px; }
+  .bank-teller-transactions { gap: 8px; }
+  .bank-teller-transactions p { padding: 6px 8px; display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; }
+  .bank-teller-transactions strong { font-size: 14px; }
+  .bank-garden-givens { gap: 22px; margin-top: 9px; }
+  .bank-garden-givens strong { font-size: 17px; }
+  .bank-garden-stage { display: flex; align-items: center; justify-content: center; gap: 3px; margin-top: 0; }
+  .bank-garden-drawing { width: 150px; height: 110px; flex: 0 0 150px; }
+  .bank-quiz-scene .bank-garden-progress { max-width: 115px; padding: 7px 8px; font-size: 12px; }
+}
+
+@media (max-width: 360px) {
+  .bank-quiz-scene { padding-inline: 10px; }
+  .bank-jar-drawing { flex-basis: 114px; width: 114px; height: 105px; }
+  .bank-jar-label strong { font-size: 19px; }
+  .bank-week-envelopes { gap: 4px; }
+  .bank-week-envelope span, .bank-week-envelope strong { font-size: 12px; }
+  .bank-garden-drawing { width: 125px; flex-basis: 125px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bank-quiz-scene *, .bank-quiz-scene *::before, .bank-quiz-scene *::after { animation: none !important; transition: none !important; }
+}
