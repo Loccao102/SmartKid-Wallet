@@ -26,6 +26,9 @@ try {
   await page.goto(process.env.UI_BASE_URL || 'http://127.0.0.1:5173', {
     waitUntil: 'networkidle',
   })
+  // Wait for the shell to mount before mutating stores, so persist rehydration
+  // cannot overwrite the fixture.
+  await page.locator('.explorer-world').waitFor()
 
   // Isolated fixture state: this runs in a fresh browser context only.
   await page.evaluate(async () => {
@@ -37,7 +40,11 @@ try {
     })
   })
 
-  await page.getByRole('button', { name: 'Tiếp tục khám phá', exact: true }).click()
+  // The featured world CTA points at whichever map is currently featured
+  // (Tiny Bank once it is unlocked, otherwise SmartMart). Enter SmartMart from
+  // the chapter grid so this smoke does not depend on which map is featured.
+  await page.getByRole('button', { name: 'Khám phá SmartMart', exact: true }).click()
+  await page.getByRole('heading', { name: 'Chào mừng đến SmartMart!' }).waitFor()
   await page.getByRole('button', { name: 'Đi dạo', exact: true }).click()
   await page.locator('.smartmart-phaser-host canvas').first().waitFor()
   await page.getByRole('button', { name: 'Chọn gian', exact: true }).click()

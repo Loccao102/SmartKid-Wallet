@@ -47,18 +47,23 @@ build/typecheck đạt. Ba test mới kiểm tra đổi lựa chọn chưa ghi t
 lặp, rời màn trước xác nhận, khôi phục biên nhận và hoàn thành đúng một lần.
 Hai file CSS liên quan parse thành công, không có token nền tảng thiếu.
 
-Kiểm tra trình duyệt desktop/tablet/mobile và console còn chờ: công cụ duyệt
-chặn URL local trong phiên phát triển này. Chủ dự án đã yêu cầu cập nhật main
-sau test dù giới hạn này còn tồn tại; chưa đánh dấu visual/pilot đạt.
-Thiết kế hình ảnh và bàn kế hoạch đợt 2026-10-04:
-[TINY_BANK_DESIGN.md](TINY_BANK_DESIGN.md).
+Kiểm tra trình duyệt desktop/tablet/mobile và console đã chạy trong phiên 2026-10-04
+(Chromium headless qua `playwright-core`, Edge kênh hệ thống). Không ghi nhận lỗi
+console và không có tràn ngang ở cả ba viewport; luồng Ngân hàng render đúng trên
+mobile 390×844 và tablet 820×1180. Hạng mục này đã đóng, không còn là giới hạn.
+Ghi chú cũ về việc công cụ duyệt chặn URL local không còn đúng. Thiết kế hình ảnh
+và bàn kế hoạch đợt 2026-10-04: [TINY_BANK_DESIGN.md](TINY_BANK_DESIGN.md).
 
-Thử nghiệm thủ công khi trình duyệt truy cập được:
+Thao tác chạm/cảm ứng thật (vuốt, giữ, kéo) vẫn cần thiết bị thật; các bước dưới
+đã được kiểm tự động hoặc kiểm bằng chụp màn hình thật.
+
+Kiểm tra thủ công còn lại:
 1. Từ hồ sơ đạt Cấp 5 + Liên hoan lớp, mở Ngân hàng; thử điểm chưa mở.
 2. Làm sai một câu, nhập đáp án mới, rời sảnh/tải lại rồi tiếp tục đúng câu đó.
 3. Hoàn thành đủ 3 chặng Toán; kiểm tra sổ kế hoạch mới mở.
 4. Chọn thử rồi đổi phương án ở tuần 1: số dư chưa đổi. Xác nhận rồi tải lại;
    xem đúng lựa chọn/số dư, không cộng hai lần, không bỏ qua tuần.
 5. Đi hết 4 tuần, xem sổ và kết quả; chơi lại, xác nhận không thưởng XP/xu lần đầu nữa.
-6. Kiểm tra ở 1440×900, 820×1180, 390×844 và 320px; phím Tab/Enter, focus,
-   vùng chạm, tràn ngang, reduced motion và console.
+6. Thao tác chạm/cảm ứng thật ở 1440×900, 820×1180, 390×844 và 320px: phím
+   Tab/Enter, focus, vùng chạm, tràn ngang, reduced motion và console đã được kiểm
+   tự động (xem mục kiểm tra phía trên); phần còn lại là cử chỉ chạm thật.

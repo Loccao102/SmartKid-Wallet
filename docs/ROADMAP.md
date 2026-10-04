@@ -54,7 +54,9 @@ Demo được coi là **đã chốt để làm nền**, không tiếp tục mở
 - [x] user-friendly crash recovery về bản đồ
 - [ ] production source maps
 - [ ] error monitoring
-- [ ] critical E2E smoke
+- [x] critical E2E smoke (`check-ui`, `check-supporting-ui`, `check-work-avatars`,
+      `check-mobile-fold` chạy trên Chromium headless; xem [UI_REDESIGN.md](UI_REDESIGN.md)).
+      Chưa gắn vào CI vì CI cần cài Chromium; hiện chạy cục bộ trước khi phát hành
 - [ ] state migration tests
 - [ ] release/version display
 - [ ] deployment rollback checklist
