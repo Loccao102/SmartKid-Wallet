@@ -34,6 +34,10 @@ async function input(value: string) {
     el.dispatchEvent(new Event('input', { bubbles: true }))
   })
 }
+async function choosePlan(label: string) {
+  await click(label)
+  await click('Xác nhận kế hoạch')
+}
 async function finishQuiz(id: Exclude<TinyBankLessonId, 'four-week-mission'>) {
   const run = state().savedRunsByLessonId[id]!
   const questions = createTinyBankQuiz(id, run.seed)
@@ -93,7 +97,7 @@ describe('Tiny Bank complete student flow', () => {
     }
     expect(state().completedLessonIds).toHaveLength(3)
     await click('Mở sổ kế hoạch')
-    await click('Chia cân bằngĐể dành khoảng 60%, phần còn lại dùng cho nhu cầu nhỏ.')
+    await choosePlan('Chia cân bằngĐể dành khoảng 60%, phần còn lại dùng cho nhu cầu nhỏ.')
     expect(document.activeElement?.textContent).toBe('Chia cân bằng')
     const checkpoint = state().savedRunsByLessonId['four-week-mission']!.checkpoint
     await click('Về sảnh ngân hàng')
@@ -103,11 +107,11 @@ describe('Tiny Bank complete student flow', () => {
     await click('Sang tuần tiếp')
     expect(document.activeElement?.tagName).toBe('H2')
     expect(document.activeElement?.textContent).toContain('30.000đ')
-    await click('Dùng tiền tuần nàyTrả 30.000đ từ tiền vừa nhận, không đụng quỹ dự phòng.')
+    await choosePlan('Dùng tiền tuần nàyTrả 30.000đ từ tiền vừa nhận, không đụng quỹ dự phòng.')
     await click('Sang tuần tiếp')
-    await click('Bỏ qua khuyến mãiGửi gần như toàn bộ tiền tuần này vào mục tiêu.')
+    await choosePlan('Bỏ qua khuyến mãiGửi gần như toàn bộ tiền tuần này vào mục tiêu.')
     await click('Sang tuần tiếp')
-    await click('Nước rút cho mục tiêuGiữ 5.000đ, gửi phần còn lại.')
+    await choosePlan('Nước rút cho mục tiêuGiữ 5.000đ, gửi phần còn lại.')
     await click('Xem kết quả')
     expect(text()).toContain('Kế hoạch của em đã hoàn thành!')
     expect(document.activeElement?.id).toBe('bank-plan-title')
@@ -138,13 +142,13 @@ describe('Tiny Bank complete student flow', () => {
       state().saveRun('four-week-mission', failedSeed!, null)
     })
     await click('Tiếp tục chặng này')
-    await click('Tiêu thoải mái hơnChỉ gửi 25.000đ vào mục tiêu.')
+    await choosePlan('Tiêu thoải mái hơnChỉ gửi 25.000đ vào mục tiêu.')
     await click('Sang tuần tiếp')
-    await click('Dùng quỹ dự phòngLấy 30.000đ từ quỹ dự phòng để giữ khoản gửi lớn hơn.')
+    await choosePlan('Dùng quỹ dự phòngLấy 30.000đ từ quỹ dự phòng để giữ khoản gửi lớn hơn.')
     await click('Sang tuần tiếp')
-    await click('Mua món đang giảmChi 35.000đ rồi gửi phần còn lại.')
+    await choosePlan('Mua món đang giảmChi 35.000đ rồi gửi phần còn lại.')
     await click('Sang tuần tiếp')
-    await click('Thư giãn tuần cuốiChỉ gửi 20.000đ vào mục tiêu.')
+    await choosePlan('Thư giãn tuần cuốiChỉ gửi 20.000đ vào mục tiêu.')
     await click('Xem kết quả')
     expect(text()).toContain('Cùng thử một kế hoạch khác nhé')
     expect(state().completedLessonIds).not.toContain('four-week-mission')

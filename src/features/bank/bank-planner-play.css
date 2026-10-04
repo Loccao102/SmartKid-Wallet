@@ -1,0 +1,241 @@
+/* Tiny Bank's planning desk. All amounts still come from the seeded plan. */
+.bank-planner.bank-planner-play {
+  width: min(1080px, 100%);
+  max-width: none;
+  padding: 0;
+}
+
+.bank-planner-play .bank-plan-heading { max-width: 780px; }
+.bank-planner-play .bank-plan-heading p:last-child { margin-bottom: 0; }
+.bank-planner-play .bank-desk-weeks { gap: 12px; }
+.bank-planner-play .bank-desk-weeks li {
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid var(--sk-border);
+  background: var(--sk-surface);
+  color: var(--sk-muted);
+  font-size: 15px;
+  font-weight: 700;
+}
+.bank-planner-play .bank-desk-weeks li > span:first-child {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--sk-bg-strong);
+  color: var(--sk-ink-2);
+}
+.bank-planner-play .bank-desk-weeks .is-recorded > span:first-child { background: var(--sk-primary-soft); color: var(--sk-primary-strong); }
+.bank-planner-play .bank-desk-weeks li[aria-current] { background: var(--sk-lavender); border-color: var(--sk-lavender-ink); color: var(--sk-lavender-ink); }
+.bank-planner-play .bank-desk-weeks li[aria-current] > span:first-child { background: var(--sk-lavender-ink); color: var(--sk-white); }
+.bank-planner-play .bank-assistive-text {
+  display: inline;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.bank-planner-play .bank-plan-desk {
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr);
+  grid-template-areas: "funds story" "funds decisions";
+  align-items: start;
+  gap: 22px 30px;
+  padding: 28px;
+  border: 1px solid var(--sk-border);
+  border-radius: var(--sk-radius-xl);
+  background: var(--sk-surface);
+  box-shadow: var(--sk-paper-shadow);
+}
+.bank-planner-play .bank-desk-story { grid-area: story; min-width: 0; }
+.bank-planner-play .bank-desk-story > .eyebrow { margin: 0 0 9px; color: var(--sk-lavender-ink); }
+.bank-planner-play .bank-desk-story h2 { margin: 0; font-size: clamp(21px, 2.2vw, 27px); line-height: 1.4; }
+.bank-planner-play .bank-week-income {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  margin-top: 20px;
+  border-radius: var(--sk-radius-sm);
+  background: var(--sk-sunflower);
+  color: var(--sk-sunflower-ink);
+}
+.bank-planner-play .bank-week-income > span { flex: 1 1 auto; font-size: 14px; }
+.bank-planner-play .bank-week-income strong { display: block; color: var(--sk-ink); font-size: 22px; }
+.bank-planner-play .bank-week-income > small { font-size: 13px; }
+.bank-planner-play .bank-desk-funds {
+  grid-area: funds;
+  min-width: 0;
+  padding: 20px 16px;
+  border-radius: var(--sk-radius-lg);
+  background: var(--sk-lavender);
+}
+.bank-planner-play .bank-savings-vessel { display: grid; justify-items: center; text-align: center; }
+.bank-planner-play .bank-savings-vessel > p { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 0 0 25px; font-size: 16px; font-weight: 800; color: var(--sk-lavender-ink); }
+.bank-planner-play .bank-savings-jar {
+  position: relative;
+  width: 118px;
+  height: 150px;
+  margin-bottom: 14px;
+  isolation: isolate;
+  border: 4px solid var(--sk-lavender-ink);
+  border-radius: var(--sk-radius-lg) var(--sk-radius-lg) 34px 34px;
+  background: var(--sk-surface);
+  box-shadow: var(--sk-shadow-sm);
+}
+.bank-planner-play .bank-savings-jar::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -14px;
+  left: 8px;
+  right: 8px;
+  height: 18px;
+  border: 3px solid var(--sk-lavender-ink);
+  border-radius: var(--sk-radius-sm);
+  background: var(--sk-surface);
+}
+.bank-planner-play .bank-savings-jar::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: -7px;
+  left: 35%;
+  width: 30%;
+  border-top: 3px solid var(--sk-lavender-ink);
+}
+.bank-planner-play .bank-savings-fill {
+  position: absolute;
+  z-index: -1;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--bank-jar-fill);
+  max-height: 100%;
+  border-radius: 14px 14px 28px 28px;
+  background: linear-gradient(180deg, var(--sk-gold-soft), var(--sk-gold));
+  transition: height 260ms ease;
+}
+.bank-planner-play .bank-savings-emblem { position: absolute; inset: 0; display: grid; place-items: center; color: var(--sk-lavender-ink); }
+.bank-planner-play .bank-savings-emblem > svg { padding: 9px; width: 56px; height: 56px; border-radius: 50%; background: var(--sk-surface); }
+.bank-planner-play .bank-savings-total { font-size: 27px; line-height: 1.25; color: var(--sk-ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bank-planner-play .bank-savings-vessel > span { margin-top: 4px; font-size: 14px; color: var(--sk-ink-2); }
+.bank-planner-play .bank-savings-vessel > small { margin-top: 12px; font-size: 14px; color: var(--sk-lavender-ink); line-height: 1.5; }
+.bank-planner-play .bank-reserve-box { display: flex; align-items: center; gap: 12px; margin-top: 24px; padding: 15px 12px; border: 2px solid var(--sk-border-strong); border-radius: var(--sk-radius-md); background: var(--sk-surface); box-shadow: var(--sk-shadow-xs); }
+.bank-planner-play .bank-reserve-box > svg { flex: 0 0 auto; color: var(--sk-primary); }
+.bank-planner-play .bank-reserve-box span { display: block; font-size: 14px; color: var(--sk-muted); }
+.bank-planner-play .bank-reserve-box strong { display: block; font-size: 22px; color: var(--sk-ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bank-planner-play .bank-desk-money-note { margin: 14px 0 0; color: var(--sk-lavender-ink); font-size: 13px; text-align: center; line-height: 1.5; }
+
+.bank-planner-play .bank-desk-decisions { grid-area: decisions; min-width: 0; }
+.bank-planner-play .bank-desk-decisions > h3 { margin: 0 0 12px; font-size: 17px; }
+.bank-planner-play .bank-plan-options { display: grid; gap: 10px; }
+.bank-planner-play .bank-plan-options button {
+  width: 100%;
+  min-width: 0;
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--sk-border);
+  border-radius: var(--sk-radius-md);
+  background: var(--sk-surface);
+  color: var(--sk-ink);
+  text-align: left;
+  box-shadow: var(--sk-shadow-xs);
+}
+.bank-planner-play .bank-plan-options button[aria-pressed="true"] { border-color: var(--sk-lavender-ink); background: var(--sk-lavender); }
+.bank-planner-play .bank-plan-option-check { width: 25px; height: 25px; display: grid; place-items: center; border: 2px solid var(--sk-border-strong); border-radius: 50%; background: var(--sk-surface); color: var(--sk-white); }
+.bank-planner-play [aria-pressed="true"] .bank-plan-option-check { background: var(--sk-lavender-ink); border-color: var(--sk-lavender-ink); }
+.bank-planner-play .bank-plan-options strong { display: block; font-size: 16px; line-height: 1.45; }
+.bank-planner-play .bank-plan-options small { display: block; margin-top: 5px; font-size: 14px; color: var(--sk-muted); line-height: 1.5; }
+.bank-planner-play .bank-plan-options button:focus-visible,
+.bank-planner-play .bank-confirm-plan:focus-visible { outline: 3px solid var(--sk-ring); outline-offset: 3px; }
+.bank-planner-play .bank-plan-preview { margin-top: 16px; padding: 14px 16px; background: var(--sk-bg); border-radius: var(--sk-radius-sm); }
+.bank-planner-play .bank-plan-preview p { margin: 0; color: var(--sk-ink-2); font-size: 14px; }
+.bank-planner-play .bank-plan-preview dl,
+.bank-planner-play .bank-plan-receipt dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 12px 0 0; }
+.bank-planner-play .bank-plan-preview dt,
+.bank-planner-play .bank-plan-receipt dt { font-size: 13px; color: var(--sk-muted); }
+.bank-planner-play .bank-plan-preview dd,
+.bank-planner-play .bank-plan-receipt dd { margin: 3px 0 0; font-size: 18px; font-weight: 800; color: var(--sk-ink); }
+.bank-planner-play .bank-plan-preview small { display: block; margin-top: 12px; font-size: 13px; color: var(--sk-muted); }
+.bank-planner-play .bank-confirm-plan { width: 100%; min-height: 56px; margin-top: 16px; justify-content: center; }
+.bank-planner-play .bank-confirm-plan:disabled { background: var(--sk-bg-strong); color: var(--sk-muted); border-color: var(--sk-border); box-shadow: none; cursor: not-allowed; transform: none; }
+.bank-planner-play .bank-plan-receipt { padding: 24px; border: 1px dashed var(--sk-border-strong); border-radius: var(--sk-radius-md); background: var(--sk-bg); }
+.bank-planner-play .bank-week-stamp { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 18px; padding: 7px 12px; border: 1px solid var(--sk-primary); border-radius: var(--sk-radius-sm); color: var(--sk-primary-strong); font-size: 14px; font-weight: 800; }
+.bank-planner-play .bank-plan-receipt h2 { font-size: 23px; }
+.bank-planner-play .bank-plan-receipt > p { margin: 10px 0 18px; font-size: 16px; color: var(--sk-muted); line-height: 1.6; }
+.bank-planner-play .bank-plan-receipt .adventure-button { width: 100%; min-height: 54px; margin-top: 24px; justify-content: center; }
+.bank-planner-play .bank-plan-desk.is-finished { grid-template-areas: "funds outcome"; }
+.bank-planner-play .bank-plan-outcome { grid-area: outcome; padding: 18px 0; gap: 20px; background: transparent; }
+.bank-planner-play .bank-plan-outcome > svg { color: var(--sk-primary); }
+.bank-planner-play .bank-plan-outcome .chapter-stars svg { width: 29px; height: 29px; }
+.bank-planner-play .bank-plan-outcome p { line-height: 1.65; }
+.bank-planner-play .bank-plan-outcome .adventure-button { min-height: 54px; }
+.bank-planner-play .bank-passbook { border: 1px solid var(--sk-border); border-radius: var(--sk-radius-lg); padding: 14px 22px; background: var(--sk-surface); }
+.bank-planner-play .bank-passbook li { min-width: 0; }
+.bank-planner-play .bank-passbook li > div { min-width: 0; }
+
+@media (hover: hover) {
+  .bank-planner-play .bank-plan-options button:hover { border-color: var(--sk-lavender-ink); background: var(--sk-lavender); }
+}
+@media (max-width: 850px) {
+  .bank-planner-play .bank-plan-desk { grid-template-columns: 195px minmax(0, 1fr); gap: 20px; padding: 22px; }
+  .bank-planner-play .bank-desk-funds { padding: 18px 12px; }
+  .bank-planner-play .bank-savings-total { font-size: 24px; }
+  .bank-planner-play .bank-desk-weeks li { padding: 10px; gap: 7px; font-size: 14px; }
+}
+@media (max-width: 680px) {
+  .bank-planner-play .bank-plan-desk,
+  .bank-planner-play .bank-plan-desk.is-finished { grid-template-columns: minmax(0, 1fr); grid-template-areas: "story" "funds" "decisions"; padding: 18px; }
+  .bank-planner-play .bank-plan-desk.is-finished { grid-template-areas: "funds" "outcome"; }
+  .bank-planner-play .bank-desk-funds { padding: 18px; }
+  .bank-planner-play .bank-savings-vessel { grid-template-columns: 86px minmax(0, 1fr); gap: 4px 15px; align-items: center; justify-items: start; text-align: left; }
+  .bank-planner-play .bank-savings-vessel > p { grid-column: 2; justify-content: start; margin: 0; font-size: 15px; }
+  .bank-planner-play .bank-savings-jar { grid-column: 1; grid-row: 1 / span 4; width: 78px; height: 106px; margin: 12px 0 0; }
+  .bank-planner-play .bank-savings-jar::before { left: 3px; right: 3px; }
+  .bank-planner-play .bank-savings-emblem > svg { width: 46px; height: 46px; padding: 8px; }
+  .bank-planner-play .bank-savings-vessel > strong,
+  .bank-planner-play .bank-savings-vessel > span,
+  .bank-planner-play .bank-savings-vessel > small { grid-column: 2; margin: 0; }
+  .bank-planner-play .bank-savings-vessel > small { margin-top: 3px; font-size: 13px; }
+  .bank-planner-play .bank-reserve-box { margin-top: 18px; padding: 10px 12px; }
+  .bank-planner-play .bank-reserve-box > div { display: flex; flex: 1; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px 10px; }
+  .bank-planner-play .bank-reserve-box strong { font-size: 21px; }
+  .bank-planner-play .bank-desk-money-note { text-align: left; font-size: 12px; margin-top: 10px; }
+  .bank-planner-play .bank-desk-weeks { gap: 6px; }
+  .bank-planner-play .bank-desk-weeks li { flex-direction: column; justify-content: center; gap: 5px; padding: 9px 4px; font-size: 13px; }
+  .bank-planner-play .bank-desk-weeks li > span:first-child { width: 27px; height: 27px; }
+  .bank-planner-play .bank-plan-receipt { padding: 18px; }
+  .bank-planner-play .bank-plan-outcome { padding: 0; }
+  .bank-planner-play .bank-plan-outcome .adventure-button { width: 100%; justify-content: center; }
+  .bank-planner-play .bank-passbook { padding: 12px 16px; }
+}
+@media (max-width: 390px) {
+  .bank-planner-play .bank-plan-desk { padding: 12px; }
+  .bank-planner-play .bank-desk-funds { padding: 14px 12px; }
+  .bank-planner-play .bank-savings-vessel { grid-template-columns: 70px minmax(0, 1fr); gap: 4px 12px; }
+  .bank-planner-play .bank-savings-jar { width: 64px; height: 100px; }
+  .bank-planner-play .bank-savings-total { font-size: 22px; }
+  .bank-planner-play .bank-plan-options button { padding: 13px 12px; gap: 9px; }
+  .bank-planner-play .bank-plan-preview,
+  .bank-planner-play .bank-plan-receipt { padding: 14px 12px; }
+  .bank-planner-play .bank-plan-preview dl,
+  .bank-planner-play .bank-plan-receipt dl { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .bank-planner-play .bank-week-income { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bank-planner-play .bank-savings-fill { transition: none; }
+}

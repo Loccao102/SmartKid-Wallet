@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { worldMaps } from '../data/worldMaps'
 import { mapAssetPacks } from './mapPacks'
+import { gameAssets } from './registry'
 
 const shippedAssets = import.meta.glob('/public/assets/maps/**/*', { eager: true, query: '?url', import: 'default' })
 
@@ -17,5 +18,8 @@ describe('map asset packs', () => {
       scenes.add(pack.scene)
     }
     expect(scenes.size).toBe(worldMaps.length)
+    for (const path of [gameAssets.maps.tinyBank.playground, gameAssets.maps.tinyBank.playgroundSmall]) {
+      expect(shippedAssets).toHaveProperty('/public' + path)
+    }
   })
 })
