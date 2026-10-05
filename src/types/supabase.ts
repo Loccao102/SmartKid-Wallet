@@ -465,6 +465,27 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          audio: Json
+          auth_user_id: string
+          avatar: Json
+          updated_at: string
+        }
+        Insert: {
+          audio?: Json
+          auth_user_id: string
+          avatar?: Json
+          updated_at?: string
+        }
+        Update: {
+          audio?: Json
+          auth_user_id?: string
+          avatar?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       teacher_profiles: {
         Row: {
           auth_user_id: string

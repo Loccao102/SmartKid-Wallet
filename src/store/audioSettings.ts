@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export const AUDIO_SETTINGS_STORAGE_VERSION = 1
+
 interface AudioSettingsState {
   muted: boolean
   musicEnabled: boolean
@@ -18,6 +20,7 @@ interface AudioSettingsState {
   setMusicVolume: (volume: number) => void
   setAmbientVolume: (volume: number) => void
   setSfxVolume: (volume: number) => void
+  applyRemoteSettings: (settings: Partial<AudioSettingsState>) => void
 }
 
 const clamp = (value: number) => Math.min(1, Math.max(0, value))
@@ -41,7 +44,42 @@ export const useAudioSettingsStore = create<AudioSettingsState>()(
       setMusicVolume: (musicVolume) => set({ musicVolume: clamp(musicVolume) }),
       setAmbientVolume: (ambientVolume) => set({ ambientVolume: clamp(ambientVolume) }),
       setSfxVolume: (sfxVolume) => set({ sfxVolume: clamp(sfxVolume) }),
+      applyRemoteSettings: (settings) =>
+        set((state) => ({
+          muted: typeof settings.muted === 'boolean' ? settings.muted : state.muted,
+          musicEnabled:
+            typeof settings.musicEnabled === 'boolean'
+              ? settings.musicEnabled
+              : state.musicEnabled,
+          ambientEnabled:
+            typeof settings.ambientEnabled === 'boolean'
+              ? settings.ambientEnabled
+              : state.ambientEnabled,
+          sfxEnabled:
+            typeof settings.sfxEnabled === 'boolean'
+              ? settings.sfxEnabled
+              : state.sfxEnabled,
+          masterVolume:
+            typeof settings.masterVolume === 'number'
+              ? clamp(settings.masterVolume)
+              : state.masterVolume,
+          musicVolume:
+            typeof settings.musicVolume === 'number'
+              ? clamp(settings.musicVolume)
+              : state.musicVolume,
+          ambientVolume:
+            typeof settings.ambientVolume === 'number'
+              ? clamp(settings.ambientVolume)
+              : state.ambientVolume,
+          sfxVolume:
+            typeof settings.sfxVolume === 'number'
+              ? clamp(settings.sfxVolume)
+              : state.sfxVolume,
+        })),
     }),
-    { name: 'smartkid-wallet-audio-v1' },
+    {
+      name: 'smartkid-wallet-audio-v1',
+      version: AUDIO_SETTINGS_STORAGE_VERSION,
+    },
   ),
 )

@@ -23,3 +23,8 @@ export const useStudentAccountStore = create<StudentAccountState>((set) => ({
   setLoaded: (loaded) => set({ loaded }),
   clear: () => set({ loaded: true, student: null, classroom: null }),
 }))
+
+/** Stable snapshot helper for effects/subscriptions outside React render. */
+export function getSignedInStudent() {
+  return useStudentAccountStore.getState().student
+}
