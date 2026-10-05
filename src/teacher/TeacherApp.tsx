@@ -8,6 +8,7 @@ import {
   CircleUserRound,
   ClipboardList,
   Copy,
+  FileSpreadsheet,
   GraduationCap,
   KeyRound,
   LayoutDashboard,
@@ -56,6 +57,7 @@ import {
   signOutTeacher,
   signUpTeacher,
 } from '../lib/teacherRemote'
+import { RosterImportPanel } from './RosterImportPanel'
 
 type TeacherPage =
   | 'overview'
@@ -1099,6 +1101,7 @@ function ClassesPage({
   onSelectClass,
   onCreateClass,
   onCreateStudent,
+  onImportRoster,
   onRefresh,
 }: {
   workspace: TeacherWorkspace
@@ -1106,6 +1109,7 @@ function ClassesPage({
   onSelectClass: (id: string) => void
   onCreateClass: () => void
   onCreateStudent: () => void
+  onImportRoster: () => void
   onRefresh: () => void
 }) {
   const students = selectedClass
@@ -1201,9 +1205,14 @@ function ClassesPage({
                     Mã lớp: <strong className="teacher-code">{selectedClass.join_code}</strong>
                   </p>
                 </div>
-                <button type="button" className="teacher-primary" onClick={onCreateStudent}>
-                  <UserPlus size={18} /> Tạo học sinh
-                </button>
+                <div className="teacher-card-actions">
+                  <button type="button" className="teacher-secondary" onClick={onImportRoster}>
+                    <FileSpreadsheet size={18} /> Import Excel
+                  </button>
+                  <button type="button" className="teacher-primary" onClick={onCreateStudent}>
+                    <UserPlus size={18} /> Tạo học sinh
+                  </button>
+                </div>
               </header>
 
               {error ? <p className="teacher-form-message">{error}</p> : null}
@@ -1212,8 +1221,17 @@ function ClassesPage({
                 <EmptyState
                   icon={CircleUserRound}
                   title="Lớp chưa có học sinh"
-                  description="Tạo tài khoản đầu tiên và gửi mã lớp, username, mật khẩu tạm cho học sinh."
-                  action={<button type="button" className="teacher-primary" onClick={onCreateStudent}><UserPlus size={18} /> Tạo tài khoản</button>}
+                  description="Tạo tài khoản đầu tiên hoặc import cả danh sách từ file Excel, sau đó gửi mã lớp, username, mật khẩu tạm cho học sinh."
+                  action={
+                    <div className="teacher-card-actions">
+                      <button type="button" className="teacher-secondary" onClick={onImportRoster}>
+                        <FileSpreadsheet size={18} /> Import Excel
+                      </button>
+                      <button type="button" className="teacher-primary" onClick={onCreateStudent}>
+                        <UserPlus size={18} /> Tạo tài khoản
+                      </button>
+                    </div>
+                  }
                 />
               ) : (
                 <div className="teacher-table-wrap">
@@ -1931,6 +1949,7 @@ export function TeacherApp() {
   const [focusedStudentId, setFocusedStudentId] = useState('')
   const [createClassOpen, setCreateClassOpen] = useState(false)
   const [createStudentOpen, setCreateStudentOpen] = useState(false)
+  const [importRosterOpen, setImportRosterOpen] = useState(false)
   const [createAssignmentOpen, setCreateAssignmentOpen] = useState(false)
   const [loadError, setLoadError] = useState('')
 
@@ -2088,6 +2107,7 @@ export function TeacherApp() {
             onSelectClass={setSelectedClassId}
             onCreateClass={() => setCreateClassOpen(true)}
             onCreateStudent={() => setCreateStudentOpen(true)}
+            onImportRoster={() => setImportRosterOpen(true)}
             onRefresh={() => void load()}
           />
         ) : page === 'assignments' ? (
@@ -2130,6 +2150,14 @@ export function TeacherApp() {
           classroom={selectedClass}
           onClose={() => setCreateStudentOpen(false)}
           onCreated={() => void load()}
+        />
+      ) : null}
+
+      {importRosterOpen && selectedClass ? (
+        <RosterImportPanel
+          classroom={selectedClass}
+          onClose={() => setImportRosterOpen(false)}
+          onFinished={() => void load()}
         />
       ) : null}
 
