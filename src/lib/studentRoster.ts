@@ -156,6 +156,8 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   const dataRows = matrix.slice(headerIndex + 1)
   const hasExplicitUsername = colUser >= 0
   const usedPasswords = new Set<string>()
+  const explicitPasswordRows = new Set<number>()
+  const explicitPasswordCounts = new Map<string, number>()
   const rows: ParsedStudentRow[] = []
   const usernameCount = new Map<string, number>()
 
@@ -210,7 +212,11 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
       parentEmail: parentEmail && isValidEmail(parentEmail) ? parentEmail : '',
       issues,
     })
-    if (explicitPassword) usedPasswords.add(explicitPassword)
+    if (explicitPassword) {
+      explicitPasswordRows.add(rowNumber)
+      usedPasswords.add(explicitPassword)
+      explicitPasswordCounts.set(explicitPassword, (explicitPasswordCounts.get(explicitPassword) ?? 0) + 1)
+    }
   })
 
   // Đảm bảo username duy nhất trong file (thêm số thứ tự cho các bản lặp lại,
@@ -234,8 +240,15 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
     row.issues.push({ level: 'warning', message: `Trùng username trong file, đã đổi thành "${candidate}".` })
   })
 
-  // Đảm bảo mật khẩu tự sinh là duy nhất trong lô này.
+  // Giữ nguyên mật khẩu nhập tay; báo lỗi nếu nhiều học sinh dùng chung một mật khẩu.
+  // Chỉ sinh lại mật khẩu tự động khi trùng với một mật khẩu đã được dành trước.
   rows.forEach((row) => {
+    if (explicitPasswordRows.has(row.rowNumber)) {
+      if ((explicitPasswordCounts.get(row.password) ?? 0) > 1) {
+        row.issues.push({ level: 'error', message: 'Mật khẩu tạm bị trùng giữa các học sinh, hãy dùng mật khẩu riêng.' })
+      }
+      return
+    }
     while (usedPasswords.has(row.password)) row.password = generateTempPassword()
     usedPasswords.add(row.password)
   })
