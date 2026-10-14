@@ -65,6 +65,32 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.rows[0].password).toBe('MatKhau123')
   })
 
+  it('giữ nguyên nhiều mật khẩu nhập tay khác nhau trong cùng một file', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Username', 'Mật khẩu tạm'],
+      ['Nguyễn An', 'nguyen-an', 'MatKhau123'],
+      ['Trần Bình', 'tran-binh', 'OtherPass456'],
+    ])
+
+    const result = await parseStudentRosterFile(buffer, 'hs.xlsx')
+    expect(result.rows.map((row) => row.password)).toEqual(['MatKhau123', 'OtherPass456'])
+    expect(result.rows.every((row) => row.issues.every((issue) => issue.level !== 'error'))).toBe(true)
+  })
+
+  it('báo lỗi mật khẩu nhập tay trùng nhau thay vì âm thầm thay đổi', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Mật khẩu tạm'],
+      ['Nguyễn An', 'SamePass123'],
+      ['Trần Bình', 'SamePass123'],
+    ])
+
+    const result = await parseStudentRosterFile(buffer, 'hs.xlsx')
+    expect(result.rows.map((row) => row.password)).toEqual(['SamePass123', 'SamePass123'])
+    expect(result.rows.every((row) => row.issues.some((issue) =>
+      issue.level === 'error' && issue.message.includes('trùng')
+    ))).toBe(true)
+  })
+
   it('báo lỗi khi thiếu tên hoặc mật khẩu quá ngắn', async () => {
     const buffer = buildWorkbookBuffer([
       ['Tên học sinh', 'Mật khẩu'],
