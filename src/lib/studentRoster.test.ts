@@ -131,23 +131,26 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(second.issues.some((issue) => issue.level === 'warning')).toBe(true)
   })
 
-  it('tạo suffix cho username dài tối đa 32 ký tự mà không lặp vô hạn', async () => {
-    const base = 'nguyenvanthanhdanh123456789012345'
+  it('tạo suffix cho username 32 ký tự ngay cả khi suffix -2 đã được giữ chỗ', async () => {
+    const base = 'nguyenvanthanhdanh123456789012345'.slice(0, 32)
     expect(base).toHaveLength(32)
+    const reserved = base.slice(0, 30) + '-2'
     const buffer = buildWorkbookBuffer([
       ['Tên học sinh', 'Username'],
       ['Bạn A', base],
       ['Bạn B', base],
       ['Bạn C', base],
-      ['Bạn D', base + '-2'],
+      ['Bạn D', reserved],
     ])
 
     const result = await parseStudentRosterFile(buffer, 'long-username.xlsx')
     expect(result.rows.map((row) => row.username)).toEqual([
-      base, base.slice(0, 30) + '-2', base.slice(0, 30) + '-3',
       base,
-    ].map((name, index) => index === 3 ? sanitizeUsername(base + '-2') : name))
-    expect(new Set(result.rows.map((row) => row.username)).size).toBe(3)
+      base.slice(0, 30) + '-3',
+      base.slice(0, 30) + '-4',
+      reserved,
+    ])
+    expect(new Set(result.rows.map((row) => row.username)).size).toBe(4)
     expect(result.rows.every((row) => row.username.length <= 32)).toBe(true)
   })
 
