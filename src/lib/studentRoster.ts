@@ -137,7 +137,9 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   const scanLimit = Math.min(matrix.length, 10)
   for (let i = 0; i < scanLimit; i += 1) {
     const row = matrix[i] ?? []
-    const cells = row.map((cell) => foldKey(String(cell ?? '').trim())).filter(Boolean)
+    // Preserve physical column positions: dropping empty header cells shifts
+    // the detected name index and reads the wrong data from student rows.
+    const cells = row.map((cell) => foldKey(String(cell ?? '').trim()))
     const nameIdx = findColumn(cells, NAME_KEYS)
     if (nameIdx >= 0) {
       headerIndex = i
