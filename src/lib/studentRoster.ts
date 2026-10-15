@@ -221,22 +221,25 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
     }
   })
 
-  // Đảm bảo username duy nhất trong file (thêm số thứ tự cho các bản lặp lại,
-  // giữ nguyên tên lần xuất hiện đầu tiên).
+  // Keep the first occurrence, then reserve space for the numeric suffix.
+  // Without this, a 32-character username gets truncated back to the same
+  // value after appending "-2", causing an unbounded collision loop.
   const seen = new Map<string, number>()
   rows.forEach((row) => {
     if (!row.username) return
-    const count = usernameCount.get(row.username) ?? 1
-    if (count <= 1) return
-    const occurrence = (seen.get(row.username) ?? 0) + 1
-    seen.set(row.username, occurrence)
-    if (occurrence === 1) return
-    let candidate = sanitizeUsername(row.username + '-' + occurrence).slice(0, 32)
-    while (usernameCount.has(candidate)) {
-      const next = (seen.get(candidate) ?? 0) + 1
-      seen.set(candidate, next)
-      candidate = sanitizeUsername(row.username + '-' + occurrence + '.' + next).slice(0, 32)
-    }
+    const base = row.username
+    const occurrence = (seen.get(base) ?? 0) + 1
+    seen.set(base, occurrence)
+    if (occurrence === 1 || (usernameCount.get(base) ?? 1) <= 1) return
+
+    let suffixNumber = occurrence
+    let candidate = ''
+    do {
+      const suffix = '-' + suffixNumber
+      candidate = sanitizeUsername(base.slice(0, 32 - suffix.length) + suffix)
+      suffixNumber += 1
+    } while (usernameCount.has(candidate))
+
     usernameCount.set(candidate, 1)
     row.username = candidate
     row.issues.push({ level: 'warning', message: `Trùng username trong file, đã đổi thành "${candidate}".` })
@@ -367,24 +370,32 @@ export function generateTempPassword() {
   return 'Sk!' + Array.from(bytes, (value) => chars[value % chars.length]).join('')
 }
 
+// Escaping quotes alone does NOT prevent spreadsheet formula evaluation.
+// Treat the exported roster as untrusted: a student's name (or an imported
+// credential) may start with a formula trigger, even after whitespace.
+function escapeRosterCsvCell(value: string) {
+  const safeValue = /^[\\s\\u0000-\\u001f]*[=+\\-@]/u.test(value) ? "'" + value : value
+  return '"' + safeValue.replace(/"/g, '""') + '"'
+}
+
 export function rosterRowsToCsv(rows: ParsedStudentRow[]) {
-  const escapeCell = (value: string) => '"' + value.replace(/"/g, '""') + '"'
+
   const lines = [
     'Tên học sinh,Username,Mật khẩu tạm,Email phụ huynh',
     ...rows.map((row) =>
-      [row.displayName, row.username, row.password, row.parentEmail].map(escapeCell).join(','),
+      [row.displayName, row.username, row.password, row.parentEmail].map(escapeRosterCsvCell).join(','),
     ),
   ]
   return '\ufeff' + lines.join('\r\n')
 }
 
 export function createdAccountsToCsv(created: RosterCreatedAccount[]) {
-  const escapeCell = (value: string) => '"' + value.replace(/"/g, '""') + '"'
+
   const lines = [
     'Tên học sinh,Username,Mật khẩu tạm,Email phụ huynh',
     ...created.map((account) =>
       [account.displayName, account.username, account.password, account.parentEmail]
-        .map(escapeCell)
+        .map(escapeRosterCsvCell)
         .join(','),
     ),
   ]
