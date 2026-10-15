@@ -330,6 +330,12 @@ export async function createStudentsFromRoster(
       const authUserId = String(
         student?.authUserId ?? (payload as Record<string, unknown> | null)?.authUserId ?? '',
       )
+      // HTTP success without an ID is not proof of account creation.
+      // Treat it as uncertain so the teacher checks the existing roster
+      // instead of exporting a credential for an unverified student.
+      if (!authUserId.trim()) {
+        throw new Error('Chưa xác nhận được mã tài khoản từ máy chủ. Hãy kiểm tra danh sách học sinh trước khi thử lại.')
+      }
 
       if (input.linkParents && row.parentEmail && authUserId) {
         try {
