@@ -374,7 +374,7 @@ export function generateTempPassword() {
 // Treat the exported roster as untrusted: a student's name (or an imported
 // credential) may start with a formula trigger, even after whitespace.
 function escapeRosterCsvCell(value: string) {
-  const safeValue = /^[\\s\\u0000-\\u001f]*[=+\\-@]/u.test(value) ? "'" + value : value
+  const safeValue = /^[\s\u0000-\u001f]*[=+\-@]/u.test(value) ? "'" + value : value
   return '"' + safeValue.replace(/"/g, '""') + '"'
 }
 
