@@ -72,6 +72,18 @@ describe('createStudentsFromRoster fail-closed validation', () => {
     expect(mocks.createStudentAccount).toHaveBeenCalledTimes(2)
   })
 
+  it('không ghi nhận tạo thành công khi máy chủ trả HTTP success nhưng thiếu auth user ID', async () => {
+    mocks.createStudentAccount.mockResolvedValueOnce({ student: { studentCode: 'ST-ONLY' } })
+    const result = await createStudentsFromRoster({
+      classroomId: 'test-class',
+      rows: [row(2, 'student-one', 'Abcdefg123')],
+    })
+    expect(result.created).toHaveLength(0)
+    expect(result.failed).toHaveLength(1)
+    expect(result.failed[0].reason).toContain('Chưa xác nhận')
+    expect(mocks.createStudentAccount).toHaveBeenCalledTimes(1)
+  })
+
   it('không retry credentials trong cùng batch sau lỗi remote không rõ kết quả', async () => {
     mocks.createStudentAccount.mockRejectedValueOnce(new Error('Mất mạng sau khi gửi'))
     const result = await createStudentsFromRoster({
