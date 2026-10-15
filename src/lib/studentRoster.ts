@@ -275,9 +275,43 @@ export async function createStudentsFromRoster(
   const created: RosterCreatedAccount[] = []
   const failed: RosterFailedRow[] = []
   let parentCodesGenerated = 0
+  const seenUsernames = new Set<string>()
+  const seenPasswords = new Set<string>()
 
   for (let index = 0; index < input.rows.length; index += 1) {
     const row = input.rows[index]
+    const validationErrors = row.issues
+      .filter((issue) => issue.level === 'error')
+      .map((issue) => issue.message)
+    if (!row.displayName.trim() || row.displayName.length > 120) {
+      validationErrors.push('Tên học sinh không hợp lệ.')
+    }
+    if (!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(row.username)) {
+      validationErrors.push('Username không hợp lệ.')
+    }
+    if (row.password.length < 8) {
+      validationErrors.push('Mật khẩu tạm cần ít nhất 8 ký tự.')
+    }
+    if (seenUsernames.has(row.username)) {
+      validationErrors.push('Username bị trùng trong danh sách.')
+    }
+    if (seenPasswords.has(row.password)) {
+      validationErrors.push('Mật khẩu tạm bị trùng trong danh sách.')
+    }
+    if (validationErrors.length > 0) {
+      failed.push({
+        rowNumber: row.rowNumber,
+        displayName: row.displayName,
+        username: row.username,
+        reason: [...new Set(validationErrors)].join(' '),
+      })
+      onProgress?.(index + 1, input.rows.length)
+      continue
+    }
+    // Reserve identifiers before calling the server, even if that call fails.
+    // A later row must not retry the same credentials after an ambiguous error.
+    seenUsernames.add(row.username)
+    seenPasswords.add(row.password)
     try {
       const result = await createStudentAccount({
         classroomId: input.classroomId,
