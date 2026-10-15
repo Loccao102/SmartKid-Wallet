@@ -54,6 +54,22 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.warnings.some((text) => text.includes('Username'))).toBe(true)
   })
 
+  it('giữ đúng chỉ số cột dù header Excel có ô trống phía trước tên', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['', 'STT', '', 'Tên học sinh', 'Username', 'Mật khẩu tạm'],
+      ['', 1, '', 'Nguyễn Thị Hoa', 'hoa-test', 'MatKhau123'],
+      ['', 2, '', 'Trần Văn Sơn', 'son-test', 'OtherPass456'],
+    ])
+
+    const result = await parseStudentRosterFile(buffer, 'header-gap.xlsx')
+    expect(result.rows).toHaveLength(2)
+    expect(result.rows.map((student) => student.displayName)).toEqual([
+      'Nguyễn Thị Hoa', 'Trần Văn Sơn',
+    ])
+    expect(result.rows.map((student) => student.username)).toEqual(['hoa-test', 'son-test'])
+    expect(result.rows.map((student) => student.password)).toEqual(['MatKhau123', 'OtherPass456'])
+  })
+
   it('giữ username và mật khẩu tường minh nếu cột tồn tại', async () => {
     const buffer = buildWorkbookBuffer([
       ['Họ tên', 'Username', 'Mật khẩu tạm'],
