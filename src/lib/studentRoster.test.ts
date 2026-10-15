@@ -131,6 +131,26 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(second.issues.some((issue) => issue.level === 'warning')).toBe(true)
   })
 
+  it('tạo suffix cho username dài tối đa 32 ký tự mà không lặp vô hạn', async () => {
+    const base = 'nguyenvanthanhdanh123456789012345'
+    expect(base).toHaveLength(32)
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Username'],
+      ['Bạn A', base],
+      ['Bạn B', base],
+      ['Bạn C', base],
+      ['Bạn D', base + '-2'],
+    ])
+
+    const result = await parseStudentRosterFile(buffer, 'long-username.xlsx')
+    expect(result.rows.map((row) => row.username)).toEqual([
+      base, base.slice(0, 30) + '-2', base.slice(0, 30) + '-3',
+      base,
+    ].map((name, index) => index === 3 ? sanitizeUsername(base + '-2') : name))
+    expect(new Set(result.rows.map((row) => row.username)).size).toBe(3)
+    expect(result.rows.every((row) => row.username.length <= 32)).toBe(true)
+  })
+
   it('từ chối file không có cột tên', async () => {
     const buffer = buildWorkbookBuffer([
       ['STT', 'Ghi chú'],
@@ -164,6 +184,27 @@ describe('xuất CSV thông tin tài khoản', () => {
     ])
     expect(csv.startsWith('\ufeff')).toBe(true)
     expect(csv).toContain('"Nguyễn, Minh Anh"')
+  })
+
+  it('không cho công thức trong tên và mật khẩu chạy khi mở CSV bằng bảng tính', () => {
+    const sample = {
+      rowNumber: 4,
+      displayName: '=HYPERLINK("https://unsafe.example","Nhấn")',
+      username: 'student-safe',
+      password: '   +SUM(1,2)',
+      parentEmail: '',
+      issues: [],
+    }
+    const csv = rosterRowsToCsv([sample])
+    expect(csv).toContain('"' + "'" + '=HYPERLINK(""https://unsafe.example"",""Nhấn"")"')
+    expect(csv).toContain('"' + "'" + '   +SUM(1,2)"')
+    const accountsCsv = createdAccountsToCsv([{
+      ...sample, studentCode: 'SK-1', authUserId: 'uuid-1',
+    }])
+    expect(accountsCsv).toContain('"' + "'" + '=HYPERLINK(')
+    expect(accountsCsv).toContain('"' + "'" + '   +SUM(1,2)"')
+    expect(rosterRowsToCsv([{ ...sample, displayName: 'Tên bình thường', password: 'MatKhau123' }]))
+      .toContain('"Tên bình thường","student-safe","MatKhau123"')
   })
 
   it('createdAccountsToCsv liệt kê đúng hàng đã tạo', () => {
