@@ -91,6 +91,28 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.rows[1].displayName).toBe('Trần Lan')
   })
 
+  it('không hiểu cột tên phụ huynh là email phụ huynh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Tên phụ huynh', 'Username'],
+      ['Nguyễn An', 'Chị Lan', 'nguyen-an'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'parent-name.xlsx')
+    expect(parsed.rows[0].parentEmail).toBe('')
+    expect(parsed.warnings).toContain(
+      'File không có cột Email phụ huynh — bạn vẫn có thể tạo mã liên kết phụ huynh sau.',
+    )
+    expect(parsed.rows[0].issues.some((issue) => issue.message.includes('Email'))).toBe(false)
+  })
+
+  it('không nhận cột ghi chú phụ huynh thành email', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Thông tin phụ huynh', 'Email', 'Username'],
+      ['Nguyễn An', 'Ghi chú liên lạc', 'parent@example.com', 'nguyen-an'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'mixed-parent-fields.xlsx')
+    expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
+  })
+
   it('không lấy email của học sinh làm email phụ huynh', async () => {
     const buffer = buildWorkbookBuffer([
       ['Tên học sinh', 'Email học sinh', 'Username'],
