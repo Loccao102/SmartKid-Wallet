@@ -99,6 +99,17 @@ export function sanitizeUsername(value: string) {
     .slice(0, 32)
 }
 
+// A school roster may include a *student* email column. Never infer that
+// such an address belongs to a parent just because its header contains "email".
+function findParentEmailColumn(headers: string[]) {
+  const safeHeaders = headers.map((header) => {
+    const isEmail = /\b(e ?mail|mail)\b/.test(header)
+    const isStudent = /\b(hoc sinh|student|pupil|child|tre em)\b/.test(header)
+    return isEmail && isStudent ? '' : header
+  })
+  return findColumn(safeHeaders, PARENT_EMAIL_KEYS)
+}
+
 function cellText(row: unknown[] | undefined, index: number) {
   if (index < 0 || !row) return ''
   const cell = row[index]
@@ -147,7 +158,7 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
       colName = nameIdx
       colUser = findColumn(headers, USERNAME_KEYS)
       colPass = findColumn(headers, PASSWORD_KEYS)
-      colEmail = findColumn(headers, PARENT_EMAIL_KEYS)
+      colEmail = findParentEmailColumn(headers)
       break
     }
   }
