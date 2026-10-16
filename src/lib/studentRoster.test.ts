@@ -70,6 +70,27 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.rows.map((student) => student.password)).toEqual(['MatKhau123', 'OtherPass456'])
   })
 
+  it('hiển thị lỗi thay vì âm thầm bỏ qua hàng có tài khoản nhưng thiếu tên', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Username', 'Mật khẩu tạm', 'Email phụ huynh'],
+      ['', 'missing-name', 'MatKhau123', 'family@example.com'],
+      ['', '', '', ''],
+      ['Trần Lan', 'tran-lan', 'OtherPass456', ''],
+    ])
+
+    const result = await parseStudentRosterFile(buffer, 'missing-name.xlsx')
+    expect(result.rows).toHaveLength(2)
+    expect(result.rows[0].rowNumber).toBe(2)
+    expect(result.rows[0].displayName).toBe('')
+    expect(result.rows[0].username).toBe('missing-name')
+    expect(result.rows[0].issues).toContainEqual({
+      level: 'error',
+      message: 'Thiếu tên học sinh.',
+    })
+    expect(result.rows[1].rowNumber).toBe(4)
+    expect(result.rows[1].displayName).toBe('Trần Lan')
+  })
+
   it('giữ username và mật khẩu tường minh nếu cột tồn tại', async () => {
     const buffer = buildWorkbookBuffer([
       ['Họ tên', 'Username', 'Mật khẩu tạm'],
