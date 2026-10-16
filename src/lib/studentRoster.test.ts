@@ -134,6 +134,26 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
   })
 
+  it('từ chối file chỉ có tên trường và thông tin đăng nhập của giáo viên', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['School Name', 'Username giáo viên', 'Mật khẩu nhà trường'],
+      ['Trường học QA', 'teacher-test', 'StaffSecret123'],
+    ])
+    await expect(parseStudentRosterFile(buffer, 'school-only.xlsx'))
+      .rejects.toThrow(/Tên học sinh/)
+  })
+
+  it('không sử dụng tài khoản hoặc mật khẩu nhà trường cho học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Username nhà trường', 'Mật khẩu nhà trường'],
+      ['Nguyễn An', 'school-admin', 'SchoolSecret123'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'school-credentials.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].username).toBe('nguyen-an')
+    expect(parsed.rows[0].password).not.toBe('SchoolSecret123')
+  })
+
   it('không nhập tài khoản phụ huynh hoặc giáo viên làm username học sinh', async () => {
     const buffer = buildWorkbookBuffer([
       ['Tên học sinh', 'Username phụ huynh', 'Tài khoản giáo viên'],
