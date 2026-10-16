@@ -134,6 +134,36 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
   })
 
+  it('không nhập tài khoản phụ huynh hoặc giáo viên làm username học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Username phụ huynh', 'Tài khoản giáo viên'],
+      ['Trần An', 'parent-login', 'teacher-login'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'other-role-logins.xlsx')
+    expect(parsed.rows[0].username).toBe('tran-an')
+    expect(parsed.warnings.some((warning) => warning.includes('tự sinh'))).toBe(true)
+  })
+
+  it('chỉ dùng username học sinh khi có nhiều cột tài khoản', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Username phụ huynh', 'Username', 'Mật khẩu giáo viên', 'Mật khẩu tạm'],
+      ['Trần An', 'parent-login', 'student-login', 'TeacherSecret123', 'StudentPass456'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'mixed-logins.xlsx')
+    expect(parsed.rows[0].username).toBe('student-login')
+    expect(parsed.rows[0].password).toBe('StudentPass456')
+  })
+
+  it('không dùng email giáo viên hoặc nhà trường làm email phụ huynh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Email giáo viên', 'Email nhà trường'],
+      ['Trần An', 'teacher@example.com', 'school@example.com'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'school-emails.xlsx')
+    expect(parsed.rows[0].parentEmail).toBe('')
+    expect(parsed.warnings.some((warning) => warning.includes('Email phụ huynh'))).toBe(true)
+  })
+
   it('không dùng mật khẩu phụ huynh để tạo tài khoản học sinh', async () => {
     const buffer = buildWorkbookBuffer([
       ['Tên học sinh', 'Mật khẩu phụ huynh', 'Username'],
