@@ -54,6 +54,23 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.warnings.some((text) => text.includes('Username'))).toBe(true)
   })
 
+  it('giữ nguyên số dòng vật lý khi có dòng trống trước header và giữa học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Danh sách lớp'],
+      [],
+      [],
+      ['Tên học sinh', 'Username'],
+      ['Nguyễn An', 'nguyen-an'],
+      [],
+      [],
+      ['Trần Bình', 'tran-binh'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'physical-rows.xlsx')
+    expect(parsed.rows.map((row) => row.rowNumber)).toEqual([5, 8])
+    expect(parsed.rows.map((row) => row.displayName)).toEqual(['Nguyễn An', 'Trần Bình'])
+    expect(parsed.rows.every((row) => row.issues.every((issue) => issue.level !== 'error'))).toBe(true)
+  })
+
   it('giữ đúng chỉ số cột dù header Excel có ô trống phía trước tên', async () => {
     const buffer = buildWorkbookBuffer([
       ['', 'STT', '', 'Tên học sinh', 'Username', 'Mật khẩu tạm'],
