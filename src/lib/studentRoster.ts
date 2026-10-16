@@ -101,6 +101,17 @@ export function sanitizeUsername(value: string) {
 
 // A school roster may include a *student* email column. Never infer that
 // such an address belongs to a parent just because its header contains "email".
+function findStudentNameColumn(headers: string[]) {
+  // Generic "name" is a supported student-name header, but it is also a
+  // substring of Username and parent-name columns. Those are not pupil names.
+  const nameHeaders = headers.map((header) =>
+    /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh)\b/.test(header)
+      ? ''
+      : header
+  )
+  return findColumn(nameHeaders, NAME_KEYS)
+}
+
 function findParentEmailColumn(headers: string[]) {
   const safeHeaders = headers.map((header) => {
     const isEmail = /\b(e ?mail|mail)\b/.test(header)
@@ -151,7 +162,7 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
     // Preserve physical column positions: dropping empty header cells shifts
     // the detected name index and reads the wrong data from student rows.
     const cells = row.map((cell) => foldKey(String(cell ?? '').trim()))
-    const nameIdx = findColumn(cells, NAME_KEYS)
+    const nameIdx = findStudentNameColumn(cells)
     if (nameIdx >= 0) {
       headerIndex = i
       headers = row.map((cell) => foldKey(String(cell ?? '').trim()))
