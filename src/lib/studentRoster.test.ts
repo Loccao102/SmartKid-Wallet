@@ -112,6 +112,26 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
   })
 
+  it('không dùng mật khẩu phụ huynh để tạo tài khoản học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Mật khẩu phụ huynh', 'Username'],
+      ['Trần An', 'ParentPassword123', 'tran-an'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'parent-password.xlsx')
+    expect(parsed.rows[0].username).toBe('tran-an')
+    expect(parsed.rows[0].password).not.toBe('ParentPassword123')
+    expect(parsed.rows[0].password).toMatch(/^Sk!/)
+  })
+
+  it('chọn cột mật khẩu học sinh khi xuất hiện cả mật khẩu phụ huynh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên học sinh', 'Mật khẩu phụ huynh', 'Mật khẩu tạm', 'Username'],
+      ['Trần An', 'ParentPassword123', 'StudentPass456', 'tran-an'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'both-passwords.xlsx')
+    expect(parsed.rows[0].password).toBe('StudentPass456')
+  })
+
   it('giữ username và mật khẩu tường minh nếu cột tồn tại', async () => {
     const buffer = buildWorkbookBuffer([
       ['Họ tên', 'Username', 'Mật khẩu tạm'],
