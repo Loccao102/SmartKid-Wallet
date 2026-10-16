@@ -63,10 +63,18 @@ function foldKey(header: string) {
 
 function keyMatches(cellKey: string, candidate: string) {
   if (!cellKey || !candidate) return false
+  // Match complete words/phrases only: e.g. "Nickname" must not match
+  // "name" and "Remark" must not match the temporary-password key "mk".
+  // A descriptive label such as "Thông tin - Tên học sinh (bắt buộc)"
+  // still matches the full phrase inside that heading.
+  const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\function keyMatches(cellKey: string, candidate: string) {
+  if (!cellKey || !candidate) return false
   // Do not let a tiny column label ("A", "N", "E", etc.) become a
   // false-positive for a longer key such as "name" or "email".
   // Descriptive headers still match if they contain the full candidate.
   return cellKey === candidate || cellKey.includes(candidate)
+}')
+  return new RegExp(`(^|[^a-z0-9])${escape(candidate)}(?=$|[^a-z0-9])`).test(cellKey)
 }
 
 function findColumn(headers: string[], candidates: string[]) {
