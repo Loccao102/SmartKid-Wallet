@@ -196,6 +196,35 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.rows.every((row) => row.username.length <= 32)).toBe(true)
   })
 
+  it('từ chối file chỉ có Username và Password, không có tên học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Username', 'Mật khẩu tạm'],
+      ['student-account', 'MatKhau123'],
+    ])
+    await expect(parseStudentRosterFile(buffer, 'credentials-only.xlsx'))
+      .rejects.toThrow(/Tên học sinh/)
+  })
+
+  it('không coi tên phụ huynh là tên học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên phụ huynh', 'Username'],
+      ['Chị Lan', 'student-account'],
+    ])
+    await expect(parseStudentRosterFile(buffer, 'parent-name-only.xlsx'))
+      .rejects.toThrow(/Tên học sinh/)
+  })
+
+  it('chọn đúng tên học sinh khi có tên phụ huynh và username', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Tên phụ huynh', 'Username', 'Tên học sinh'],
+      ['Chị Lan', 'student-account', 'Trần An'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'family.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].displayName).toBe('Trần An')
+    expect(parsed.rows[0].username).toBe('student-account')
+  })
+
   it('từ chối file không có cột tên', async () => {
     const buffer = buildWorkbookBuffer([
       ['STT', 'Ghi chú'],
