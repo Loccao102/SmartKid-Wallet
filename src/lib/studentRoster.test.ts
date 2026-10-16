@@ -305,6 +305,27 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(result.rows.every((row) => row.username.length <= 32)).toBe(true)
   })
 
+  it('không nhầm Nickname hoặc Remark thành tên/mật khẩu học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Nickname', 'Remark', 'Username'],
+      ['Biệt danh A', 'Ghi chú', 'student-a'],
+    ])
+    await expect(parseStudentRosterFile(buffer, 'nickname-remark.xlsx'))
+      .rejects.toThrow(/Tên học sinh/)
+  })
+
+  it('giữ tên từ cột mô tả dài và không dùng Remark như mật khẩu', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Thông tin - Tên học sinh (bắt buộc)', 'Remark', 'Username'],
+      ['Nguyễn An', 'Giáo viên nhận xét', 'nguyen-an'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'long-label-remark.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].displayName).toBe('Nguyễn An')
+    expect(parsed.rows[0].password).not.toBe('Giáo viên nhận xét')
+    expect(parsed.rows[0].password.length).toBeGreaterThanOrEqual(8)
+  })
+
   it('từ chối file chỉ có Username và Password, không có tên học sinh', async () => {
     const buffer = buildWorkbookBuffer([
       ['Username', 'Mật khẩu tạm'],
