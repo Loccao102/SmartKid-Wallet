@@ -180,17 +180,24 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   // reporting a false missing-header error on a cover sheet.
   let sheetName = workbook.SheetNames[0]
   let matrix = readSheet(sheetName)
+  let bestHeaderScore = 0
   for (const candidate of workbook.SheetNames) {
     const candidateRows = candidate === sheetName ? matrix : readSheet(candidate)
-    const hasRosterHeader = candidateRows.slice(0, 10).some((row) =>
-      findStudentNameColumn(
-        row.map((cell) => foldKey(String(cell ?? '').trim()))
-      ) >= 0
-    )
-    if (hasRosterHeader) {
+    // Instructions sometimes mention "Tên học sinh". Prefer a worksheet
+    // whose header also has real login/contact fields over a cover page
+    // that merely mentions the required student-name field.
+    const score = candidateRows.slice(0, 10).reduce((best, row) => {
+      const header = row.map((cell) => foldKey(String(cell ?? '').trim()))
+      if (findStudentNameColumn(header) < 0) return best
+      return Math.max(best, 1 +
+        Number(findStudentUsernameColumn(header) >= 0) +
+        Number(findStudentPasswordColumn(header) >= 0) +
+        Number(findParentEmailColumn(header) >= 0))
+    }, 0)
+    if (score > bestHeaderScore) {
+      bestHeaderScore = score
       sheetName = candidate
       matrix = candidateRows
-      break
     }
   }
 
