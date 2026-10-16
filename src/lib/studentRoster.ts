@@ -112,6 +112,15 @@ function findStudentNameColumn(headers: string[]) {
   return findColumn(nameHeaders, NAME_KEYS)
 }
 
+function findStudentPasswordColumn(headers: string[]) {
+  // Parent credentials may be present in school exports. They must never
+  // become student passwords merely because the header says "mật khẩu".
+  const passwordHeaders = headers.map((header) =>
+    /\b(parent|guardian|phu huynh)\b/.test(header) ? '' : header
+  )
+  return findColumn(passwordHeaders, PASSWORD_KEYS)
+}
+
 function findParentEmailColumn(headers: string[]) {
   const safeHeaders = headers.map((header) => {
     const isEmail = /\b(e ?mail|mail)\b/.test(header)
@@ -168,7 +177,7 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
       headers = row.map((cell) => foldKey(String(cell ?? '').trim()))
       colName = nameIdx
       colUser = findColumn(headers, USERNAME_KEYS)
-      colPass = findColumn(headers, PASSWORD_KEYS)
+      colPass = findStudentPasswordColumn(headers)
       colEmail = findParentEmailColumn(headers)
       break
     }
