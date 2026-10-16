@@ -167,7 +167,10 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   const sheet = workbook.Sheets[sheetName]
   const matrix = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
     header: 1,
-    blankrows: false,
+    // Keep physical blank rows so rowNumber and headerIndex always refer to
+    // the original spreadsheet/CSV line, not the compacted nonempty index.
+    // Truly empty student rows are skipped in the loop below.
+    blankrows: true,
     defval: '',
     raw: false,
   })
