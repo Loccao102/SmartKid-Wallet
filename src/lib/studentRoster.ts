@@ -164,18 +164,35 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   const workbook = isCsv
     ? XLSX.read(new TextDecoder().decode(new Uint8Array(data)), { type: 'string', codepage: 65001 })
     : XLSX.read(data, { type: 'array' })
-  const sheetName = workbook.SheetNames[0] ?? ''
-  if (!sheetName) throw new Error('File không có sheet nào.')
-  const sheet = workbook.Sheets[sheetName]
-  const matrix = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
-    header: 1,
-    // Keep physical blank rows so rowNumber and headerIndex always refer to
-    // the original spreadsheet/CSV line, not the compacted nonempty index.
-    // Truly empty student rows are skipped in the loop below.
-    blankrows: true,
-    defval: '',
-    raw: false,
-  })
+  if (workbook.SheetNames.length === 0) throw new Error('File không có sheet nào.')
+
+  const readSheet = (name: string) =>
+    XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[name], {
+      header: 1,
+      // Keep physical row numbers aligned with the original workbook.
+      blankrows: true,
+      defval: '',
+      raw: false,
+    })
+
+  // School files may start with instructions/cover pages. Choose the first
+  // worksheet that contains a recognizable student-name header, rather than
+  // reporting a false missing-header error on a cover sheet.
+  let sheetName = workbook.SheetNames[0]
+  let matrix = readSheet(sheetName)
+  for (const candidate of workbook.SheetNames) {
+    const candidateRows = candidate === sheetName ? matrix : readSheet(candidate)
+    const hasRosterHeader = candidateRows.slice(0, 10).some((row) =>
+      findStudentNameColumn(
+        row.map((cell) => foldKey(String(cell ?? '').trim()))
+      ) >= 0
+    )
+    if (hasRosterHeader) {
+      sheetName = candidate
+      matrix = candidateRows
+      break
+    }
+  }
 
   let headerIndex = -1
   let headers: string[] = []
