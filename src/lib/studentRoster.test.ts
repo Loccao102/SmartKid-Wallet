@@ -245,6 +245,26 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(parsed.rows[0].username).toBe('student-account')
   })
 
+  it('không coi nhãn cột viết tắt đơn ký tự là tên học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['A', 'Username', 'Email học sinh'],
+      ['Trường A', 'student-account', 'student@example.com'],
+    ])
+    await expect(parseStudentRosterFile(buffer, 'ambiguous-headers.xlsx'))
+      .rejects.toThrow(/Tên học sinh/)
+  })
+
+  it('vẫn hỗ trợ tiêu đề mô tả dài có chứa đầy đủ Tên học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['STT', 'Thông tin - Tên học sinh (bắt buộc)', 'Username'],
+      [1, 'Nguyễn An', 'nguyen-an'],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'long-headers.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].displayName).toBe('Nguyễn An')
+    expect(parsed.rows[0].username).toBe('nguyen-an')
+  })
+
   it('từ chối file không có cột tên', async () => {
     const buffer = buildWorkbookBuffer([
       ['STT', 'Ghi chú'],
