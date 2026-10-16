@@ -128,7 +128,9 @@ function findParentEmailColumn(headers: string[]) {
   const safeHeaders = headers.map((header) => {
     const isEmail = /\b(e ?mail|mail)\b/.test(header)
     const isStudent = /\b(hoc sinh|student|pupil|child|tre em)\b/.test(header)
-    return isEmail && isStudent ? '' : header
+    // "Tên phụ huynh" and generic guardian details are not parent emails.
+    // Require an actual email column, and exclude student mail fields.
+    return isEmail && !isStudent ? header : ''
   })
   return findColumn(safeHeaders, PARENT_EMAIL_KEYS)
 }
