@@ -63,7 +63,10 @@ function foldKey(header: string) {
 
 function keyMatches(cellKey: string, candidate: string) {
   if (!cellKey || !candidate) return false
-  return cellKey === candidate || cellKey.includes(candidate) || candidate.includes(cellKey)
+  // Do not let a tiny column label ("A", "N", "E", etc.) become a
+  // false-positive for a longer key such as "name" or "email".
+  // Descriptive headers still match if they contain the full candidate.
+  return cellKey === candidate || cellKey.includes(candidate)
 }
 
 function findColumn(headers: string[], candidates: string[]) {
