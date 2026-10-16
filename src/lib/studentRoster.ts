@@ -174,14 +174,19 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
 
   dataRows.forEach((row, offset) => {
     const displayName = cellText(row, colName)
-    if (!displayName) return
     const rowNumber = headerIndex + offset + 2
     const baseUsername = hasExplicitUsername ? cellText(row, colUser) : ''
     const explicitPassword = cellText(row, colPass)
     const parentEmailRaw = cellText(row, colEmail)
+    // Keep genuinely blank spreadsheet rows out of the preview, but do not
+    // silently drop pupils with login details and no required name.
+    if (!displayName && !baseUsername && !explicitPassword && !parentEmailRaw) return
     const parentEmail = parentEmailRaw.toLowerCase()
 
     const issues: RosterIssue[] = []
+    if (!displayName) {
+      issues.push({ level: 'error', message: 'Thiếu tên học sinh.' })
+    }
     if (displayName.length > 120) {
       issues.push({ level: 'error', message: 'Tên vượt quá 120 ký tự.' })
     }
