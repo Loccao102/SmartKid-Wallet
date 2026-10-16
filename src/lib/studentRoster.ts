@@ -115,11 +115,21 @@ function findStudentNameColumn(headers: string[]) {
   return findColumn(nameHeaders, NAME_KEYS)
 }
 
+function findStudentUsernameColumn(headers: string[]) {
+  // Never repurpose a parent's or teacher's login as a child's account.
+  const accountHeaders = headers.map((header) =>
+    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien)\b/.test(header)
+      ? ''
+      : header
+  )
+  return findColumn(accountHeaders, USERNAME_KEYS)
+}
+
 function findStudentPasswordColumn(headers: string[]) {
   // Parent credentials may be present in school exports. They must never
   // become student passwords merely because the header says "mật khẩu".
   const passwordHeaders = headers.map((header) =>
-    /\b(parent|guardian|phu huynh)\b/.test(header) ? '' : header
+    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien)\b/.test(header) ? '' : header
   )
   return findColumn(passwordHeaders, PASSWORD_KEYS)
 }
@@ -127,10 +137,10 @@ function findStudentPasswordColumn(headers: string[]) {
 function findParentEmailColumn(headers: string[]) {
   const safeHeaders = headers.map((header) => {
     const isEmail = /\b(e ?mail|mail)\b/.test(header)
-    const isStudent = /\b(hoc sinh|student|pupil|child|tre em)\b/.test(header)
-    // "Tên phụ huynh" and generic guardian details are not parent emails.
-    // Require an actual email column, and exclude student mail fields.
-    return isEmail && !isStudent ? header : ''
+    const isOtherPerson = /\b(hoc sinh|student|pupil|child|tre em|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header)
+    // Teacher, school and student addresses must never be exported as
+    // a parent's contact email. A generic Email field stays supported.
+    return isEmail && !isOtherPerson ? header : ''
   })
   return findColumn(safeHeaders, PARENT_EMAIL_KEYS)
 }
@@ -181,7 +191,7 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
       headerIndex = i
       headers = row.map((cell) => foldKey(String(cell ?? '').trim()))
       colName = nameIdx
-      colUser = findColumn(headers, USERNAME_KEYS)
+      colUser = findStudentUsernameColumn(headers)
       colPass = findStudentPasswordColumn(headers)
       colEmail = findParentEmailColumn(headers)
       break
