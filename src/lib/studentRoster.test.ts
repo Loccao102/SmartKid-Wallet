@@ -30,6 +30,39 @@ describe('slugifyName / sanitizeUsername', () => {
 })
 
 describe('parseStudentRosterFile (Excel)', () => {
+  it('tìm sheet danh sách lớp sau sheet bìa và hướng dẫn', async () => {
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(
+      workbook, XLSX.utils.aoa_to_sheet([['HƯỚNG DẪN NHẬP DANH SÁCH'], ['Bước 1: nhập vào sheet sau']]), 'Huong dan'
+    )
+    XLSX.utils.book_append_sheet(
+      workbook, XLSX.utils.aoa_to_sheet([
+        ['Tên học sinh', 'Username'],
+        ['Nguyễn An', 'nguyen-an'],
+        [], ['Trần Bình', 'tran-binh'],
+      ]), 'Lop 3A'
+    )
+    const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
+    const parsed = await parseStudentRosterFile(buffer, 'multi-sheet.xlsx')
+    expect(parsed.sheetName).toBe('Lop 3A')
+    expect(parsed.rows.map((row) => row.rowNumber)).toEqual([2, 4])
+    expect(parsed.rows.map((row) => row.username)).toEqual(['nguyen-an', 'tran-binh'])
+  })
+
+  it('giữ lỗi thiếu cột tên khi không sheet nào chứa danh sách học sinh', async () => {
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([
+      ['Thông tin trường'], ['Trường QA'],
+    ]), 'Bia'
+    )
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([
+      ['Username giáo viên', 'Mật khẩu nhà trường'], ['teacher-one', 'TeacherPass123'],
+    ]), 'Tai khoan'
+    )
+    const buffer = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
+    await expect(parseStudentRosterFile(buffer, 'no-roster-sheet.xlsx')).rejects.toThrow(/Tên học sinh/)
+  })
+
   it('đọc file xlsx có tiêu đề tiếng Việt, tự sinh username và mật khẩu', async () => {
     const buffer = buildWorkbookBuffer([
       ['Bảng danh sách lớp 3A'],
