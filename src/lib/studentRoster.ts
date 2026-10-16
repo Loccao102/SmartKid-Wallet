@@ -108,7 +108,7 @@ function findStudentNameColumn(headers: string[]) {
   // Generic "name" is a supported student-name header, but it is also a
   // substring of Username and parent-name columns. Those are not pupil names.
   const nameHeaders = headers.map((header) =>
-    /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh)\b/.test(header)
+    /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header)
       ? ''
       : header
   )
@@ -118,7 +118,7 @@ function findStudentNameColumn(headers: string[]) {
 function findStudentUsernameColumn(headers: string[]) {
   // Never repurpose a parent's or teacher's login as a child's account.
   const accountHeaders = headers.map((header) =>
-    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien)\b/.test(header)
+    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header)
       ? ''
       : header
   )
@@ -129,7 +129,7 @@ function findStudentPasswordColumn(headers: string[]) {
   // Parent credentials may be present in school exports. They must never
   // become student passwords merely because the header says "mật khẩu".
   const passwordHeaders = headers.map((header) =>
-    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien)\b/.test(header) ? '' : header
+    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header) ? '' : header
   )
   return findColumn(passwordHeaders, PASSWORD_KEYS)
 }
