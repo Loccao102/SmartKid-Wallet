@@ -30,6 +30,24 @@ describe('slugifyName / sanitizeUsername', () => {
 })
 
 describe('parseStudentRosterFile (Excel)', () => {
+  it('ưu tiên hàng header thật khi sheet có hướng dẫn nhắc tới Tên học sinh', async () => {
+    const buffer = buildWorkbookBuffer([
+      ['Hướng dẫn điền Tên học sinh'],
+      ['Vui lòng điền theo các cột bên dưới'],
+      [],
+      ['STT', 'Tên học sinh', 'Username', 'Mật khẩu tạm', 'Email phụ huynh'],
+      [1, 'Nguyễn An', 'nguyen-an', 'MatKhau123', 'parent@example.com'],
+      [2, 'Trần Bình', 'tran-binh', 'OtherPass456', ''],
+    ])
+    const parsed = await parseStudentRosterFile(buffer, 'instructions-and-roster.xlsx')
+    expect(parsed.rows).toHaveLength(2)
+    expect(parsed.rows.map((student) => student.rowNumber)).toEqual([5, 6])
+    expect(parsed.rows.map((student) => student.displayName)).toEqual(['Nguyễn An', 'Trần Bình'])
+    expect(parsed.rows.map((student) => student.username)).toEqual(['nguyen-an', 'tran-binh'])
+    expect(parsed.rows.map((student) => student.password)).toEqual(['MatKhau123', 'OtherPass456'])
+    expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
+  })
+
   it('ưu tiên bảng học sinh thực khi sheet hướng dẫn cũng nhắc tới Tên học sinh', async () => {
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([
