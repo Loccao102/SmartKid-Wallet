@@ -107,13 +107,15 @@ export function sanitizeUsername(value: string) {
 // A school roster may include a *student* email column. Never infer that
 // such an address belongs to a parent just because its header contains "email".
 function findStudentNameColumn(headers: string[]) {
-  // Generic "name" is a supported student-name header, but it is also a
-  // substring of Username and parent-name columns. Those are not pupil names.
-  const nameHeaders = headers.map((header) =>
-    /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header)
-      ? ''
-      : header
-  )
+  // Generic "tên"/"name" is supported, but school/class/subject labels
+  // are not student names. This matters for class-register exports where
+  // "Tên trường" or "Tên lớp" appears before the real pupil-name column.
+  const nameHeaders = headers.map((header) => {
+    const explicitPupilName = /\b(ten hoc sinh|ho ten hoc sinh|student name|pupil name)\b/.test(header)
+    const otherPerson = /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|hieu truong|nguoi giam ho)\b/.test(header)
+    const nonPersonName = /\b(school|nha truong|ten truong|truong hoc|ten lop|lop hoc|classroom|class name|homeroom|ten mon hoc|subject name|ten co so|co so|ten don vi)\b/.test(header)
+    return (otherPerson || (nonPersonName && !explicitPupilName)) ? '' : header
+  })
   return findColumn(nameHeaders, NAME_KEYS)
 }
 
