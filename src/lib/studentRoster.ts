@@ -54,7 +54,9 @@ const PASSWORD_KEYS = ['mật khẩu tạm', 'mat khau tam', 'mật khẩu', 'ma
 const PARENT_EMAIL_KEYS = ['email phụ huynh', 'email phu huynh', 'phụ huynh', 'phu huynh', 'parent email', 'email']
 
 function stripDiacritics(value: string) {
-  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  // Unicode NFD leaves Vietnamese Đ/đ intact; fold those explicitly so
+  // "Đăng nhập" is recognized as the same field as "dang nhap".
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd')
 }
 
 function foldKey(header: string) {
@@ -149,6 +151,24 @@ function findParentEmailColumn(headers: string[]) {
   return findColumn(safeHeaders, PARENT_EMAIL_KEYS)
 }
 
+function detectRosterColumns(headers: string[]) {
+  const name = findStudentNameColumn(headers)
+  const seen = new Set<number>(name >= 0 ? [name] : [])
+  // Instruction cells can mention multiple column labels in one cell.
+  // They must not count as multiple independent spreadsheet columns.
+  const distinct = (column: number) => {
+    if (column < 0 || seen.has(column)) return -1
+    seen.add(column)
+    return column
+  }
+  return {
+    name,
+    username: distinct(findStudentUsernameColumn(headers)),
+    password: distinct(findStudentPasswordColumn(headers)),
+    parentEmail: distinct(findParentEmailColumn(headers)),
+  }
+}
+
 function cellText(row: unknown[] | undefined, index: number) {
   if (index < 0 || !row) return ''
   const cell = row[index]
@@ -190,11 +210,12 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
     // that merely mentions the required student-name field.
     const score = candidateRows.slice(0, 10).reduce((best, row) => {
       const header = row.map((cell) => foldKey(String(cell ?? '').trim()))
-      if (findStudentNameColumn(header) < 0) return best
+      const columns = detectRosterColumns(header)
+      if (columns.name < 0) return best
       return Math.max(best, 1 +
-        Number(findStudentUsernameColumn(header) >= 0) +
-        Number(findStudentPasswordColumn(header) >= 0) +
-        Number(findParentEmailColumn(header) >= 0))
+        Number(columns.username >= 0) +
+        Number(columns.password >= 0) +
+        Number(columns.parentEmail >= 0))
     }, 0)
     if (score > bestHeaderScore) {
       bestHeaderScore = score
@@ -220,21 +241,18 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
     // Preserve physical column positions: dropping empty header cells shifts
     // the detected name index and reads the wrong data from student rows.
     const cells = row.map((cell) => foldKey(String(cell ?? '').trim()))
-    const nameIdx = findStudentNameColumn(cells)
-    if (nameIdx >= 0) {
-      const candidateUser = findStudentUsernameColumn(cells)
-      const candidatePass = findStudentPasswordColumn(cells)
-      const candidateEmail = findParentEmailColumn(cells)
-      const score = 1 + Number(candidateUser >= 0) +
-        Number(candidatePass >= 0) + Number(candidateEmail >= 0)
+    const columns = detectRosterColumns(cells)
+    if (columns.name >= 0) {
+      const score = 1 + Number(columns.username >= 0) +
+        Number(columns.password >= 0) + Number(columns.parentEmail >= 0)
       if (score <= bestRowScore) continue
       bestRowScore = score
       headerIndex = i
       headers = cells
-      colName = nameIdx
-      colUser = candidateUser
-      colPass = candidatePass
-      colEmail = candidateEmail
+      colName = columns.name
+      colUser = columns.username
+      colPass = columns.password
+      colEmail = columns.parentEmail
     }
   }
   if (headerIndex < 0) {
