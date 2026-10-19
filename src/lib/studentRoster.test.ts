@@ -30,6 +30,32 @@ describe('slugifyName / sanitizeUsername', () => {
 })
 
 describe('parseStudentRosterFile (Excel)', () => {
+  it('nhận cột Đăng nhập có chữ Đ tiếng Việt và giữ nguyên username', async () => {
+    const file = buildWorkbookBuffer([
+      ['Tên học sinh', 'Đăng nhập', 'Mật khẩu tạm'],
+      ['Nguyễn Thị Hoa', 'student.custom', 'ManualPass123'],
+    ])
+    const parsed = await parseStudentRosterFile(file, 'dang-nhap.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].username).toBe('student.custom')
+    expect(parsed.rows[0].password).toBe('ManualPass123')
+    expect(parsed.warnings.some((message) => message.includes('không có cột Username'))).toBe(false)
+  })
+
+  it('không xem một ô chứa cả nhãn tên và email là hai cột riêng biệt', async () => {
+    const file = buildWorkbookBuffer([
+      ['Tên học sinh (Email)'],
+      ['Ghi chú dùng Tên học sinh và Email'],
+      ['Tên học sinh', 'Email phụ huynh'],
+      ['Trần Bình', 'parent@example.com'],
+    ])
+    const parsed = await parseStudentRosterFile(file, 'instruction-single-cell.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].rowNumber).toBe(4)
+    expect(parsed.rows[0].displayName).toBe('Trần Bình')
+    expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
+  })
+
   it('không lấy Tên trường hay Tên lớp làm tên học sinh', async () => {
     const file = buildWorkbookBuffer([
       ['Tên trường', 'Tên lớp', 'Username học sinh', 'Mật khẩu tạm'],
