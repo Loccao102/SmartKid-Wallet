@@ -207,8 +207,11 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   let colUser = -1
   let colPass = -1
   let colEmail = -1
+  let bestRowScore = 0
 
   // Tìm dòng tiêu đề trong 10 dòng đầu (file thực tế hay có dòng tựa ở trên).
+  // A title/instruction row can mention "Tên học sinh" before the actual
+  // multi-column roster header. Prefer the most complete matching row.
   const scanLimit = Math.min(matrix.length, 10)
   for (let i = 0; i < scanLimit; i += 1) {
     const row = matrix[i] ?? []
@@ -217,13 +220,19 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
     const cells = row.map((cell) => foldKey(String(cell ?? '').trim()))
     const nameIdx = findStudentNameColumn(cells)
     if (nameIdx >= 0) {
+      const candidateUser = findStudentUsernameColumn(cells)
+      const candidatePass = findStudentPasswordColumn(cells)
+      const candidateEmail = findParentEmailColumn(cells)
+      const score = 1 + Number(candidateUser >= 0) +
+        Number(candidatePass >= 0) + Number(candidateEmail >= 0)
+      if (score <= bestRowScore) continue
+      bestRowScore = score
       headerIndex = i
-      headers = row.map((cell) => foldKey(String(cell ?? '').trim()))
+      headers = cells
       colName = nameIdx
-      colUser = findStudentUsernameColumn(headers)
-      colPass = findStudentPasswordColumn(headers)
-      colEmail = findParentEmailColumn(headers)
-      break
+      colUser = candidateUser
+      colPass = candidatePass
+      colEmail = candidateEmail
     }
   }
   if (headerIndex < 0) {
