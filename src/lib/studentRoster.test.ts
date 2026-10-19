@@ -30,6 +30,35 @@ describe('slugifyName / sanitizeUsername', () => {
 })
 
 describe('parseStudentRosterFile (Excel)', () => {
+  it('không lấy Tên trường hay Tên lớp làm tên học sinh', async () => {
+    const file = buildWorkbookBuffer([
+      ['Tên trường', 'Tên lớp', 'Username học sinh', 'Mật khẩu tạm'],
+      ['Trường Tiểu học A', 'Lớp 4B', 'pupil-a', 'TempPass123'],
+    ])
+    await expect(parseStudentRosterFile(file, 'school-class-only.xlsx'))
+      .rejects.toThrow(/Tên học sinh/)
+  })
+
+  it('chọn đúng Họ tên học sinh khi file có cả Tên trường và Tên lớp', async () => {
+    const file = buildWorkbookBuffer([
+      ['Tên trường', 'Tên lớp', 'Họ tên học sinh', 'Username'],
+      ['Tiểu học A', '4B', 'Nguyễn Thị Hoa', 'nguyen-hoa'],
+    ])
+    const parsed = await parseStudentRosterFile(file, 'school-and-students.xlsx')
+    expect(parsed.rows).toHaveLength(1)
+    expect(parsed.rows[0].displayName).toBe('Nguyễn Thị Hoa')
+    expect(parsed.rows[0].username).toBe('nguyen-hoa')
+  })
+
+  it('giữ header mô tả có cả Tên học sinh và Lớp', async () => {
+    const file = buildWorkbookBuffer([
+      ['Thông tin - Tên học sinh (Lớp 4B)', 'Username'],
+      ['Trần Bình', 'tran-binh'],
+    ])
+    const parsed = await parseStudentRosterFile(file, 'students-with-class-context.xlsx')
+    expect(parsed.rows[0].displayName).toBe('Trần Bình')
+  })
+
   it('ưu tiên hàng header thật khi sheet có hướng dẫn nhắc tới Tên học sinh', async () => {
     const buffer = buildWorkbookBuffer([
       ['Hướng dẫn điền Tên học sinh'],
