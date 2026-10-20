@@ -115,7 +115,7 @@ function findStudentNameColumn(headers: string[]) {
   const nameHeaders = headers.map((header) => {
     const explicitPupilName = /\b(ten hoc sinh|ho ten hoc sinh|student name|pupil name)\b/.test(header)
     const otherPerson = /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|hieu truong|nguoi giam ho)\b/.test(header)
-    const nonPersonName = /\b(school|nha truong|ten truong|truong hoc|ten lop|lop hoc|classroom|class name|homeroom|ten mon hoc|subject name|ten co so|co so|ten don vi)\b/.test(header)
+    const nonPersonName = /\b(school|nha truong|ten truong|truong hoc|ten lop|lop hoc|classroom|class name|homeroom|ten khoi|grade name|ten khoa|department name|ten phong|room name|ten mon hoc|ten mon|subject name|course name|ten co so|co so|ten don vi)\b/.test(header)
     return (otherPerson || (nonPersonName && !explicitPupilName)) ? '' : header
   })
   return findColumn(nameHeaders, NAME_KEYS)
