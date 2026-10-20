@@ -55,6 +55,24 @@ describe('createStudentsFromRoster fail-closed validation', () => {
     expect(progress).toEqual([1, 2, 3])
   })
 
+  it('chặn mật khẩu chỉ có khoảng trắng sau khi giáo viên sửa preview', async () => {
+    const result = await createStudentsFromRoster({
+      classroomId: 'test-class',
+      rows: [
+        row(2, 'student-blank', '        '),
+        row(3, 'student-valid', 'ValidPass123'),
+      ],
+    })
+    expect(result.failed).toHaveLength(1)
+    expect(result.failed[0].rowNumber).toBe(2)
+    expect(result.failed[0].reason).toContain('khoảng trắng')
+    expect(result.created.map((item) => item.username)).toEqual(['student-valid'])
+    expect(mocks.createStudentAccount).toHaveBeenCalledTimes(1)
+    expect(mocks.createStudentAccount).toHaveBeenCalledWith(
+      expect.objectContaining({ username: 'student-valid', password: 'ValidPass123' }),
+    )
+  })
+
   it('ngăn trùng username và password ngay cả khi UI bỏ qua kiểm tra parser', async () => {
     const result = await createStudentsFromRoster({
       classroomId: 'test-class',
