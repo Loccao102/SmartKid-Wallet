@@ -56,6 +56,27 @@ describe('parseStudentRosterFile (Excel)', () => {
     expect(parsed.rows[0].parentEmail).toBe('parent@example.com')
   })
 
+  it('không lấy tên khối, khoa hoặc phòng làm tên học sinh', async () => {
+    for (const header of ['Tên khối', 'Tên khoa', 'Tên phòng', 'Grade name', 'Department name', 'Course name']) {
+      const file = buildWorkbookBuffer([
+        [header, 'Username học sinh'],
+        ['Khối 5', 'student-a'],
+      ])
+      await expect(parseStudentRosterFile(file, 'metadata-only.xlsx'))
+        .rejects.toThrow(/Tên học sinh/)
+    }
+  })
+
+  it('vẫn nhận tên học sinh khi tiêu đề có thêm ngữ cảnh khối lớp', async () => {
+    const file = buildWorkbookBuffer([
+      ['Tên khối', 'Họ tên học sinh (khối 5)', 'Đăng nhập'],
+      ['Khối 5', 'Nguyễn Văn An', 'an-05'],
+    ])
+    const result = await parseStudentRosterFile(file, 'grade-and-pupils.xlsx')
+    expect(result.rows.map((student) => student.displayName)).toEqual(['Nguyễn Văn An'])
+    expect(result.rows[0].username).toBe('an-05')
+  })
+
   it('không lấy Tên trường hay Tên lớp làm tên học sinh', async () => {
     const file = buildWorkbookBuffer([
       ['Tên trường', 'Tên lớp', 'Username học sinh', 'Mật khẩu tạm'],
