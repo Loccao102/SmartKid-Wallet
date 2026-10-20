@@ -403,8 +403,10 @@ export async function createStudentsFromRoster(
     if (!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(row.username)) {
       validationErrors.push('Username không hợp lệ.')
     }
-    if (row.password.length < 8) {
-      validationErrors.push('Mật khẩu tạm cần ít nhất 8 ký tự.')
+    // A teacher can edit the preview after parsing. Revalidate the final
+    // credentials here so eight spaces cannot be sent to the auth backend.
+    if (row.password.length < 8 || !row.password.trim()) {
+      validationErrors.push('Mật khẩu tạm cần ít nhất 8 ký tự và không được chỉ có khoảng trắng.')
     }
     if (seenUsernames.has(row.username)) {
       validationErrors.push('Username bị trùng trong danh sách.')
