@@ -54,7 +54,9 @@ const PASSWORD_KEYS = ['mật khẩu tạm', 'mat khau tam', 'mật khẩu', 'ma
 const PARENT_EMAIL_KEYS = ['email phụ huynh', 'email phu huynh', 'phụ huynh', 'phu huynh', 'parent email', 'email']
 
 function stripDiacritics(value: string) {
-  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  // Unicode NFD leaves Vietnamese Đ/đ intact; fold those explicitly so
+  // "Đăng nhập" is recognized as the same field as "dang nhap".
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd')
 }
 
 function foldKey(header: string) {
@@ -63,7 +65,12 @@ function foldKey(header: string) {
 
 function keyMatches(cellKey: string, candidate: string) {
   if (!cellKey || !candidate) return false
-  return cellKey === candidate || cellKey.includes(candidate) || candidate.includes(cellKey)
+  // Only complete words/phrases match: "Nickname" is not "name",
+  // "Remark" is not "mk", and "student username" is not "name".
+  // Normalize punctuation to word separators so descriptive headers
+  // like "Thông tin - Tên học sinh (bắt buộc)" still match.
+  const words = cellKey.split(/[^a-z0-9]+/).filter(Boolean).join(' ')
+  return (` ${words} `).includes(` ${candidate} `)
 }
 
 function findColumn(headers: string[], candidates: string[]) {
@@ -99,6 +106,69 @@ export function sanitizeUsername(value: string) {
     .slice(0, 32)
 }
 
+// A school roster may include a *student* email column. Never infer that
+// such an address belongs to a parent just because its header contains "email".
+function findStudentNameColumn(headers: string[]) {
+  // Generic "tên"/"name" is supported, but school/class/subject labels
+  // are not student names. This matters for class-register exports where
+  // "Tên trường" or "Tên lớp" appears before the real pupil-name column.
+  const nameHeaders = headers.map((header) => {
+    const explicitPupilName = /\b(ten hoc sinh|ho ten hoc sinh|student name|pupil name)\b/.test(header)
+    const otherPerson = /\b(user ?name|account|login|tai khoan|dang nhap|parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|hieu truong|nguoi giam ho)\b/.test(header)
+    const nonPersonName = /\b(school|nha truong|ten truong|truong hoc|ten lop|lop hoc|classroom|class name|homeroom|ten khoi|grade name|ten khoa|department name|ten phong|room name|ten mon hoc|ten mon|subject name|course name|ten co so|co so|ten don vi)\b/.test(header)
+    return (otherPerson || (nonPersonName && !explicitPupilName)) ? '' : header
+  })
+  return findColumn(nameHeaders, NAME_KEYS)
+}
+
+function findStudentUsernameColumn(headers: string[]) {
+  // Never repurpose a parent's or teacher's login as a child's account.
+  const accountHeaders = headers.map((header) =>
+    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header)
+      ? ''
+      : header
+  )
+  return findColumn(accountHeaders, USERNAME_KEYS)
+}
+
+function findStudentPasswordColumn(headers: string[]) {
+  // Parent credentials may be present in school exports. They must never
+  // become student passwords merely because the header says "mật khẩu".
+  const passwordHeaders = headers.map((header) =>
+    /\b(parent|guardian|phu huynh|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header) ? '' : header
+  )
+  return findColumn(passwordHeaders, PASSWORD_KEYS)
+}
+
+function findParentEmailColumn(headers: string[]) {
+  const safeHeaders = headers.map((header) => {
+    const isEmail = /\b(e ?mail|mail)\b/.test(header)
+    const isOtherPerson = /\b(hoc sinh|student|pupil|child|tre em|teacher|giao vien|staff|nhan vien|school|nha truong)\b/.test(header)
+    // Teacher, school and student addresses must never be exported as
+    // a parent's contact email. A generic Email field stays supported.
+    return isEmail && !isOtherPerson ? header : ''
+  })
+  return findColumn(safeHeaders, PARENT_EMAIL_KEYS)
+}
+
+function detectRosterColumns(headers: string[]) {
+  const name = findStudentNameColumn(headers)
+  const seen = new Set<number>(name >= 0 ? [name] : [])
+  // Instruction cells can mention multiple column labels in one cell.
+  // They must not count as multiple independent spreadsheet columns.
+  const distinct = (column: number) => {
+    if (column < 0 || seen.has(column)) return -1
+    seen.add(column)
+    return column
+  }
+  return {
+    name,
+    username: distinct(findStudentUsernameColumn(headers)),
+    password: distinct(findStudentPasswordColumn(headers)),
+    parentEmail: distinct(findParentEmailColumn(headers)),
+  }
+}
+
 function cellText(row: unknown[] | undefined, index: number) {
   if (index < 0 || !row) return ''
   const cell = row[index]
@@ -116,15 +186,43 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   const workbook = isCsv
     ? XLSX.read(new TextDecoder().decode(new Uint8Array(data)), { type: 'string', codepage: 65001 })
     : XLSX.read(data, { type: 'array' })
-  const sheetName = workbook.SheetNames[0] ?? ''
-  if (!sheetName) throw new Error('File không có sheet nào.')
-  const sheet = workbook.Sheets[sheetName]
-  const matrix = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
-    header: 1,
-    blankrows: false,
-    defval: '',
-    raw: false,
-  })
+  if (workbook.SheetNames.length === 0) throw new Error('File không có sheet nào.')
+
+  const readSheet = (name: string) =>
+    XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[name], {
+      header: 1,
+      // Keep physical row numbers aligned with the original workbook.
+      blankrows: true,
+      defval: '',
+      raw: false,
+    })
+
+  // School files may start with instructions/cover pages. Choose the first
+  // worksheet that contains a recognizable student-name header, rather than
+  // reporting a false missing-header error on a cover sheet.
+  let sheetName = workbook.SheetNames[0]
+  let matrix = readSheet(sheetName)
+  let bestHeaderScore = 0
+  for (const candidate of workbook.SheetNames) {
+    const candidateRows = candidate === sheetName ? matrix : readSheet(candidate)
+    // Instructions sometimes mention "Tên học sinh". Prefer a worksheet
+    // whose header also has real login/contact fields over a cover page
+    // that merely mentions the required student-name field.
+    const score = candidateRows.slice(0, 10).reduce((best, row) => {
+      const header = row.map((cell) => foldKey(String(cell ?? '').trim()))
+      const columns = detectRosterColumns(header)
+      if (columns.name < 0) return best
+      return Math.max(best, 1 +
+        Number(columns.username >= 0) +
+        Number(columns.password >= 0) +
+        Number(columns.parentEmail >= 0))
+    }, 0)
+    if (score > bestHeaderScore) {
+      bestHeaderScore = score
+      sheetName = candidate
+      matrix = candidateRows
+    }
+  }
 
   let headerIndex = -1
   let headers: string[] = []
@@ -132,21 +230,29 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   let colUser = -1
   let colPass = -1
   let colEmail = -1
+  let bestRowScore = 0
 
   // Tìm dòng tiêu đề trong 10 dòng đầu (file thực tế hay có dòng tựa ở trên).
+  // A title/instruction row can mention "Tên học sinh" before the actual
+  // multi-column roster header. Prefer the most complete matching row.
   const scanLimit = Math.min(matrix.length, 10)
   for (let i = 0; i < scanLimit; i += 1) {
     const row = matrix[i] ?? []
-    const cells = row.map((cell) => foldKey(String(cell ?? '').trim())).filter(Boolean)
-    const nameIdx = findColumn(cells, NAME_KEYS)
-    if (nameIdx >= 0) {
+    // Preserve physical column positions: dropping empty header cells shifts
+    // the detected name index and reads the wrong data from student rows.
+    const cells = row.map((cell) => foldKey(String(cell ?? '').trim()))
+    const columns = detectRosterColumns(cells)
+    if (columns.name >= 0) {
+      const score = 1 + Number(columns.username >= 0) +
+        Number(columns.password >= 0) + Number(columns.parentEmail >= 0)
+      if (score <= bestRowScore) continue
+      bestRowScore = score
       headerIndex = i
-      headers = row.map((cell) => foldKey(String(cell ?? '').trim()))
-      colName = nameIdx
-      colUser = findColumn(headers, USERNAME_KEYS)
-      colPass = findColumn(headers, PASSWORD_KEYS)
-      colEmail = findColumn(headers, PARENT_EMAIL_KEYS)
-      break
+      headers = cells
+      colName = columns.name
+      colUser = columns.username
+      colPass = columns.password
+      colEmail = columns.parentEmail
     }
   }
   if (headerIndex < 0) {
@@ -156,6 +262,8 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
   const dataRows = matrix.slice(headerIndex + 1)
   const hasExplicitUsername = colUser >= 0
   const usedPasswords = new Set<string>()
+  const explicitPasswordRows = new Set<number>()
+  const explicitPasswordCounts = new Map<string, number>()
   const rows: ParsedStudentRow[] = []
   const usernameCount = new Map<string, number>()
 
@@ -170,14 +278,19 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
 
   dataRows.forEach((row, offset) => {
     const displayName = cellText(row, colName)
-    if (!displayName) return
     const rowNumber = headerIndex + offset + 2
     const baseUsername = hasExplicitUsername ? cellText(row, colUser) : ''
     const explicitPassword = cellText(row, colPass)
     const parentEmailRaw = cellText(row, colEmail)
+    // Keep genuinely blank spreadsheet rows out of the preview, but do not
+    // silently drop pupils with login details and no required name.
+    if (!displayName && !baseUsername && !explicitPassword && !parentEmailRaw) return
     const parentEmail = parentEmailRaw.toLowerCase()
 
     const issues: RosterIssue[] = []
+    if (!displayName) {
+      issues.push({ level: 'error', message: 'Thiếu tên học sinh.' })
+    }
     if (displayName.length > 120) {
       issues.push({ level: 'error', message: 'Tên vượt quá 120 ký tự.' })
     }
@@ -210,32 +323,46 @@ export async function parseStudentRosterFile(data: ArrayBuffer, fileName: string
       parentEmail: parentEmail && isValidEmail(parentEmail) ? parentEmail : '',
       issues,
     })
-    if (explicitPassword) usedPasswords.add(explicitPassword)
+    if (explicitPassword) {
+      explicitPasswordRows.add(rowNumber)
+      usedPasswords.add(explicitPassword)
+      explicitPasswordCounts.set(explicitPassword, (explicitPasswordCounts.get(explicitPassword) ?? 0) + 1)
+    }
   })
 
-  // Đảm bảo username duy nhất trong file (thêm số thứ tự cho các bản lặp lại,
-  // giữ nguyên tên lần xuất hiện đầu tiên).
+  // Keep the first occurrence, then reserve space for the numeric suffix.
+  // Without this, a 32-character username gets truncated back to the same
+  // value after appending "-2", causing an unbounded collision loop.
   const seen = new Map<string, number>()
   rows.forEach((row) => {
     if (!row.username) return
-    const count = usernameCount.get(row.username) ?? 1
-    if (count <= 1) return
-    const occurrence = (seen.get(row.username) ?? 0) + 1
-    seen.set(row.username, occurrence)
-    if (occurrence === 1) return
-    let candidate = sanitizeUsername(row.username + '-' + occurrence).slice(0, 32)
-    while (usernameCount.has(candidate)) {
-      const next = (seen.get(candidate) ?? 0) + 1
-      seen.set(candidate, next)
-      candidate = sanitizeUsername(row.username + '-' + occurrence + '.' + next).slice(0, 32)
-    }
+    const base = row.username
+    const occurrence = (seen.get(base) ?? 0) + 1
+    seen.set(base, occurrence)
+    if (occurrence === 1 || (usernameCount.get(base) ?? 1) <= 1) return
+
+    let suffixNumber = occurrence
+    let candidate = ''
+    do {
+      const suffix = '-' + suffixNumber
+      candidate = sanitizeUsername(base.slice(0, 32 - suffix.length) + suffix)
+      suffixNumber += 1
+    } while (usernameCount.has(candidate))
+
     usernameCount.set(candidate, 1)
     row.username = candidate
     row.issues.push({ level: 'warning', message: `Trùng username trong file, đã đổi thành "${candidate}".` })
   })
 
-  // Đảm bảo mật khẩu tự sinh là duy nhất trong lô này.
+  // Giữ nguyên mật khẩu nhập tay; báo lỗi nếu nhiều học sinh dùng chung một mật khẩu.
+  // Chỉ sinh lại mật khẩu tự động khi trùng với một mật khẩu đã được dành trước.
   rows.forEach((row) => {
+    if (explicitPasswordRows.has(row.rowNumber)) {
+      if ((explicitPasswordCounts.get(row.password) ?? 0) > 1) {
+        row.issues.push({ level: 'error', message: 'Mật khẩu tạm bị trùng giữa các học sinh, hãy dùng mật khẩu riêng.' })
+      }
+      return
+    }
     while (usedPasswords.has(row.password)) row.password = generateTempPassword()
     usedPasswords.add(row.password)
   })
@@ -262,9 +389,45 @@ export async function createStudentsFromRoster(
   const created: RosterCreatedAccount[] = []
   const failed: RosterFailedRow[] = []
   let parentCodesGenerated = 0
+  const seenUsernames = new Set<string>()
+  const seenPasswords = new Set<string>()
 
   for (let index = 0; index < input.rows.length; index += 1) {
     const row = input.rows[index]
+    const validationErrors = row.issues
+      .filter((issue) => issue.level === 'error')
+      .map((issue) => issue.message)
+    if (!row.displayName.trim() || row.displayName.length > 120) {
+      validationErrors.push('Tên học sinh không hợp lệ.')
+    }
+    if (!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(row.username)) {
+      validationErrors.push('Username không hợp lệ.')
+    }
+    // A teacher can edit the preview after parsing. Revalidate the final
+    // credentials here so eight spaces cannot be sent to the auth backend.
+    if (row.password.length < 8 || !row.password.trim()) {
+      validationErrors.push('Mật khẩu tạm cần ít nhất 8 ký tự và không được chỉ có khoảng trắng.')
+    }
+    if (seenUsernames.has(row.username)) {
+      validationErrors.push('Username bị trùng trong danh sách.')
+    }
+    if (seenPasswords.has(row.password)) {
+      validationErrors.push('Mật khẩu tạm bị trùng trong danh sách.')
+    }
+    if (validationErrors.length > 0) {
+      failed.push({
+        rowNumber: row.rowNumber,
+        displayName: row.displayName,
+        username: row.username,
+        reason: [...new Set(validationErrors)].join(' '),
+      })
+      onProgress?.(index + 1, input.rows.length)
+      continue
+    }
+    // Reserve identifiers before calling the server, even if that call fails.
+    // A later row must not retry the same credentials after an ambiguous error.
+    seenUsernames.add(row.username)
+    seenPasswords.add(row.password)
     try {
       const result = await createStudentAccount({
         classroomId: input.classroomId,
@@ -275,9 +438,17 @@ export async function createStudentsFromRoster(
       // Edge function teacher-student-admin trả về { student: { authUserId, studentCode, ... } }
       const payload = result as { student?: Record<string, unknown> } | null
       const student = payload?.student ?? null
-      const authUserId = String(
-        student?.authUserId ?? (payload as Record<string, unknown> | null)?.authUserId ?? '',
-      )
+      const rawAuthUserId =
+        student?.authUserId ?? (payload as Record<string, unknown> | null)?.authUserId
+      // Do not turn numbers or objects into bogus IDs like "42" or
+      // "[object Object]" when an upstream edge response is malformed.
+      const authUserId = typeof rawAuthUserId === 'string' ? rawAuthUserId.trim() : ''
+      // HTTP success without a usable ID is not proof of account creation.
+      // Treat it as uncertain so the teacher checks the existing roster
+      // instead of exporting a credential for an unverified student.
+      if (!authUserId) {
+        throw new Error('Chưa xác nhận được mã tài khoản từ máy chủ. Hãy kiểm tra danh sách học sinh trước khi thử lại.')
+      }
 
       if (input.linkParents && row.parentEmail && authUserId) {
         try {
@@ -318,24 +489,32 @@ export function generateTempPassword() {
   return 'Sk!' + Array.from(bytes, (value) => chars[value % chars.length]).join('')
 }
 
+// Escaping quotes alone does NOT prevent spreadsheet formula evaluation.
+// Treat the exported roster as untrusted: a student's name (or an imported
+// credential) may start with a formula trigger, even after whitespace.
+function escapeRosterCsvCell(value: string) {
+  const safeValue = /^[\s\u0000-\u001f]*[=+\-@]/u.test(value) ? "'" + value : value
+  return '"' + safeValue.replace(/"/g, '""') + '"'
+}
+
 export function rosterRowsToCsv(rows: ParsedStudentRow[]) {
-  const escapeCell = (value: string) => '"' + value.replace(/"/g, '""') + '"'
+
   const lines = [
     'Tên học sinh,Username,Mật khẩu tạm,Email phụ huynh',
     ...rows.map((row) =>
-      [row.displayName, row.username, row.password, row.parentEmail].map(escapeCell).join(','),
+      [row.displayName, row.username, row.password, row.parentEmail].map(escapeRosterCsvCell).join(','),
     ),
   ]
   return '\ufeff' + lines.join('\r\n')
 }
 
 export function createdAccountsToCsv(created: RosterCreatedAccount[]) {
-  const escapeCell = (value: string) => '"' + value.replace(/"/g, '""') + '"'
+
   const lines = [
     'Tên học sinh,Username,Mật khẩu tạm,Email phụ huynh',
     ...created.map((account) =>
       [account.displayName, account.username, account.password, account.parentEmail]
-        .map(escapeCell)
+        .map(escapeRosterCsvCell)
         .join(','),
     ),
   ]
