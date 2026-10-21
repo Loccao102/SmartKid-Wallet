@@ -102,6 +102,34 @@ describe('createStudentsFromRoster fail-closed validation', () => {
     expect(mocks.createStudentAccount).toHaveBeenCalledTimes(1)
   })
 
+  it('không báo đã tạo khi auth ID có kiểu dữ liệu không hợp lệ', async () => {
+    for (const invalidId of [42, { id: 'nested-id' }, ['fake-id'], true, '   ']) {
+      vi.clearAllMocks()
+      mocks.createStudentAccount.mockResolvedValueOnce({
+        student: { authUserId: invalidId, studentCode: 'ST-SUSPECT' },
+      })
+      const result = await createStudentsFromRoster({
+        classroomId: 'test-class',
+        rows: [row(2, 'student-one', 'Abcdefg123')],
+      })
+      expect(result.created).toHaveLength(0)
+      expect(result.failed).toHaveLength(1)
+      expect(result.failed[0].reason).toContain('Chưa xác nhận')
+      expect(mocks.createStudentAccount).toHaveBeenCalledTimes(1)
+    }
+  })
+
+  it('vẫn nhận chuỗi auth ID hợp lệ từ phản hồi dạng top-level', async () => {
+    mocks.createStudentAccount.mockResolvedValueOnce({ authUserId: '  auth-legacy-1  ' })
+    const result = await createStudentsFromRoster({
+      classroomId: 'test-class',
+      rows: [row(2, 'student-one', 'Abcdefg123')],
+    })
+    expect(result.created).toHaveLength(1)
+    expect(result.created[0].authUserId).toBe('auth-legacy-1')
+    expect(result.failed).toHaveLength(0)
+  })
+
   it('không retry credentials trong cùng batch sau lỗi remote không rõ kết quả', async () => {
     mocks.createStudentAccount.mockRejectedValueOnce(new Error('Mất mạng sau khi gửi'))
     const result = await createStudentsFromRoster({
