@@ -438,13 +438,15 @@ export async function createStudentsFromRoster(
       // Edge function teacher-student-admin trả về { student: { authUserId, studentCode, ... } }
       const payload = result as { student?: Record<string, unknown> } | null
       const student = payload?.student ?? null
-      const authUserId = String(
-        student?.authUserId ?? (payload as Record<string, unknown> | null)?.authUserId ?? '',
-      )
-      // HTTP success without an ID is not proof of account creation.
+      const rawAuthUserId =
+        student?.authUserId ?? (payload as Record<string, unknown> | null)?.authUserId
+      // Do not turn numbers or objects into bogus IDs like "42" or
+      // "[object Object]" when an upstream edge response is malformed.
+      const authUserId = typeof rawAuthUserId === 'string' ? rawAuthUserId.trim() : ''
+      // HTTP success without a usable ID is not proof of account creation.
       // Treat it as uncertain so the teacher checks the existing roster
       // instead of exporting a credential for an unverified student.
-      if (!authUserId.trim()) {
+      if (!authUserId) {
         throw new Error('Chưa xác nhận được mã tài khoản từ máy chủ. Hãy kiểm tra danh sách học sinh trước khi thử lại.')
       }
 
